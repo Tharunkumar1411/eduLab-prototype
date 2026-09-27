@@ -1,0 +1,8 @@
+{
+  "name": "Edulab",
+  "description": "Interactive Indian stock market playground and strategy trading lab. Learn investing by investigating financial cases and backtesting trading ideas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
