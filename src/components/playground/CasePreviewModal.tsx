@@ -28,7 +28,7 @@ export const CasePreviewModal: React.FC<CasePreviewModalProps> = ({
   onStartCase,
 }) => {
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-teal-500/40 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl relative">
         {/* Glow backdrop */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />

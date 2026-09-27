@@ -89,7 +89,7 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
     const selectedDecideOption = guidedLesson.decide.options.find(o => o.id === decideSelectedOptionId);
 
     return (
-      <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+      <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
         <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
           {/* Top Header with Duolingo-style Progress Bar */}
           <div className="px-5 py-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-4 shrink-0">
@@ -782,7 +782,7 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
   const isCorrect = selectedOption?.isCorrect ?? false;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
         <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-4">
           <button onClick={onClose} className="text-slate-500 hover:text-slate-300 transition-colors p-1">

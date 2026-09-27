@@ -180,35 +180,50 @@ Ask me any doubt, or click the proactive observation below to explore!`,
     <>
       {/* Floating Launcher Button with Proactive Insight Teaser */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
-          {/* Proactive hint teaser bubble */}
-          <div
-            onClick={() => {
-              setIsOpen(true);
-              setTimeout(() => inputRef.current?.focus(), 150);
-            }}
-            className="cursor-pointer max-w-[280px] sm:max-w-[340px] p-2.5 rounded-xl bg-slate-900/95 border border-teal-500/40 shadow-xl backdrop-blur-md text-xs text-slate-200 hover:border-teal-400 transition-all transform hover:-translate-y-0.5 group"
-          >
-            <div className="flex items-center justify-between gap-1.5 mb-1">
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-teal-400">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                <span>Fin's Insight · {proactiveHint.badge}</span>
-              </span>
-              <span className="text-[10px] text-slate-500 font-medium group-hover:text-teal-300">Tap to discuss →</span>
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-2">
+          {/* Proactive hint teaser bubble (desktop/tablet only to avoid cluttering mobile viewport, fully dismissible) */}
+          {!isHintDismissed && (
+            <div
+              onClick={() => {
+                setIsOpen(true);
+                setTimeout(() => inputRef.current?.focus(), 150);
+              }}
+              className="hidden sm:block cursor-pointer max-w-[280px] sm:max-w-[340px] p-2.5 rounded-xl bg-slate-900/95 border border-teal-500/40 shadow-xl backdrop-blur-md text-xs text-slate-200 hover:border-teal-400 transition-all transform hover:-translate-y-0.5 group"
+            >
+              <div className="flex items-center justify-between gap-1.5 mb-1">
+                <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-teal-400">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>Fin's Insight · {proactiveHint.badge}</span>
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-slate-500 font-medium group-hover:text-teal-300">Tap to discuss →</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDismissedHintId(proactiveHint.id);
+                    }}
+                    className="p-0.5 text-slate-500 hover:text-slate-200 rounded transition-colors text-xs"
+                    title="Dismiss teaser"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-snug line-clamp-2">
+                "{proactiveHint.hintText}"
+              </p>
             </div>
-            <p className="text-[11px] text-slate-300 leading-snug line-clamp-2">
-              "{proactiveHint.hintText}"
-            </p>
-          </div>
+          )}
 
           <button
             onClick={() => {
               setIsOpen(true);
               setTimeout(() => inputRef.current?.focus(), 150);
             }}
-            className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold text-xs shadow-2xl shadow-teal-950/60 border border-teal-400/40 transition-all transform hover:scale-105"
+            className="flex items-center gap-2 sm:gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold text-xs shadow-2xl shadow-teal-950/60 border border-teal-400/40 transition-all transform hover:scale-105 active:scale-95"
           >
-            <div className="w-6 h-6 rounded-full bg-slate-950/40 flex items-center justify-center font-bold text-amber-300">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-950/40 flex items-center justify-center font-bold text-amber-300 text-xs">
               🕵️
             </div>
             <span>Ask Inspector Fin</span>
@@ -220,7 +235,7 @@ Ask me any doubt, or click the proactive observation below to explore!`,
       {/* Slide-over / Modal Chat Window */}
       {isOpen && (
         <div
-          className={`fixed z-50 transition-all duration-300 flex flex-col bg-slate-900 border border-slate-700/80 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-md ${
+          className={`fixed z-[110] transition-all duration-300 flex flex-col bg-slate-900 border border-slate-700/80 shadow-2xl rounded-2xl overflow-hidden backdrop-blur-md ${
             isExpanded
               ? 'inset-4 sm:inset-10'
               : 'bottom-4 right-4 sm:bottom-6 sm:right-6 w-[94vw] sm:w-[450px] h-[600px] max-h-[85vh]'

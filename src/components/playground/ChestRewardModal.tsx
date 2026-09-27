@@ -26,7 +26,7 @@ export const ChestRewardModal: React.FC<ChestRewardModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-amber-500/40 rounded-2xl max-w-sm w-full p-6 text-center space-y-6 shadow-2xl relative overflow-hidden">
         {/* Glow backdrop */}
         <div className="absolute -top-20 -left-20 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
