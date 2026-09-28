@@ -560,10 +560,10 @@ export const TechToolsSimulator: React.FC<TechToolsSimulatorProps> = ({
 
           {/* Fin Mentor Card */}
           <div className="flex items-start gap-3.5 bg-slate-950/90 border border-slate-800 p-4 rounded-2xl">
-            <div className="w-14 h-14 shrink-0">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
               <CharacterMentor size="sm" state="talking" />
             </div>
-            <div className="flex-1 text-slate-200 text-xs sm:text-sm leading-relaxed pt-0.5">
+            <div className="flex-1 min-w-0 text-slate-200 text-xs sm:text-sm leading-relaxed pt-0.5">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold text-teal-400 text-xs uppercase tracking-wider">
                   Inspector Fin · Quick Orientation
@@ -1322,10 +1322,10 @@ export const TechToolsSimulator: React.FC<TechToolsSimulatorProps> = ({
 
             {/* Inspector Fin Coach Speech */}
             <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-xl flex items-center gap-3">
-              <div className="w-10 h-10 shrink-0">
-                <CharacterMentor size="sm" state="talking" />
+              <div className="w-10 h-10 shrink-0 flex items-center justify-center">
+                <CharacterMentor size="xs" state="talking" />
               </div>
-              <div className="text-xs text-slate-300">
+              <div className="flex-1 min-w-0 text-xs text-slate-300">
                 <span className="font-bold text-teal-400 block mb-0.5">Inspector Fin Coaching:</span>
                 <p>{simCoachMessage}</p>
               </div>

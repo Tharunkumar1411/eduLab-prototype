@@ -22,7 +22,8 @@ interface CharacterMentorProps {
   onHintClick?: () => void;
   showHintButton?: boolean;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
+  showNameTag?: boolean;
 }
 
 export const CharacterMentor: React.FC<CharacterMentorProps> = ({
@@ -33,14 +34,16 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
   showHintButton = false,
   className = '',
   size = 'md',
+  showNameTag = false,
 }) => {
   const gradientId = useId();
 
   // Size mapping
   const sizeClasses = {
-    sm: 'w-16 h-16',
-    md: 'w-24 h-24',
-    lg: 'w-32 h-32',
+    xs: 'w-10 h-10',
+    sm: 'w-12 h-12',
+    md: 'w-20 h-20 sm:w-24 sm:h-24',
+    lg: 'w-28 h-28 sm:w-32 sm:h-32',
   }[size];
 
   // Dynamic CSS animation classes based on character state
@@ -63,17 +66,57 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
     }
   };
 
-  return (
-    <div className={`flex items-start gap-4 ${className}`}>
-      {/* Mentor SVG Avatar Container */}
-      <div className="relative shrink-0 flex flex-col items-center">
-        <div className={`relative ${sizeClasses} select-none transition-transform duration-300`}>
-          <svg
-            viewBox="0 0 120 120"
-            className={`w-full h-full filter drop-shadow-md transition-all duration-300 ${getBodyMotionClass()}`}
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+  const animationStyles = (
+    <style>{`
+      @keyframes float-gentle {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-4px); }
+      }
+      @keyframes bounce-subtle {
+        0%, 100% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-3px) scale(1.02); }
+      }
+      @keyframes celebrate {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        25% { transform: translateY(-6px) rotate(-3deg); }
+        75% { transform: translateY(-6px) rotate(3deg); }
+      }
+      @keyframes tilt {
+        0%, 100% { transform: rotate(0deg); }
+        50% { transform: rotate(4deg) translateY(-2px); }
+      }
+      @keyframes wiggle {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-5deg); }
+        75% { transform: rotate(5deg); }
+      }
+      .animate-float-gentle {
+        animation: float-gentle 3.5s ease-in-out infinite;
+      }
+      .animate-bounce-subtle {
+        animation: bounce-subtle 1.8s ease-in-out infinite;
+      }
+      .animate-celebrate {
+        animation: celebrate 1.2s ease-in-out infinite;
+      }
+      .animate-tilt {
+        animation: tilt 2.5s ease-in-out infinite;
+      }
+      .animate-wiggle {
+        animation: wiggle 1s ease-in-out infinite;
+      }
+    `}</style>
+  );
+
+  const avatarNode = (
+    <div className={`relative shrink-0 flex flex-col items-center ${!message ? className : ''}`}>
+      <div className={`relative ${sizeClasses} select-none transition-transform duration-300 flex items-center justify-center`}>
+        <svg
+          viewBox="0 0 120 120"
+          className={`w-full h-full filter drop-shadow-md transition-all duration-300 ${getBodyMotionClass()}`}
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
             <defs>
               <linearGradient id={`${gradientId}-coat`} x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#1E293B" />
@@ -236,14 +279,29 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
           </svg>
         </div>
 
-        {/* Name tag */}
-        <span className="text-[11px] font-semibold text-teal-400 uppercase tracking-wider mt-1">
-          Inspector Fin
-        </span>
+        {/* Name tag - only rendered if explicitly requested */}
+        {showNameTag && (
+          <span className="text-[10px] sm:text-[11px] font-semibold text-teal-400 uppercase tracking-wider mt-1 text-center whitespace-nowrap">
+            Inspector Fin
+          </span>
+        )}
       </div>
+    );
 
-      {/* Dialogue Speech Bubble */}
-      {message && (
+    if (!message) {
+      return (
+        <>
+          {avatarNode}
+          {animationStyles}
+        </>
+      );
+    }
+
+    return (
+      <div className={`flex items-start gap-4 ${className}`}>
+        {avatarNode}
+
+        {/* Dialogue Speech Bubble */}
         <div className="flex-1 relative bg-slate-800/90 border border-slate-700 rounded-xl p-4 shadow-lg backdrop-blur-sm">
           {/* Arrow pointing to Fin */}
           <div className="absolute top-5 -left-2 w-3 h-3 bg-slate-800 border-l border-b border-slate-700 transform rotate-45" />
@@ -268,48 +326,7 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
             </button>
           )}
         </div>
-      )}
-
-      {/* Embedded CSS animations */}
-      <style>{`
-        @keyframes float-gentle {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-4px); }
-        }
-        @keyframes bounce-subtle {
-          0%, 100% { transform: translateY(0px) scale(1); }
-          50% { transform: translateY(-3px) scale(1.02); }
-        }
-        @keyframes celebrate {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          25% { transform: translateY(-6px) rotate(-3deg); }
-          75% { transform: translateY(-6px) rotate(3deg); }
-        }
-        @keyframes tilt {
-          0%, 100% { transform: rotate(0deg); }
-          50% { transform: rotate(4deg) translateY(-2px); }
-        }
-        @keyframes wiggle {
-          0%, 100% { transform: rotate(0deg); }
-          25% { transform: rotate(-5deg); }
-          75% { transform: rotate(5deg); }
-        }
-        .animate-float-gentle {
-          animation: float-gentle 3.5s ease-in-out infinite;
-        }
-        .animate-bounce-subtle {
-          animation: bounce-subtle 1.8s ease-in-out infinite;
-        }
-        .animate-celebrate {
-          animation: celebrate 1.2s ease-in-out infinite;
-        }
-        .animate-tilt {
-          animation: tilt 2.5s ease-in-out infinite;
-        }
-        .animate-wiggle {
-          animation: wiggle 1s ease-in-out infinite;
-        }
-      `}</style>
-    </div>
-  );
+        {animationStyles}
+      </div>
+    );
 };

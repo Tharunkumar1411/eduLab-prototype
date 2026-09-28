@@ -459,13 +459,13 @@ export const BeginnerTradingLab: React.FC<BeginnerTradingLabProps> = ({
 
       {/* Inspector Fin as Learning Guide */}
       <div className="flex items-start gap-3.5 bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-sm">
-        <div className="w-12 h-12 shrink-0">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
           <CharacterMentor
             size="sm"
             state={currentStep === 'done' ? 'celebrating' : 'talking'}
           />
         </div>
-        <div className="text-xs text-slate-300 leading-relaxed pt-0.5">
+        <div className="flex-1 min-w-0 text-xs text-slate-300 leading-relaxed pt-0.5">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-bold text-teal-400 uppercase tracking-wider text-[11px]">
               Inspector Fin · Learning Guide

@@ -149,10 +149,10 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
               <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {/* Inspector Fin Speech Bubble */}
                 <div className="flex items-start gap-3.5 bg-slate-950/90 border border-slate-800 p-4 rounded-2xl shadow-sm">
-                  <div className="w-14 h-14 shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
                     <CharacterMentor size="sm" state="talking" />
                   </div>
-                  <div className="flex-1 text-slate-200 text-xs sm:text-sm leading-relaxed pt-0.5">
+                  <div className="flex-1 min-w-0 text-slate-200 text-xs sm:text-sm leading-relaxed pt-0.5">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-teal-400 text-xs uppercase tracking-wider">
                         Inspector Fin · Concept Coach
@@ -222,10 +222,10 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
             {currentStage === 'see' && (
               <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex items-start gap-3.5 bg-slate-950/90 border border-slate-800 p-4 rounded-2xl">
-                  <div className="w-14 h-14 shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
                     <CharacterMentor size="sm" state="thinking" />
                   </div>
-                  <div className="flex-1 text-slate-300 text-xs sm:text-sm leading-relaxed pt-0.5">
+                  <div className="flex-1 min-w-0 text-slate-300 text-xs sm:text-sm leading-relaxed pt-0.5">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-teal-400 text-xs uppercase tracking-wider">
                         Visual Breakdown
@@ -363,7 +363,7 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
             {currentStage === 'try' && (
               <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex items-start gap-3.5 bg-slate-950/90 border border-slate-800 p-4 rounded-2xl">
-                  <div className="w-14 h-14 shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
                     <CharacterMentor
                       size="sm"
                       state={
@@ -375,7 +375,7 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
                       }
                     />
                   </div>
-                  <div className="flex-1 text-slate-300 text-xs sm:text-sm leading-relaxed pt-0.5">
+                  <div className="flex-1 min-w-0 text-slate-300 text-xs sm:text-sm leading-relaxed pt-0.5">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-teal-400 text-xs uppercase tracking-wider">
                         Interactive Mini-Game
@@ -491,10 +491,10 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
             {currentStage === 'decide' && (
               <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="flex items-start gap-3.5 bg-slate-950/90 border border-slate-800 p-4 rounded-2xl">
-                  <div className="w-14 h-14 shrink-0">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center">
                     <CharacterMentor size="sm" state="thinking" />
                   </div>
-                  <div className="flex-1 text-slate-300 text-xs sm:text-sm leading-relaxed pt-0.5">
+                  <div className="flex-1 min-w-0 text-slate-300 text-xs sm:text-sm leading-relaxed pt-0.5">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-amber-400 text-xs uppercase tracking-wider">
                         Investigative Dilemma
@@ -804,13 +804,13 @@ export const MicroLessonModal: React.FC<MicroLessonModalProps> = ({
           {!quizFinished && currentQ ? (
             <>
               <div className="flex items-start gap-3 bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl">
-                <div className="w-12 h-12 shrink-0">
+                <div className="w-12 h-12 shrink-0 flex items-center justify-center">
                   <CharacterMentor
                     size="sm"
                     state={quizSubmitted ? (isCorrect ? 'celebrating' : 'confused') : 'talking'}
                   />
                 </div>
-                <div className="text-xs text-slate-300 leading-relaxed pt-1">
+                <div className="flex-1 min-w-0 text-xs text-slate-300 leading-relaxed pt-1">
                   <span className="font-semibold text-teal-400 block mb-0.5">{node.title}</span>
                   {quizSubmitted
                     ? isCorrect
