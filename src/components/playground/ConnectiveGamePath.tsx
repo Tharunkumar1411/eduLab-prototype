@@ -78,9 +78,9 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
 
   const currentUnit = LEARNING_UNITS.find(u => u.id === activeUnitId) || LEARNING_UNITS[0];
 
-  // Alternating horizontal horizontal offsets for the serpentine path
+  // Alternating horizontal offsets for the serpentine path
   // [0 = center, -1 = left, -2 = far-left, 0 = center, 1 = right, 2 = far-right]
-  const offsetPattern = [0, -45, -75, -45, 0, 45, 75, 45];
+  const offsetPattern = [0, -32, -55, -32, 0, 32, 55, 32];
   const getNodeOffset = (index: number) => {
     return offsetPattern[index % offsetPattern.length];
   };
@@ -195,10 +195,10 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
           {currentUnit.nodes.map((node, i) => {
             if (i === currentUnit.nodes.length - 1) return null;
             const nextNode = currentUnit.nodes[i + 1];
-            const y1 = i * 110 + 40;
-            const y2 = (i + 1) * 110 + 40;
-            const x1 = 50 + getNodeOffset(node.nodeIndex) * 0.25;
-            const x2 = 50 + getNodeOffset(nextNode.nodeIndex) * 0.25;
+            const y1 = i * 155 + 46;
+            const y2 = (i + 1) * 155 + 46;
+            const x1 = 50 + getNodeOffset(node.nodeIndex) * 0.22;
+            const x2 = 50 + getNodeOffset(nextNode.nodeIndex) * 0.22;
 
             return (
               <path
@@ -206,7 +206,7 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
                 d={`M ${x1}% ${y1}px C ${x1}% ${(y1 + y2) / 2}px, ${x2}% ${(y1 + y2) / 2}px, ${x2}% ${y2}px`}
                 fill="none"
                 stroke="#334155"
-                strokeWidth="12"
+                strokeWidth="10"
                 strokeLinecap="round"
                 strokeDasharray="4 8"
               />
@@ -215,7 +215,7 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
         </svg>
 
         {/* Nodes Column */}
-        <div className="relative z-10 w-full flex flex-col items-center space-y-16">
+        <div className="relative z-10 w-full flex flex-col items-center space-y-22 sm:space-y-24">
           {currentUnit.nodes.map((node, idx) => {
             const isCompleted = completedNodeIds.includes(node.id);
             const isActive = activeNode?.id === node.id;
@@ -232,24 +232,22 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
                   transform: `translateX(${horizontalOffset}px)`,
                 }}
               >
-                {/* Active Halo & START Bubble */}
+                {/* Active START Speech Bubble */}
                 {isActive && (
-                  <div className="absolute -top-12 z-20 flex flex-col items-center animate-bounce-subtle pointer-events-none">
-                    <div className="bg-teal-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-xl shadow-lg border border-teal-300 flex items-center gap-1 uppercase tracking-wider">
-                      <Play className="w-3 h-3 fill-slate-950" />
-                      <span>START · +{node.xpReward} XP</span>
+                  <div className="absolute -top-11 z-20 flex flex-col items-center pointer-events-none animate-bounce-subtle">
+                    <div className="bg-teal-400 text-slate-950 font-black text-[11px] px-3.5 py-1 rounded-xl shadow-lg border border-teal-200 flex items-center gap-1.5 whitespace-nowrap uppercase tracking-wider">
+                      <Play className="w-3 h-3 fill-slate-950 shrink-0" />
+                      <span>START</span>
+                      <span className="text-[10px] font-bold text-teal-950/80">· +{node.xpReward} XP</span>
                     </div>
                     {/* Small triangle arrow */}
-                    <div className="w-2.5 h-2.5 bg-teal-500 transform rotate-45 -mt-1.5 shadow-md" />
+                    <div className="w-2.5 h-2.5 bg-teal-400 transform rotate-45 -mt-1.5 shadow-xs" />
                   </div>
                 )}
 
-                {/* Concentric Halo Ring for Active Node (Just like Duolingo screenshot!) */}
+                {/* Clean, Subtle Glow Ring for Active Node */}
                 {isActive && (
-                  <div className="absolute -inset-3.5 rounded-full border-4 border-teal-400/80 animate-ping opacity-30 pointer-events-none" />
-                )}
-                {isActive && (
-                  <div className="absolute -inset-2.5 rounded-full border-2 border-dashed border-teal-400/90 pointer-events-none animate-spin [animation-duration:14s]" />
+                  <div className="absolute -inset-2.5 rounded-full border-2 border-teal-400/60 animate-pulse pointer-events-none" />
                 )}
 
                 {/* 3D Round Node Button */}
@@ -281,16 +279,16 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
                 </button>
 
                 {/* Node Title Label under button */}
-                <div className="absolute top-[82px] z-10 text-center pointer-events-none w-40 -translate-x-1/2 left-1/2">
+                <div className="absolute top-[88px] sm:top-[94px] z-10 text-center pointer-events-none -translate-x-1/2 left-1/2">
                   <span
-                    className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold truncate max-w-[160px] border shadow-sm ${
+                    className={`inline-block px-3 py-1 rounded-full text-[11px] font-bold border shadow-md backdrop-blur-md whitespace-nowrap ${
                       node.type === 'case'
-                        ? 'bg-amber-950/90 border-amber-600/60 text-amber-300'
+                        ? 'bg-amber-950/90 border-amber-500/60 text-amber-300'
                         : isCompleted
-                        ? 'bg-slate-900/90 border-slate-750 text-slate-300'
+                        ? 'bg-slate-900/95 border-slate-750 text-slate-300'
                         : isActive
-                        ? 'bg-slate-900 border-teal-500/80 text-teal-300'
-                        : 'bg-slate-950/80 border-slate-800 text-slate-500'
+                        ? 'bg-slate-900/95 border-teal-400 text-teal-300 ring-1 ring-teal-400/30'
+                        : 'bg-slate-950/85 border-slate-800 text-slate-500'
                     }`}
                   >
                     {node.type === 'case' ? (
@@ -305,31 +303,10 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
 
                 {/* Completed 3 Mini Stars underneath */}
                 {isCompleted && node.type !== 'chest' && (
-                  <div className="absolute -bottom-7 flex items-center gap-0.5">
+                  <div className="absolute -bottom-8 flex items-center gap-0.5">
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 -translate-y-0.5" />
                     <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  </div>
-                )}
-
-                {/* Side Character Mascot (Inspector Fin) standing on the road next to the active node */}
-                {isActive && (
-                  <div
-                    className={`absolute hidden md:flex items-center gap-2 z-20 ${
-                      horizontalOffset < 0 ? 'left-24' : 'right-24'
-                    }`}
-                  >
-                    <div className="w-16 h-16 shrink-0">
-                      <CharacterMentor size="sm" state="happy" />
-                    </div>
-                    <div className="bg-slate-900 border border-teal-500/50 rounded-xl px-3 py-2 text-[11px] text-slate-200 font-semibold shadow-xl max-w-[160px] relative">
-                      <div
-                        className={`absolute top-4 w-2 h-2 bg-slate-900 border-t border-l border-teal-500/50 transform rotate-45 ${
-                          horizontalOffset < 0 ? '-left-1' : '-right-1'
-                        }`}
-                      />
-                      <span>Let's crack: "{node.title}"!</span>
-                    </div>
                   </div>
                 )}
               </div>
