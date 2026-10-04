@@ -16,6 +16,22 @@ export interface ProactiveHint {
 }
 
 export function generateProactiveHint(context: ChatContext): ProactiveHint {
+  // 0. HOME PILLAR HINTS
+  if (context.currentPillar === 'home') {
+    return {
+      id: 'home_daily_curiosity',
+      badge: 'Daily Sleuth',
+      category: 'forensics',
+      title: 'The 30% Growth Mystery',
+      hintText: 'Welcome to FinDo! Start today by exploring "The 30% Growth Mystery": uncover why a 30% profit jump caused a 12% stock dump. Clue: look at one-off real estate asset sales versus real operating cash flow.',
+      suggestedPrompts: [
+        'Why would a company’s stock fall when its profit went up 30%?',
+        'What is an Index like NIFTY 50 and why did it move today?',
+        'How do technology companies make money compared to banks?',
+      ],
+    };
+  }
+
   // 1. PLAYGROUND PILLAR HINTS
   if (context.currentPillar === 'playground') {
     const {

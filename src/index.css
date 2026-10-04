@@ -6,12 +6,48 @@
     --font-mono: 'JetBrains Mono', monospace;
   }
 
+  /* Light mode overrides */
+  html.light {
+    color-scheme: light;
+
+    /* Invert Slate scale for rich light mode surfaces & text */
+    --color-slate-950: #f8fafc;
+    --color-slate-900: #ffffff;
+    --color-slate-850: #f1f5f9;
+    --color-slate-800: #e2e8f0;
+    --color-slate-750: #cbd5e1;
+    --color-slate-700: #94a3b8;
+    --color-slate-600: #64748b;
+    --color-slate-500: #475569;
+    --color-slate-400: #334155;
+    --color-slate-300: #1e293b;
+    --color-slate-200: #0f172a;
+    --color-slate-100: #020617;
+
+    /* Soft pastel card insets */
+    --color-teal-950: #f0fdfa;
+    --color-emerald-950: #ecfdf5;
+    --color-amber-950: #fffbeb;
+    --color-rose-950: #fff1f2;
+
+    /* High-contrast accessible accents for white backgrounds */
+    --color-teal-400: #0d9488;
+    --color-teal-300: #0f766e;
+    --color-emerald-400: #059669;
+    --color-emerald-300: #047857;
+    --color-amber-400: #d97706;
+    --color-amber-300: #b45309;
+    --color-rose-400: #e11d48;
+    --color-rose-300: #be123c;
+  }
+
   body {
     font-family: var(--font-sans);
-    background-color: #0b0f19;
-    color: #f1f5f9;
+    background-color: var(--color-slate-950, #0b0f19);
+    color: var(--color-slate-100, #f1f5f9);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
@@ -26,12 +62,23 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: var(--color-slate-950, #0f172a);
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--color-slate-700, #334155);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--color-slate-600, #475569);
+}
+
+/* Subtle card elevation in light mode */
+html.light .bg-slate-900 {
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+}
+
+/* Smooth selection colors */
+::selection {
+  background-color: #14b8a6;
+  color: #ffffff;
 }

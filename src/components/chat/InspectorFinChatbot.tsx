@@ -19,7 +19,7 @@ export interface ChatMessage {
 }
 
 export interface ChatContext {
-  currentPillar: 'playground' | 'tools';
+  currentPillar: 'home' | 'playground' | 'tools';
   // Playground
   activeCaseId?: string;
   activeCaseTitle?: string;
@@ -180,7 +180,7 @@ Ask me any doubt, or click the proactive observation below to explore!`,
     <>
       {/* Floating Launcher Button with Proactive Insight Teaser */}
       {!isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-2">
+        <div className="fixed bottom-18 sm:bottom-6 right-4 sm:right-6 z-40 flex flex-col items-end gap-2">
           {/* Proactive hint teaser bubble (desktop/tablet only to avoid cluttering mobile viewport, fully dismissible) */}
           {!isHintDismissed && (
             <div

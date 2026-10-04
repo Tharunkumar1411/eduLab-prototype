@@ -256,4 +256,126 @@ Yet, over the last 7 years, Kaveri has delivered a 24% CAGR return. Investigate 
       },
     ],
   },
+  {
+    id: 'case_30pct_growth_mystery',
+    title: 'The 30% Growth Mystery',
+    companyName: 'Aura Lifestyle Retail Ltd.',
+    ticker: 'AURALIFE',
+    industry: 'Branded Apparel & E-Commerce Retail',
+    level: 1,
+    levelTitle: "Today's Daily Mystery",
+    xpReward: 350,
+    estimatedMinutes: 5,
+    hook: 'A company increased its net profit by 30%. But its stock fell 12% the very next morning. What happened?',
+    scenarioDescription: `Aura Lifestyle Retail released its audited Q2 financial scorecard to Dalal Street. Headlines celebrated a 30% surge in net profit to ₹145 Crores.
+
+Yet, as soon as the market opened at 9:15 AM, institutional investors aggressively dumped the stock, sending the shares down 12% in heavy volume.
+
+Retail investors on social media were completely baffled: "Why would a company with 30% profit growth get punished?"
+
+As a financial detective, you have 3 investigation tokens. Inspect the clues in the evidence room to uncover the truth behind the 30% profit number.`,
+    stockChartSummary: {
+      period: 'Announcement Day',
+      gain: '-12.4%',
+      flatPeriod: 'Pre-result: ₹420 -> Post-result: ₹368',
+      currentPrice: '₹368.10',
+    },
+    actionPointsMax: 3,
+    clues: [
+      {
+        id: 'clue_extraordinary_item',
+        category: 'Earnings',
+        title: '🔍 Inspect Other Income & Extraordinary Items',
+        metricLabel: 'One-off Land Sale vs Core Retail Earnings',
+        metricValue: '₹65 Cr Profit from Bandra Showroom Sale',
+        summary: 'More than 45% of the reported quarterly profit came from a one-time commercial property sale, not from selling clothes.',
+        deepDive: 'Aura sold a legacy flagship showroom in Mumbai, booking a non-recurring windfall profit of ₹65 Crores into this quarter’s income statement. Without this asset liquidation, core business net profit actually shrank by 18% YoY.',
+        implication: 'concern',
+        tags: ['One-Off Income', 'Quality of Earnings'],
+      },
+      {
+        id: 'clue_operating_margins',
+        category: 'Earnings',
+        title: '🔍 Inspect Core Operating Margins (EBITDA)',
+        metricLabel: 'Operating Margin Before Other Income',
+        metricValue: '7.2% (collapsed from 16.5% YoY)',
+        summary: 'To clear unsold inventory from last season, Aura launched 40% discount promos, causing operating margins to collapse.',
+        deepDive: 'Gross margins shrunk as cotton costs rose while selling prices were slashed. Because operating expenses (store leases, employee salaries, and marketing) remained fixed, operating margins took a severe hit.',
+        implication: 'concern',
+        tags: ['Margin Compression', 'Discount Price War'],
+      },
+      {
+        id: 'clue_cash_flow',
+        category: 'Cash Flow',
+        title: '🔍 Inspect Operating Cash Flow vs Profit',
+        metricLabel: 'Operating Cash Flow (OCF)',
+        metricValue: '-₹48 Crores (Negative Cash Generation)',
+        summary: 'Despite reporting ₹145 Cr in accounting profit, actual cash received from business operations was negative ₹48 Cr.',
+        deepDive: 'The company extended 150-day credit terms to department store chains to push seasonal inventory into channels. The accounting books counted those sales as revenue, but zero rupees had arrived in the company bank account.',
+        implication: 'concern',
+        tags: ['Negative Cash Flow', 'Working Capital Trap'],
+      },
+      {
+        id: 'clue_short_term_debt',
+        category: 'Debt',
+        title: '🔍 Inspect Short-Term Borrowings',
+        metricLabel: 'Working Capital Bank Overdrafts',
+        metricValue: '₹280 Cr (surged 85% YoY)',
+        summary: 'Because customer cash had not arrived, Aura took high-interest 10.2% short-term bank loans to pay textile suppliers and staff.',
+        deepDive: 'Finance costs surged from ₹9 Cr to ₹24 Cr this quarter. Debt taken to finance inventory that isn’t selling creates significant solvency risk if retail spending slows down.',
+        implication: 'concern',
+        tags: ['Leverage Surge', 'Interest Burden'],
+      },
+      {
+        id: 'clue_guidance',
+        category: 'Industry',
+        title: '🔍 Inspect Management Forward Guidance',
+        metricLabel: 'Management Q3 Footfall & Revenue Outlook',
+        metricValue: 'Guiding for 10% Contraction in Footfalls',
+        summary: 'During the post-earnings investor call, management warned that mall footfalls in Tier-1 cities had declined 10% in the current month.',
+        deepDive: 'Stock markets are forward-looking engines. When management warns that next quarter will see weaker consumer footfall and ongoing discounting, analysts instantly downgrade their full-year earnings models.',
+        implication: 'concern',
+        tags: ['Weak Guidance', 'Demand Slowdown'],
+      },
+    ],
+    decisions: [
+      {
+        id: 'dec_accounting_mirage',
+        label: '🔴 Concern: Profit was a one-off accounting mirage from selling real estate',
+        stance: 'concern',
+        thesisSummary: 'The 30% profit jump was driven by a non-recurring ₹65 Cr land sale. Core retail operations actually shrank 18%, operating cash flow was negative, and short-term debt rose 85%.',
+        reasoningScore: 98,
+        debriefAnalysis: `Brilliant forensic deduction! You cracked the mystery that tricked retail headlines.
+        
+Dalal Street dumped the stock because institutional analysts immediately saw that the 30% profit jump was a non-repeatable accounting artifact from selling a showroom. The real retail business suffered margin collapse, negative operating cash flow, and surging debt.`,
+        marketOutcome: 'Over the following 3 months, Aura’s stock slid another 18% as the absence of land sales exposed the underlying retail losses in Q3.',
+        coreLesson: 'Always distinguish between core operating earnings and one-off extraordinary items. A company cannot sell its corporate property every quarter to report profit!',
+      },
+      {
+        id: 'dec_need_evidence',
+        label: '🟡 Wait: Need to see if Q3 core retail operations stabilize without asset sales',
+        stance: 'evidence_needed',
+        thesisSummary: 'Acknowledge the one-off property sale distortion, but wait for next quarter to see if discount clearances successfully cleared inventory backlogs.',
+        reasoningScore: 82,
+        debriefAnalysis: `Thoughtful and disciplined approach! You correctly spotted the one-off property sale distortion and chose not to buy the 12% dip blindly.
+        
+A disciplined investor never rushes into a stock experiencing margin deterioration until the management proves inventory has normalized.`,
+        marketOutcome: 'Waiting preserved your capital as the stock continued to drift lower over the subsequent 90 days.',
+        coreLesson: 'When a stock drops on heavy volume after "good" headline news, the market knows something the headline missed. Wait for confirmation before acting.',
+      },
+      {
+        id: 'dec_buy_the_dip',
+        label: '🟢 Stronger: 30% profit is great; the 12% drop is an irrational panic to buy',
+        stance: 'stronger',
+        thesisSummary: 'A company posting 30% profit growth should be celebrated. The 12% drop is pure market noise and an attractive discount.',
+        reasoningScore: 35,
+        debriefAnalysis: `You anchored solely on the top-line headline number (+30% profit) without inspecting the quality of that profit.
+        
+45% of that profit was a non-operating land sale. Meanwhile, the actual retail business burned ₹48 Cr of cash and had to take expensive bank loans to survive.`,
+        marketOutcome: 'Investors who bought the dip suffered another 18% loss over the next two quarters as brokerages downgraded Aura to a Sell rating.',
+        coreLesson: 'Headline profit numbers can be legally manipulated by selling assets or tweaking accounting lines. True business health lives in operating cash flow.',
+      },
+    ],
+  },
 ];
+

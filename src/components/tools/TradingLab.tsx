@@ -47,12 +47,21 @@ export interface LabProgress {
 interface TradingLabProps {
   onGoToPlayground: () => void;
   onLabStateUpdate?: (progress: LabProgress) => void;
+  initialStockSymbol?: string;
 }
 
 type LabTab = 'explorer' | 'tech_tools' | 'builder' | 'results' | 'comparison' | 'calculators';
 
-export const TradingLab: React.FC<TradingLabProps> = ({ onGoToPlayground, onLabStateUpdate }) => {
-  const [selectedStock, setSelectedStock] = useState<StockInfo>(INDIAN_STOCKS[0]);
+export const TradingLab: React.FC<TradingLabProps> = ({
+  onGoToPlayground,
+  onLabStateUpdate,
+  initialStockSymbol,
+}) => {
+  const initialStock = initialStockSymbol
+    ? INDIAN_STOCKS.find((s) => s.symbol === initialStockSymbol) || INDIAN_STOCKS[0]
+    : INDIAN_STOCKS[0];
+
+  const [selectedStock, setSelectedStock] = useState<StockInfo>(initialStock);
   const [activeTab, setActiveTab] = useState<LabTab>('explorer');
   const [isAdvancedMode, setIsAdvancedMode] = useState<boolean>(false);
 
@@ -60,6 +69,14 @@ export const TradingLab: React.FC<TradingLabProps> = ({ onGoToPlayground, onLabS
   const [currentStrategy, setCurrentStrategy] = useState<Strategy>(STRATEGY_PRESETS[0]);
   const [baselineResult, setBaselineResult] = useState<BacktestResult | null>(null);
   const [experimentResult, setExperimentResult] = useState<BacktestResult | null>(null);
+
+  // Update selected stock if initialStockSymbol changes
+  React.useEffect(() => {
+    if (initialStockSymbol) {
+      const match = INDIAN_STOCKS.find((s) => s.symbol === initialStockSymbol);
+      if (match) setSelectedStock(match);
+    }
+  }, [initialStockSymbol]);
 
   // Sync state to parent / ChatContext
   React.useEffect(() => {

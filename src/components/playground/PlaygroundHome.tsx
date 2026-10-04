@@ -16,6 +16,8 @@ interface PlaygroundHomeProps {
   onCompleteNode: (nodeId: string, xpEarned: number) => void;
   onSelectCase: (caseItem: PlaygroundCase) => void;
   onGoToTradingLab: () => void;
+  initialOpenNode?: any | null;
+  onClearInitialNode?: () => void;
 }
 
 export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
@@ -26,6 +28,8 @@ export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
   onCompleteNode,
   onSelectCase,
   onGoToTradingLab,
+  initialOpenNode,
+  onClearInitialNode,
 }) => {
   return (
     <div className="w-full">
@@ -37,6 +41,8 @@ export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
         onCompleteNode={onCompleteNode}
         onSelectCase={onSelectCase}
         onGoToTradingLab={onGoToTradingLab}
+        initialOpenNode={initialOpenNode}
+        onClearInitialNode={onClearInitialNode}
       />
     </div>
   );

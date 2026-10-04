@@ -38,6 +38,8 @@ interface ConnectiveGamePathProps {
   onCompleteNode: (nodeId: string, xpEarned: number) => void;
   onSelectCase: (caseItem: PlaygroundCase) => void;
   onGoToTradingLab: () => void;
+  initialOpenNode?: PathNode | null;
+  onClearInitialNode?: () => void;
 }
 
 export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
@@ -48,6 +50,8 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
   onCompleteNode,
   onSelectCase,
   onGoToTradingLab,
+  initialOpenNode,
+  onClearInitialNode,
 }) => {
   const [selectedLessonNode, setSelectedLessonNode] = useState<PathNode | null>(null);
   const [selectedChestNode, setSelectedChestNode] = useState<PathNode | null>(null);
@@ -58,6 +62,24 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
     isCompleted: boolean;
   } | null>(null);
   const [activeGuidebookUnit, setActiveGuidebookUnit] = useState<UnitSection | null>(null);
+
+  // Automatically trigger lesson if coming from Home screen
+  React.useEffect(() => {
+    if (initialOpenNode) {
+      if (initialOpenNode.type === 'lesson' || initialOpenNode.type === 'challenge') {
+        setSelectedLessonNode(initialOpenNode);
+      } else if (initialOpenNode.type === 'case') {
+        const matchedCase = PLAYGROUND_CASES.find(c => c.id === initialOpenNode.caseId) || PLAYGROUND_CASES[0];
+        setSelectedCasePreview({
+          node: initialOpenNode,
+          caseData: matchedCase,
+          isLocked: false,
+          isCompleted: completedNodeIds.includes(initialOpenNode.id),
+        });
+      }
+      onClearInitialNode?.();
+    }
+  }, [initialOpenNode]);
 
   // Flatten all nodes across units to compute global index & active node
   const allNodes = LEARNING_UNITS.flatMap(u => u.nodes);
