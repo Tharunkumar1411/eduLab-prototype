@@ -5,7 +5,7 @@ import { SectorDetail, MarketStory } from '../../data/homeData.ts';
 import { HomeHeader } from './HomeHeader.tsx';
 import { ContinueLearningCard } from './ContinueLearningCard.tsx';
 import { TodayCaseCard } from './TodayCaseCard.tsx';
-import { MarketTodaySection } from './MarketTodaySection.tsx';
+import { MarketTickerChips } from './MarketTickerChips.tsx';
 import { ExploreMarketsSection } from './ExploreMarketsSection.tsx';
 import { MarketStoriesSection } from './MarketStoriesSection.tsx';
 import { MarketDetailModal } from './MarketDetailModal.tsx';
@@ -75,7 +75,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
     PLAYGROUND_CASES[0];
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-7 pb-16 sm:pb-8 animate-in fade-in duration-300">
+    <div className="w-full max-w-4xl mx-auto space-y-6 pb-16 sm:pb-8 animate-in fade-in duration-300">
+      {/* Top Auto-Running Live Market Chips Section */}
+      <MarketTickerChips
+        onExploreMarket={() => setIsMarketModalOpen(true)}
+      />
+
       {/* 1. Header / Greeting */}
       <HomeHeader
         userXp={userXp}
@@ -99,12 +104,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         onInvestigate={onInvestigateCase}
       />
 
-      {/* 4. Market Today */}
-      <MarketTodaySection
-        onExploreMarket={() => setIsMarketModalOpen(true)}
-      />
-
-      {/* 5. Explore Markets */}
+      {/* 4. Explore Markets */}
       <ExploreMarketsSection
         onSelectSector={(sector) => setSelectedSector(sector)}
       />

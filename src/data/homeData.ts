@@ -78,6 +78,26 @@ export const TODAY_MARKET_INDEXES: MarketIndex[] = [
     todayDriver: 'Consolidated quietly after reaching record highs earlier this week, as short-term traders booked profits ahead of RBI monetary policy minutes.',
     educationalTakeaway: 'Sectoral indexes are more volatile than broad indexes because all constituent companies face the same industry cycles and interest rate shifts.',
   },
+  {
+    id: 'nifty_it',
+    name: 'NIFTY IT',
+    value: '35,840.15',
+    change: '-1.1%',
+    isPositive: false,
+    whatItIs: 'Tracks 10 major Indian technology export leaders like TCS, Infosys, and HCL Tech.',
+    todayDriver: 'Software exporters dipped following cautious tech enterprise spending commentary from Wall Street earnings.',
+    educationalTakeaway: 'Indian IT firms earn most revenues in USD ($) and EUR (€), making them sensitive to global exchange rates and US corporate IT budgets.',
+  },
+  {
+    id: 'india_vix',
+    name: 'INDIA VIX',
+    value: '13.42',
+    change: '-3.2%',
+    isPositive: false,
+    whatItIs: 'The volatility index measuring market fear and expected near-term fluctuations over the next 30 calendar days.',
+    todayDriver: 'Fell 3.2% as traders expect smooth, orderly trading with low immediate panic.',
+    educationalTakeaway: 'A low VIX (under 15) indicates complacency or calm markets, whereas a spike above 22 warns of sharp market swings.',
+  },
 ];
 
 export const EXPLORE_SECTORS: SectorDetail[] = [
