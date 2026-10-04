@@ -83,36 +83,36 @@ export const HomeView: React.FC<HomeViewProps> = ({
         onExploreMarket={() => setIsMarketModalOpen(true)}
       />
 
-      {/* Interactive AI Mentor Chat Option (replaces good morning header) */}
-      <HomeAiChatSection
-        userXp={userXp}
-        userLevel={userLevel}
-        streakDays={streakDays}
-        isSimulatingNewUser={isNewUser}
-        onToggleUserMode={toggleUserMode}
-        onAskAi={onAskAi}
-      />
-
-      {/* 2. Continue Learning / Start Learning */}
+      {/* 1. Start Learning / Continue Learning */}
       <ContinueLearningCard
         isNewUser={isNewUser}
         currentNode={currentNode}
         progressPercent={progressPercent}
+        streakDays={streakDays}
+        userLevel={userLevel}
+        userXp={userXp}
+        isSimulatingNewUser={isNewUser}
+        onToggleUserMode={toggleUserMode}
         onStartOrContinue={onStartOrContinueLesson}
       />
 
-      {/* 3. Today's Case (Hero element) */}
+      {/* 2. Explore Market */}
+      <ExploreMarketsSection
+        onSelectSector={(sector) => setSelectedSector(sector)}
+      />
+
+      {/* 3. Chat Mentor */}
+      <HomeAiChatSection
+        onAskAi={onAskAi}
+      />
+
+      {/* 4. Investigation */}
       <TodayCaseCard
         caseData={todayCase}
         onInvestigate={onInvestigateCase}
       />
 
-      {/* 4. Explore Markets */}
-      <ExploreMarketsSection
-        onSelectSector={(sector) => setSelectedSector(sector)}
-      />
-
-      {/* 6. Market Stories */}
+      {/* 5. Market News & Stories */}
       <MarketStoriesSection
         onSelectStory={(story) => setSelectedStory(story)}
       />

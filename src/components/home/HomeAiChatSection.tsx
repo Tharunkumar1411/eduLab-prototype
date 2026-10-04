@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import { Bot, Flame, Sparkles, Send, ArrowRight, ToggleLeft, ToggleRight, HelpCircle } from 'lucide-react';
+import { Bot, Sparkles, Send, ArrowRight } from 'lucide-react';
 
 interface HomeAiChatSectionProps {
-  userXp: number;
-  userLevel: number;
-  streakDays: number;
-  isSimulatingNewUser: boolean;
-  onToggleUserMode: () => void;
   onAskAi: (prompt: string) => void;
 }
 
@@ -33,14 +28,7 @@ const POPULAR_AI_PROMPTS = [
   },
 ];
 
-export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({
-  userXp,
-  userLevel,
-  streakDays,
-  isSimulatingNewUser,
-  onToggleUserMode,
-  onAskAi,
-}) => {
+export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({ onAskAi }) => {
   const [query, setQuery] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,10 +39,9 @@ export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({
   };
 
   return (
-    <div className="rounded-3xl bg-slate-900/90 border border-slate-800/90 p-5 sm:p-6 shadow-xl space-y-4">
-      {/* Top Header Row with AI Branding & User Progress Badges */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        {/* Left: AI Mentor identity */}
+    <div className="rounded-3xl bg-slate-900/90 border border-slate-800/90 p-5 sm:p-6 shadow-md space-y-4">
+      {/* Header: Pure AI Mentor Identity */}
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-teal-900/30 shrink-0">
             <Bot className="w-5 h-5" />
@@ -64,7 +51,7 @@ export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-100 tracking-tight">
                 FinCraft AI Mentor
               </h2>
-              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-[10px] font-semibold text-teal-400">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-[10px] font-semibold text-teal-400">
                 <Sparkles className="w-2.5 h-2.5" />
                 Gemini 3.5
               </span>
@@ -73,42 +60,6 @@ export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({
               Ask any doubt about stocks, ratios, balance sheets, or market cases.
             </p>
           </div>
-        </div>
-
-        {/* Right: Progress streak, XP & Testing persona toggle */}
-        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-amber-400 font-semibold shadow-xs">
-            <Flame className="w-3.5 h-3.5 fill-amber-500/20" />
-            <span className="font-mono-num">{streakDays}d streak</span>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-teal-300 font-semibold shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-            <span className="font-mono-num">{userXp.toLocaleString()} XP</span>
-          </div>
-
-          <div className="px-2.5 py-1 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 font-semibold shadow-xs">
-            <span>Lvl {userLevel}</span>
-          </div>
-
-          {/* Test Persona Switcher */}
-          <button
-            onClick={onToggleUserMode}
-            className="flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-950/50 hover:bg-slate-800 border border-dashed border-slate-700/80 text-[10px] text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
-            title="Switch user mode preview"
-          >
-            {isSimulatingNewUser ? (
-              <>
-                <ToggleLeft className="w-3.5 h-3.5 text-amber-400" />
-                <span>New</span>
-              </>
-            ) : (
-              <>
-                <ToggleRight className="w-3.5 h-3.5 text-teal-400" />
-                <span>Returning</span>
-              </>
-            )}
-          </button>
         </div>
       </div>
 
@@ -142,7 +93,7 @@ export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({
               key={idx}
               type="button"
               onClick={() => onAskAi(item.prompt)}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/60 hover:bg-slate-800 border border-slate-800/80 hover:border-teal-500/40 text-xs text-slate-300 hover:text-slate-100 transition-all cursor-pointer shadow-xs group"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/60 hover:bg-slate-850 border border-slate-800/80 hover:border-teal-500/40 text-xs text-slate-300 hover:text-slate-100 transition-all cursor-pointer shadow-xs group"
             >
               <span>{item.icon}</span>
               <span className="group-hover:text-teal-300 transition-colors font-medium">

@@ -16,7 +16,7 @@ export const MarketStoriesSection: React.FC<MarketStoriesSectionProps> = ({
         <div className="flex items-center gap-2">
           <span className="text-base" aria-hidden="true">📰</span>
           <h2 id="market-stories-heading" className="text-lg font-bold text-slate-100 tracking-tight">
-            Market Stories
+            Market News & Stories
           </h2>
         </div>
         <p className="text-xs text-slate-400 mt-0.5">

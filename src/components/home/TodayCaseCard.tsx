@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Compass, HelpCircle, KeyRound, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, KeyRound, Sparkles } from 'lucide-react';
 import { PlaygroundCase } from '../../data/cases.ts';
 
 interface TodayCaseCardProps {
@@ -13,70 +13,56 @@ export const TodayCaseCard: React.FC<TodayCaseCardProps> = ({
 }) => {
   return (
     <section aria-labelledby="todays-investigation-heading" className="w-full">
-      {/* Hero Card Container */}
-      <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/50 border-2 border-emerald-500/40 p-6 sm:p-8 shadow-2xl shadow-emerald-950/40 overflow-hidden">
-        {/* Ambient atmospheric backdrop glow */}
-        <div className="absolute -top-24 -right-24 w-72 h-72 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-slate-700/80 p-5 sm:p-6 shadow-md transition-all space-y-3.5">
+        {/* Kicker Header */}
+        <div className="flex items-center justify-between text-xs font-bold text-teal-400 uppercase tracking-wider">
+          <div className="flex items-center gap-2">
+            <span className="text-base" aria-hidden="true">🔎</span>
+            <span id="todays-investigation-heading">Today's Investigation</span>
+            <span className="text-slate-600">·</span>
+            <span className="text-amber-400 font-semibold flex items-center gap-1 normal-case">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              Featured Mystery
+            </span>
+          </div>
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-4 max-w-2xl">
-            {/* Kicker badge */}
-            <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-emerald-400">
-              <span className="text-base">🔎</span>
-              <span id="todays-investigation-heading">Today's Investigation</span>
-              <span className="text-slate-600">·</span>
-              <span className="text-amber-400 font-semibold flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                Featured Mystery
-              </span>
-            </div>
+          <span className="text-teal-300 font-mono-num font-semibold text-xs normal-case">
+            +{caseData.xpReward} XP
+          </span>
+        </div>
 
-            {/* Title */}
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight text-balance">
+        {/* Content & Action Row */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div className="space-y-2 flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight truncate">
               {caseData.title}
             </h2>
 
-            {/* Narrative Mystery Hook */}
-            <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800/90 text-sm sm:text-base text-slate-200 space-y-1.5 backdrop-blur-xs font-sans">
-              <p className="font-semibold text-emerald-300">
-                A company increased its net profit by 30%.
-              </p>
-              <p className="font-semibold text-rose-300">
-                Yet its stock fell 12% the very next morning.
-              </p>
-              <p className="text-slate-300 italic pt-1">
-                Why did Dalal Street dump the stock despite record profits? What happened?
-              </p>
-            </div>
+            <p className="text-sm text-slate-300 line-clamp-2 leading-relaxed">
+              Net profit surged +30%, but shares fell -12% the next morning. Uncover the gap between one-off asset sales and real operating cash flow.
+            </p>
 
-            {/* Unboxed Metadata Tokens */}
-            <div className="flex items-center gap-3 text-xs text-slate-400 font-medium flex-wrap pt-1">
-              <span className="flex items-center gap-1.5 text-slate-300">
+            {/* Clue Tokens Strip */}
+            <div className="flex items-center gap-3 text-xs text-slate-400 font-medium flex-wrap pt-0.5">
+              <span className="flex items-center gap-1 text-slate-300">
                 <KeyRound className="w-3.5 h-3.5 text-amber-400" />
                 <span>3 Evidence Clues</span>
               </span>
               <span className="text-slate-600" aria-hidden="true">·</span>
               <span>{caseData.companyName} ({caseData.ticker})</span>
               <span className="text-slate-600" aria-hidden="true">·</span>
-              <span className="text-teal-300 font-semibold font-mono-num">+{caseData.xpReward} XP</span>
-              <span className="text-slate-600" aria-hidden="true">·</span>
-              <span>~{caseData.estimatedMinutes} min</span>
+              <span>~{caseData.estimatedMinutes} min solve</span>
             </div>
           </div>
 
-          {/* Action CTA */}
-          <div className="shrink-0 flex flex-col items-stretch sm:items-end gap-2">
+          <div className="shrink-0 flex items-center">
             <button
               onClick={() => onInvestigate(caseData)}
-              className="min-h-[48px] px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-98 text-slate-950 font-extrabold text-sm sm:text-base transition-all duration-150 flex items-center justify-center gap-2.5 shadow-xl shadow-emerald-500/25 cursor-pointer"
+              className="w-full sm:w-auto min-h-[44px] px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 active:scale-98 text-slate-950 font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
             >
               <span>Investigate</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
-            <span className="text-[11px] text-slate-400 text-center sm:text-right">
-              Inspect clues in the evidence room
-            </span>
           </div>
         </div>
       </div>
