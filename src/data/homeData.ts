@@ -1,5 +1,5 @@
 /**
- * Home Screen Mock Data Layer for FinDo.
+ * Home Screen Mock Data Layer for FinCraft.
  * Structured cleanly with TypeScript interfaces so it can be swapped
  * with real market feeds & live CMS endpoints later.
  * 

@@ -101,7 +101,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({
         {/* Transparent Disclaimer */}
         <div className="flex items-center gap-2 text-[11px] text-slate-500 pt-1">
           <Info className="w-3.5 h-3.5 shrink-0" />
-          <span>Educational sample indexes for FinDo learning. Real-time exchange feed connects in production.</span>
+          <span>Educational sample indexes for FinCraft learning. Real-time exchange feed connects in production.</span>
         </div>
 
         {/* Dismiss Button */}

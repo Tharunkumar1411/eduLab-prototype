@@ -134,7 +134,7 @@ export default function App() {
       {/* SEBI Compliance Educational Banner */}
       <div className="bg-slate-900 border-b border-slate-800 text-slate-400 py-1.5 px-4 text-center text-[11px]">
         <span>
-          FinDo is an interactive educational playground. All market cases & backtest simulations are purely for learning. Not SEBI registered investment advice.
+          FinCraft is an interactive educational playground. All market cases & backtest simulations are purely for learning. Not SEBI registered investment advice.
         </span>
       </div>
 
@@ -154,10 +154,10 @@ export default function App() {
             </div>
             <div>
               <span className="font-extrabold text-base tracking-tight text-slate-100 block">
-                FinDo
+                FinCraft
               </span>
               <span className="text-[10px] text-teal-400 font-medium block tracking-wide">
-                Learn finance by doing.
+                Build your financial skills.
               </span>
             </div>
           </div>
@@ -210,24 +210,15 @@ export default function App() {
             </button>
           </nav>
 
-          {/* User Progress Badge Strip */}
-          <div className="flex items-center gap-3">
+          {/* Header Action Controls */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowProfileModal(true)}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-850 px-3 py-1.5 rounded-lg border border-slate-800 text-xs transition-colors cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs text-slate-300 hover:text-teal-300 transition-colors cursor-pointer"
               title="View Learner Profile"
             >
-              <div className="flex items-center gap-1 text-amber-400">
-                <Flame className="w-3.5 h-3.5" />
-                <span className="font-mono-num font-bold">{streakDays}d</span>
-              </div>
-              <span className="text-slate-600">·</span>
-              <div className="flex items-center gap-1 text-teal-300 font-mono-num font-bold">
-                <Award className="w-3.5 h-3.5 text-teal-400" />
-                <span>{userXp} XP</span>
-              </div>
-              <span className="hidden md:inline text-slate-600">·</span>
-              <span className="hidden md:inline text-slate-400 font-medium">Lvl {userLevel}</span>
+              <User className="w-3.5 h-3.5 text-teal-400" />
+              <span className="font-medium">Profile</span>
             </button>
 
             <ThemeToggle />
@@ -368,7 +359,7 @@ export default function App() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-100">Learner Profile</h3>
-                  <span className="text-xs text-slate-400">FinDo Learner</span>
+                  <span className="text-xs text-slate-400">FinCraft Learner</span>
                 </div>
               </div>
               <button
