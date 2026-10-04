@@ -88,6 +88,15 @@ export default function App() {
     setActiveCase(null);
   };
 
+  // AI Chat Drawer State (triggers from Home AI prompt section or floating button)
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatExternalPrompt, setChatExternalPrompt] = useState<string | null>(null);
+
+  const handleAskAiFromHome = (prompt: string) => {
+    setChatExternalPrompt(prompt);
+    setIsChatOpen(true);
+  };
+
   // Live, comprehensive context passed to InspectorFinChatbot
   const chatContext: ChatContext = {
     currentPillar: activePillar,
@@ -250,6 +259,7 @@ export default function App() {
               setActivePillar('playground');
               setActiveCase(null);
             }}
+            onAskAi={handleAskAiFromHome}
           />
         ) : activePillar === 'playground' || activeCase ? (
           activeCase ? (
@@ -523,9 +533,9 @@ export default function App() {
       <footer className="border-t border-slate-800/80 bg-slate-950 py-6 px-4 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-400">NiveshLab</span>
+            <span className="font-semibold text-slate-400">FinCraft</span>
             <span>·</span>
-            <span>Build. Test. Understand.</span>
+            <span>Build your financial skills.</span>
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
@@ -539,7 +549,13 @@ export default function App() {
       </footer>
 
       {/* Floating Gemini Chatbot Mentor */}
-      <InspectorFinChatbot context={chatContext} />
+      <InspectorFinChatbot
+        context={chatContext}
+        isOpen={isChatOpen}
+        onOpenChange={setIsChatOpen}
+        externalPrompt={chatExternalPrompt}
+        onClearExternalPrompt={() => setChatExternalPrompt(null)}
+      />
     </div>
   );
 }

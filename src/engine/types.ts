@@ -1,5 +1,5 @@
 /**
- * Core type definitions for NiveshLab Trading Engine
+ * Core type definitions for FinCraft Trading Engine
  */
 
 export interface OHLCV {

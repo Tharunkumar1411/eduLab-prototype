@@ -60,10 +60,31 @@ export interface ChatContext {
 
 interface InspectorFinChatbotProps {
   context: ChatContext;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  externalPrompt?: string | null;
+  onClearExternalPrompt?: () => void;
 }
 
-export const InspectorFinChatbot: React.FC<InspectorFinChatbotProps> = ({ context }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const InspectorFinChatbot: React.FC<InspectorFinChatbotProps> = ({
+  context,
+  isOpen: controlledIsOpen,
+  onOpenChange,
+  externalPrompt,
+  onClearExternalPrompt,
+}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  const setIsOpen = (valOrFn: boolean | ((prev: boolean) => boolean)) => {
+    const nextVal = typeof valOrFn === 'function' ? valOrFn(isOpen) : valOrFn;
+    if (onOpenChange) {
+      onOpenChange(nextVal);
+    } else {
+      setInternalIsOpen(nextVal);
+    }
+  };
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [modelChoice, setModelChoice] = useState<'gemini-3.5-flash' | 'gemini-3.1-flash-lite'>('gemini-3.5-flash');
@@ -155,6 +176,17 @@ Ask me any doubt, or click the proactive observation below to explore!`,
       setIsLoading(false);
     }
   };
+
+  // Automatically trigger message when external prompt is requested (e.g. from Home AI prompt section)
+  useEffect(() => {
+    if (externalPrompt && externalPrompt.trim()) {
+      setIsOpen(true);
+      handleSendMessage(externalPrompt.trim());
+      if (onClearExternalPrompt) {
+        onClearExternalPrompt();
+      }
+    }
+  }, [externalPrompt]);
 
   const handleDiscussProactiveHint = () => {
     const query = `Fin, I noticed your hint: "${proactiveHint.hintText}". Can you explain why this specific dynamic matters and what questions I should ask myself next?`;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LEARNING_UNITS, PathNode } from '../../data/learningPath.ts';
 import { PLAYGROUND_CASES, PlaygroundCase } from '../../data/cases.ts';
 import { SectorDetail, MarketStory } from '../../data/homeData.ts';
-import { HomeHeader } from './HomeHeader.tsx';
+import { HomeAiChatSection } from './HomeAiChatSection.tsx';
 import { ContinueLearningCard } from './ContinueLearningCard.tsx';
 import { TodayCaseCard } from './TodayCaseCard.tsx';
 import { MarketTickerChips } from './MarketTickerChips.tsx';
@@ -22,6 +22,7 @@ interface HomeViewProps {
   onInvestigateCase: (caseItem: PlaygroundCase) => void;
   onExploreSectorInLab: (stockSymbol: string) => void;
   onGoToPlayground: () => void;
+  onAskAi: (prompt: string) => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -34,6 +35,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onInvestigateCase,
   onExploreSectorInLab,
   onGoToPlayground,
+  onAskAi,
 }) => {
   // Modal states
   const [isMarketModalOpen, setIsMarketModalOpen] = useState<boolean>(false);
@@ -81,13 +83,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
         onExploreMarket={() => setIsMarketModalOpen(true)}
       />
 
-      {/* 1. Header / Greeting */}
-      <HomeHeader
+      {/* Interactive AI Mentor Chat Option (replaces good morning header) */}
+      <HomeAiChatSection
         userXp={userXp}
         userLevel={userLevel}
         streakDays={streakDays}
         isSimulatingNewUser={isNewUser}
         onToggleUserMode={toggleUserMode}
+        onAskAi={onAskAi}
       />
 
       {/* 2. Continue Learning / Start Learning */}
