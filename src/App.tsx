@@ -10,6 +10,8 @@ import { CaseInvestigation, CaseProgress } from './components/playground/CaseInv
 import { TradingLab, LabProgress } from './components/tools/TradingLab.tsx';
 import { InspectorFinChatbot, ChatContext } from './components/chat/InspectorFinChatbot.tsx';
 import { HomeView } from './components/home/HomeView.tsx';
+import { SectorLearningHub } from './components/home/sector/SectorLearningHub.tsx';
+import { getSectorById } from './data/sectors/index.ts';
 import { ThemeToggle } from './components/common/ThemeToggle.tsx';
 import { PathNode } from './data/learningPath.ts';
 import { Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Home, MessageSquare, Shield, Sparkles, TrendingUp, User, Zap } from 'lucide-react';
@@ -19,6 +21,7 @@ type MainPillar = 'home' | 'playground' | 'tools';
 export default function App() {
   const [activePillar, setActivePillar] = useState<MainPillar>('home');
   const [activeCase, setActiveCase] = useState<PlaygroundCase | null>(null);
+  const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
   const [initialPlaygroundNode, setInitialPlaygroundNode] = useState<PathNode | null>(null);
   const [initialLabStockSymbol, setInitialLabStockSymbol] = useState<string | undefined>(undefined);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
@@ -33,6 +36,17 @@ export default function App() {
   const [streakDays, setStreakDays] = useState<number>(3);
   const [completedCaseIds, setCompletedCaseIds] = useState<string[]>([]);
   const [completedNodeIds, setCompletedNodeIds] = useState<string[]>([]); // Starts fresh at Level 1!
+
+  const handleAwardXp = (amount: number) => {
+    setUserXp(prev => {
+      const nextXp = prev + amount;
+      const nextLevel = Math.floor(nextXp / 500) + 1;
+      if (nextLevel > userLevel) {
+        setUserLevel(nextLevel);
+      }
+      return nextXp;
+    });
+  };
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
   const [feedbackRating, setFeedbackRating] = useState<string | null>(null);
@@ -177,6 +191,7 @@ export default function App() {
               onClick={() => {
                 setActivePillar('home');
                 setActiveCase(null);
+                setActiveSectorId(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activePillar === 'home' && !activeCase
@@ -192,6 +207,7 @@ export default function App() {
               onClick={() => {
                 setActivePillar('playground');
                 setActiveCase(null);
+                setActiveSectorId(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activePillar === 'playground'
@@ -207,6 +223,7 @@ export default function App() {
               onClick={() => {
                 setActivePillar('tools');
                 setActiveCase(null);
+                setActiveSectorId(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activePillar === 'tools'
@@ -246,21 +263,36 @@ export default function App() {
       {/* Main App Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8">
         {activePillar === 'home' && !activeCase ? (
-          <HomeView
-            userXp={userXp}
-            userLevel={userLevel}
-            streakDays={streakDays}
-            completedNodeIds={completedNodeIds}
-            completedCaseIds={completedCaseIds}
-            onStartOrContinueLesson={handleStartOrContinueLessonFromHome}
-            onInvestigateCase={handleInvestigateCaseFromHome}
-            onExploreSectorInLab={handleExploreSectorInLabFromHome}
-            onGoToPlayground={() => {
-              setActivePillar('playground');
-              setActiveCase(null);
-            }}
-            onAskAi={handleAskAiFromHome}
-          />
+          activeSectorId && getSectorById(activeSectorId) ? (
+            <SectorLearningHub
+              sector={getSectorById(activeSectorId)!}
+              userXp={userXp}
+              completedCaseIds={completedCaseIds}
+              onBackToExplore={() => setActiveSectorId(null)}
+              onStartInvestigation={(caseItem) => {
+                setActiveCase(caseItem);
+              }}
+              onAwardXp={handleAwardXp}
+            />
+          ) : (
+            <HomeView
+              userXp={userXp}
+              userLevel={userLevel}
+              streakDays={streakDays}
+              completedNodeIds={completedNodeIds}
+              completedCaseIds={completedCaseIds}
+              onStartOrContinueLesson={handleStartOrContinueLessonFromHome}
+              onInvestigateCase={handleInvestigateCaseFromHome}
+              onExploreSectorInLab={handleExploreSectorInLabFromHome}
+              onSelectSector={(sectorId) => setActiveSectorId(sectorId)}
+              onGoToPlayground={() => {
+                setActivePillar('playground');
+                setActiveCase(null);
+                setActiveSectorId(null);
+              }}
+              onAskAi={handleAskAiFromHome}
+            />
+          )
         ) : activePillar === 'playground' || activeCase ? (
           activeCase ? (
             <CaseInvestigation
@@ -314,9 +346,10 @@ export default function App() {
           onClick={() => {
             setActivePillar('home');
             setActiveCase(null);
+            setActiveSectorId(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
-            activePillar === 'home' && !activeCase ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            activePillar === 'home' && !activeCase && !activeSectorId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Home className="w-5 h-5" />
@@ -327,6 +360,7 @@ export default function App() {
           onClick={() => {
             setActivePillar('playground');
             setActiveCase(null);
+            setActiveSectorId(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
             activePillar === 'playground' && !activeCase ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
@@ -340,6 +374,7 @@ export default function App() {
           onClick={() => {
             setActivePillar('tools');
             setActiveCase(null);
+            setActiveSectorId(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
             activePillar === 'tools' ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'

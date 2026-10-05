@@ -9,7 +9,6 @@ import { MarketTickerChips } from './MarketTickerChips.tsx';
 import { ExploreMarketsSection } from './ExploreMarketsSection.tsx';
 import { MarketStoriesSection } from './MarketStoriesSection.tsx';
 import { MarketDetailModal } from './MarketDetailModal.tsx';
-import { SectorDetailModal } from './SectorDetailModal.tsx';
 import { StoryDetailModal } from './StoryDetailModal.tsx';
 
 interface HomeViewProps {
@@ -23,6 +22,7 @@ interface HomeViewProps {
   onExploreSectorInLab: (stockSymbol: string) => void;
   onGoToPlayground: () => void;
   onAskAi: (prompt: string) => void;
+  onSelectSector: (sectorId: string) => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -36,10 +36,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onExploreSectorInLab,
   onGoToPlayground,
   onAskAi,
+  onSelectSector,
 }) => {
   // Modal states
   const [isMarketModalOpen, setIsMarketModalOpen] = useState<boolean>(false);
-  const [selectedSector, setSelectedSector] = useState<SectorDetail | null>(null);
   const [selectedStory, setSelectedStory] = useState<MarketStory | null>(null);
 
   // Allow tester to switch persona view (New User vs Returning User) on demand
@@ -98,7 +98,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 2. Explore Market */}
       <ExploreMarketsSection
-        onSelectSector={(sector) => setSelectedSector(sector)}
+        onSelectSector={onSelectSector}
       />
 
       {/* 3. Chat Mentor */}
@@ -121,15 +121,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <MarketDetailModal
         isOpen={isMarketModalOpen}
         onClose={() => setIsMarketModalOpen(false)}
-      />
-
-      <SectorDetailModal
-        sector={selectedSector}
-        onClose={() => setSelectedSector(null)}
-        onExploreInLab={(stockSymbol) => {
-          setSelectedSector(null);
-          onExploreSectorInLab(stockSymbol);
-        }}
       />
 
       <StoryDetailModal
