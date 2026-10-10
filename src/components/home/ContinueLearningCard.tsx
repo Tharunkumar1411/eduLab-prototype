@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, BookOpen, Flame, Sparkles, ToggleLeft, ToggleRight } from 'lucide-react';
+import { ArrowRight, BookOpen, Flame, Sparkles, ToggleLeft, ToggleRight, Zap } from 'lucide-react';
 import { PathNode } from '../../data/learningPath.ts';
 
 interface ContinueLearningCardProps {
@@ -12,6 +12,7 @@ interface ContinueLearningCardProps {
   isSimulatingNewUser?: boolean;
   onToggleUserMode?: () => void;
   onStartOrContinue: (node: PathNode) => void;
+  onStartModule01?: () => void;
 }
 
 export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
@@ -24,6 +25,7 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
   isSimulatingNewUser,
   onToggleUserMode,
   onStartOrContinue,
+  onStartModule01,
 }) => {
   // Render user streak and level badges strip
   const renderLearnerMetrics = () => (
@@ -64,7 +66,7 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
     </div>
   );
 
-  // New User State: "Start Learning"
+  // New User State: "Start Learning" with Module 01
   if (isNewUser) {
     return (
       <section aria-labelledby="start-learning-heading" className="w-full">
@@ -78,7 +80,7 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span id="start-learning-heading">Start Learning</span>
               <span className="text-slate-600">·</span>
-              <span className="text-slate-400 font-normal normal-case">Recommended First Step</span>
+              <span className="text-slate-400 font-normal normal-case">Module 01: Beginner Game Quest</span>
             </div>
 
             {renderLearnerMetrics()}
@@ -88,28 +90,34 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative z-10 pt-1">
             <div className="space-y-2 max-w-xl">
               <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight">
-                What is a Stock?
+                Module 01: What Is a Market?
               </h2>
 
               <p className="text-sm text-slate-300 leading-relaxed">
-                Learn how purchasing a share makes you a legal fractional owner of a real business, not a casino gambler.
+                Ever wondered how people buy and sell things—and who decides the price? Journey from a mango harvest to the electronic stock exchange in 5 interactive mini-games.
               </p>
 
-              <div className="flex items-center gap-3 text-xs text-slate-400 pt-1 font-medium">
-                <span>⏱️ 3 min interactive</span>
+              <div className="flex items-center gap-3 text-xs text-slate-400 pt-1 font-medium flex-wrap">
+                <span>⏱️ 5 Mini-Games (~15m)</span>
                 <span className="text-slate-600">·</span>
-                <span className="text-teal-400 font-semibold">⭐ +150 XP</span>
+                <span className="text-amber-400 font-semibold font-mono-num">⭐ +600 XP Available</span>
                 <span className="text-slate-600">·</span>
-                <span>Zero jargon</span>
+                <span>Friendly Mentor Guided</span>
               </div>
             </div>
 
-            <div className="shrink-0">
+            <div className="shrink-0 flex items-center">
               <button
-                onClick={() => onStartOrContinue(currentNode)}
-                className="w-full sm:w-auto min-h-[44px] px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 active:scale-98 text-slate-950 font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
+                onClick={() => {
+                  if (onStartModule01) {
+                    onStartModule01();
+                  } else {
+                    onStartOrContinue(currentNode);
+                  }
+                }}
+                className="w-full sm:w-auto min-h-[46px] px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 active:scale-98 text-slate-950 font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
               >
-                <span>Start</span>
+                <span>Start Module 01</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -121,7 +129,7 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
 
   // Returning User State: "Continue Learning"
   return (
-    <section aria-labelledby="continue-learning-heading" className="w-full">
+    <section aria-labelledby="continue-learning-heading" className="w-full space-y-3">
       <div className="bg-slate-900/90 border border-slate-800 hover:border-slate-700/80 rounded-3xl p-5 sm:p-6 shadow-md transition-all space-y-4">
         {/* Top Row: Section Tag & Learner Streak / Level metrics */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3.5">
@@ -161,10 +169,19 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
             </div>
           </div>
 
-          <div className="shrink-0 flex items-center">
+          <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            {onStartModule01 && (
+              <button
+                onClick={onStartModule01}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 font-bold text-xs transition-all flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
+              >
+                <span>🥭 Module 01 Games</span>
+              </button>
+            )}
+
             <button
               onClick={() => onStartOrContinue(currentNode)}
-              className="w-full sm:w-auto min-h-[44px] px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 active:scale-98 text-slate-950 font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
+              className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 active:scale-98 text-slate-950 font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
             >
               <span>Continue</span>
               <ArrowRight className="w-4 h-4" />

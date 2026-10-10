@@ -11,6 +11,7 @@ import { TradingLab, LabProgress } from './components/tools/TradingLab.tsx';
 import { InspectorFinChatbot, ChatContext } from './components/chat/InspectorFinChatbot.tsx';
 import { HomeView } from './components/home/HomeView.tsx';
 import { SectorLearningHub } from './components/home/sector/SectorLearningHub.tsx';
+import { Module01Hub } from './components/modules/module01/Module01Hub.tsx';
 import { getSectorById } from './data/sectors/index.ts';
 import { ThemeToggle } from './components/common/ThemeToggle.tsx';
 import { PathNode } from './data/learningPath.ts';
@@ -22,6 +23,7 @@ export default function App() {
   const [activePillar, setActivePillar] = useState<MainPillar>('home');
   const [activeCase, setActiveCase] = useState<PlaygroundCase | null>(null);
   const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
+  const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
   const [initialPlaygroundNode, setInitialPlaygroundNode] = useState<PathNode | null>(null);
   const [initialLabStockSymbol, setInitialLabStockSymbol] = useState<string | undefined>(undefined);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
@@ -192,9 +194,10 @@ export default function App() {
                 setActivePillar('home');
                 setActiveCase(null);
                 setActiveSectorId(null);
+                setActiveModuleId(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activePillar === 'home' && !activeCase
+                activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId
                   ? 'bg-teal-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
@@ -208,9 +211,10 @@ export default function App() {
                 setActivePillar('playground');
                 setActiveCase(null);
                 setActiveSectorId(null);
+                setActiveModuleId(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activePillar === 'playground'
+                activePillar === 'playground' && !activeModuleId
                   ? 'bg-teal-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
@@ -224,6 +228,7 @@ export default function App() {
                 setActivePillar('tools');
                 setActiveCase(null);
                 setActiveSectorId(null);
+                setActiveModuleId(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activePillar === 'tools'
@@ -262,7 +267,19 @@ export default function App() {
 
       {/* Main App Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8">
-        {activePillar === 'home' && !activeCase ? (
+        {activeModuleId === 'module_01' ? (
+          <Module01Hub
+            userXp={userXp}
+            onAwardXp={handleAwardXp}
+            onBackToMain={() => setActiveModuleId(null)}
+            onGoToPlayground={() => {
+              setActiveModuleId(null);
+              setActivePillar('playground');
+              setActiveCase(null);
+              setActiveSectorId(null);
+            }}
+          />
+        ) : activePillar === 'home' && !activeCase ? (
           activeSectorId && getSectorById(activeSectorId) ? (
             <SectorLearningHub
               sector={getSectorById(activeSectorId)!}
@@ -291,6 +308,7 @@ export default function App() {
                 setActiveSectorId(null);
               }}
               onAskAi={handleAskAiFromHome}
+              onStartModule01={() => setActiveModuleId('module_01')}
             />
           )
         ) : activePillar === 'playground' || activeCase ? (
@@ -323,6 +341,7 @@ export default function App() {
               onGoToTradingLab={() => setActivePillar('tools')}
               initialOpenNode={initialPlaygroundNode}
               onClearInitialNode={() => setInitialPlaygroundNode(null)}
+              onStartModule01={() => setActiveModuleId('module_01')}
             />
           )
         ) : (
@@ -347,9 +366,10 @@ export default function App() {
             setActivePillar('home');
             setActiveCase(null);
             setActiveSectorId(null);
+            setActiveModuleId(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
-            activePillar === 'home' && !activeCase && !activeSectorId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Home className="w-5 h-5" />
@@ -361,9 +381,10 @@ export default function App() {
             setActivePillar('playground');
             setActiveCase(null);
             setActiveSectorId(null);
+            setActiveModuleId(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
-            activePillar === 'playground' && !activeCase ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            activePillar === 'playground' && !activeCase && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Zap className="w-5 h-5" />
@@ -375,6 +396,7 @@ export default function App() {
             setActivePillar('tools');
             setActiveCase(null);
             setActiveSectorId(null);
+            setActiveModuleId(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
             activePillar === 'tools' ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'

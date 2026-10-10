@@ -18,6 +18,7 @@ interface PlaygroundHomeProps {
   onGoToTradingLab: () => void;
   initialOpenNode?: any | null;
   onClearInitialNode?: () => void;
+  onStartModule01?: () => void;
 }
 
 export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
@@ -30,6 +31,7 @@ export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
   onGoToTradingLab,
   initialOpenNode,
   onClearInitialNode,
+  onStartModule01,
 }) => {
   return (
     <div className="w-full">
@@ -43,6 +45,7 @@ export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
         onGoToTradingLab={onGoToTradingLab}
         initialOpenNode={initialOpenNode}
         onClearInitialNode={onClearInitialNode}
+        onStartModule01={onStartModule01}
       />
     </div>
   );

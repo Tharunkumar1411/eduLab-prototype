@@ -40,6 +40,7 @@ interface ConnectiveGamePathProps {
   onGoToTradingLab: () => void;
   initialOpenNode?: PathNode | null;
   onClearInitialNode?: () => void;
+  onStartModule01?: () => void;
 }
 
 export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
@@ -52,6 +53,7 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
   onGoToTradingLab,
   initialOpenNode,
   onClearInitialNode,
+  onStartModule01,
 }) => {
   const [selectedLessonNode, setSelectedLessonNode] = useState<PathNode | null>(null);
   const [selectedChestNode, setSelectedChestNode] = useState<PathNode | null>(null);
@@ -159,6 +161,36 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
           <span>Lvl {userLevel}</span>
         </div>
       </div>
+
+      {/* Module 01 Featured Quest Banner */}
+      {onStartModule01 && (
+        <div
+          onClick={onStartModule01}
+          className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/60 border border-teal-500/40 hover:border-teal-400 shadow-lg cursor-pointer transition-all flex items-center justify-between gap-4 group"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-3xl p-2 rounded-xl bg-teal-500/10 border border-teal-500/20">
+              🥭
+            </span>
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-bold text-teal-400 uppercase tracking-wider">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Beginner Quest · Module 01</span>
+              </div>
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-100 group-hover:text-teal-300 transition-colors">
+                What Is a Market? (5 Interactive Mini-Games)
+              </h3>
+              <p className="text-xs text-slate-400 line-clamp-1">
+                Learn how buyers, sellers, prices, and stock trades work through friendly stories.
+              </p>
+            </div>
+          </div>
+          <button className="px-3.5 py-1.5 rounded-xl bg-teal-500 text-slate-950 text-xs font-bold shrink-0 flex items-center gap-1 group-hover:bg-teal-400 transition-colors cursor-pointer">
+            <span>Play</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Duolingo Section / Unit Header Banner (Just like in the screenshot!) */}
       <div className="rounded-2xl p-5 bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-500 text-white shadow-xl relative overflow-hidden">
