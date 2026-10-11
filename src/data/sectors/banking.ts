@@ -9,6 +9,341 @@ export const BANKING_SECTOR_DATA: SectorData = {
     'Banks borrow money cheaply from depositors and lend it to businesses, home buyers, and entrepreneurs at higher rates. Learn how the spread drives bank earnings.',
   estimatedTime: '10 min journey',
 
+  featuredInvestigation: {
+    question: 'The Bank’s Profit Puzzle',
+    supportingCopy:
+      'Two banks charge similar interest rates on loans, but one pays more to attract deposits. Which bank has the stronger business model?',
+    previewPoints: [
+      'Understand how deposits turn into loans and why banks exist',
+      'Follow the money through an interactive loan-and-deposit spread model',
+      'Run an experiment comparing cheap CASA vs expensive wholesale funding',
+      'Investigate Beacon Bank to uncover hidden credit quality risks behind high profits',
+    ],
+    activitiesCount: 4,
+    totalXp: 250,
+  },
+
+  activities: [
+    {
+      id: 'banking_act_1',
+      stepNumber: 1,
+      title: 'Understand Banking',
+      subtitle: 'What banks do, why customers deposit money, and how banks connect savers and borrowers.',
+      estimatedMinutes: 2,
+      xpReward: 50,
+      type: 'story',
+      storyConfig: {
+        hook: 'The Foundation of Financial Intermediation',
+        scenario:
+          'You deposit ₹1,000 into your savings account for safekeeping. Down the street, Rahul needs capital to buy an industrial oven and expand his bakery. How does a bank bridge the gap?',
+        participants: [
+          {
+            id: 'depositor',
+            title: 'Depositor (You)',
+            icon: '💼',
+            role: 'Places ₹1,000 in savings',
+            details: 'Wants daily liquidity, absolute safety, and modest interest (e.g. 3.5%).',
+            flowArrowLabel: 'Deposits cash →',
+          },
+          {
+            id: 'bank',
+            title: 'The Commercial Bank',
+            icon: '🏦',
+            role: 'Financial Intermediary',
+            details:
+              'Pools thousands of small deposits, screens borrower creditworthiness, maintains cash reserves (CRR/SLR), and absorbs default risk.',
+            flowArrowLabel: 'Underwrites loan →',
+          },
+          {
+            id: 'borrower',
+            title: 'Borrower (Rahul’s Bakery)',
+            icon: '🥖',
+            role: 'Borrows to buy equipment',
+            details:
+              'Invests in productive assets, creates jobs, and repays the loan over 3 years at 9.0% interest.',
+          },
+        ],
+        decisionQuestion:
+          'What would happen if Rahul had to find and negotiate with 1,000 separate individual depositors without a bank?',
+        options: [
+          {
+            id: 'opt_a',
+            text: 'It would be nearly impossible due to massive trust, contract, and coordination barriers.',
+            isCorrect: true,
+            explanation:
+              'Spot on! Individual depositors lack the time and expertise to audit Rahul’s credit, and depositors might need their money tomorrow. The bank pools liquidity and bears the underwriting risk.',
+          },
+          {
+            id: 'opt_b',
+            text: 'It would be much faster because he could avoid bank regulations and paperwork.',
+            isCorrect: false,
+            explanation:
+              'Incorrect. Gathering ₹1,000 from 1,000 distinct strangers creates huge friction, legal complexity, and mistrust.',
+          },
+          {
+            id: 'opt_c',
+            text: 'Depositors would never want any interest from a local bakery business.',
+            isCorrect: false,
+            explanation:
+              'Incorrect. Savers always expect a return for parting with their hard-earned money.',
+          },
+        ],
+        conceptExplanation: {
+          title: 'The Core Purpose of a Bank',
+          summary:
+            'A bank is an arrangement that connects savers who have surplus money with borrowers who have productive investment ideas.',
+          corePoints: [
+            'Liquidity Transformation: Savers can withdraw cash anytime, yet borrowers can take multi-year loans.',
+            'Credit Risk Management: The bank screens borrowers and absorbs losses from its own equity cushion if a loan defaults.',
+            'Regulatory Safeguards: Central banks (like the Reserve Bank of India) mandate cash reserve ratios (CRR and SLR) so banks always hold emergency cash.',
+          ],
+        },
+        reflectionQuestion: 'Does a bank lend out 100% of the money it receives from depositors?',
+        reflectionOptions: [
+          {
+            id: 'ref_yes',
+            text: 'Yes, every single rupee must be lent out immediately to maximize profits.',
+            isCorrect: false,
+            explanation:
+              'Incorrect. If a bank lent out 100% of deposits, it would immediately fail when depositors came to withdraw cash at ATMs.',
+          },
+          {
+            id: 'ref_no',
+            text: 'No, banks must keep mandatory liquid reserves and buffers for daily withdrawals.',
+            isCorrect: true,
+            explanation:
+              'Exactly right! Banks maintain regulatory reserve ratios (CRR & SLR in India) to ensure liquidity for day-to-day customer withdrawals.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'banking_act_2',
+      stepNumber: 2,
+      title: 'Follow the Money',
+      subtitle: 'Deposits, lending, interest income, and funding costs: visual cash flow and the net interest spread.',
+      estimatedMinutes: 3,
+      xpReward: 50,
+      type: 'model',
+      modelConfig: {
+        headline: 'The Banking Cash Register',
+        intro:
+          'Where does a bank’s money actually come from, and where does it go? Explore this simplified balance sheet and see how changing interest rates impacts earnings.',
+        defaultLendingRate: 9.0,
+        defaultDepositRate: 5.0,
+        depositPoolCr: 10000,
+        loansDeployedCr: 8000,
+        reservesCr: 2000,
+        explanation: {
+          spreadConcept:
+            'The intuitive Interest Rate Spread is the gap between the average interest rate charged on loans and the average interest rate paid on deposits (e.g., 9.0% − 5.0% = 4.0 percentage points).',
+          spreadVsNim:
+            'In real financial reports, analysts track Net Interest Margin (NIM). While the simple spread compares percentage rates, NIM divides Net Interest Income by Total Earning Assets (NII ÷ Average Earning Assets). Both reflect the same fundamental pricing power.',
+          limitationsNote:
+            'Note: This is an introductory educational model. Real banks also incur operating overheads (branches, tech, employee salaries) and must set aside provisions for overdue loans before arriving at net profit.',
+        },
+        reflectionQuestion:
+          'If a central bank raises policy rates and a bank’s average deposit cost climbs from 5% to 7% while its loan rate stays stuck at 9%, what happens?',
+        reflectionOptions: [
+          {
+            id: 'spread_shrinks',
+            text: 'Its interest spread compresses from 4% down to 2%, slashing net interest income.',
+            isCorrect: true,
+            explanation:
+              'Exactly! The bank’s funding became significantly more expensive, squeezing the margin between what it pays out and what it takes in.',
+          },
+          {
+            id: 'spread_grows',
+            text: 'Its interest spread automatically increases because deposits are worth more.',
+            isCorrect: false,
+            explanation:
+              'Incorrect. Higher deposit costs mean the bank pays out more money to savers, shrinking its profit margin.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'banking_act_3',
+      stepNumber: 3,
+      title: 'Run an Experiment',
+      subtitle: 'Compare two banks with different deposit costs and discover why a wider spread alone isn’t the whole story.',
+      estimatedMinutes: 2,
+      xpReward: 50,
+      type: 'experiment',
+      experimentConfig: {
+        headline: 'The Low-Cost Deposit Test',
+        intro:
+          'Two fictional banks lend to similar creditworthy borrowers at the same 9.0% loan rate. But their deposit structures are very different. Let’s investigate.',
+        entityA: {
+          name: 'Bank Alpha',
+          icon: '🏛️',
+          tag: 'High CASA Base (45%)',
+          lendingRate: 9.0,
+          depositRate: 4.2,
+          fundingNote: 'Millions of low-interest savings and salary checking accounts paying only 3% to 4%.',
+        },
+        entityB: {
+          name: 'Bank Beta',
+          icon: '🏢',
+          tag: 'Low CASA Base (20%)',
+          lendingRate: 9.0,
+          depositRate: 5.5,
+          fundingNote: 'Heavily reliant on expensive corporate term deposits paying 7% to 8%.',
+        },
+        question: 'Which bank enjoys the wider interest rate spread, and why?',
+        options: [
+          {
+            id: 'ans_alpha',
+            text: 'Bank Alpha (Spread: 4.8%) enjoys a significantly wider spread than Bank Beta (Spread: 3.5%).',
+            isCorrect: true,
+            explanation:
+              'Correct! Bank Alpha’s average cost of funds is only 4.2% thanks to cheap CASA deposits. It keeps a 4.8% spread, generating ₹130 Crore more profit per ₹10,000 Cr of loans than Bank Beta!',
+          },
+          {
+            id: 'ans_beta',
+            text: 'Bank Beta because higher deposit rates attract wealthier corporate clients.',
+            isCorrect: false,
+            explanation:
+              'Incorrect. Higher deposit interest is an expense paid by the bank. Paying 5.5% eats into Bank Beta’s margin.',
+          },
+          {
+            id: 'ans_equal',
+            text: 'Both have the exact same spread because both charge 9.0% on loans.',
+            isCorrect: false,
+            explanation:
+              'Incorrect. A bank’s margin is a two-sided equation: loan earnings MINUS deposit expenses.',
+          },
+        ],
+        catchExplanation: {
+          title: 'The Vital Catch: Wider Spread ≠ Automatically Safer Bank',
+          subtitle: 'Why astute financial detectives never look at spread in isolation',
+          keyCatch:
+            'A bank can artificially pump up its spread by charging 16% on risky personal loans. But if those borrowers default, credit losses destroy the bank.',
+          points: [
+            'Credit Risk Trade-off: High lending rates usually accompany riskier borrowers who may stop paying during an economic downturn.',
+            'CASA Advantage: The safest, most durable way to expand spread is to lower funding costs with sticky checking and savings deposits (CASA), not by taking reckless credit bets.',
+            'Sustainable Quality: The strongest banks combine disciplined credit underwriting (low default rates) with low-cost deposit franchises.',
+          ],
+        },
+        reflectionQuestion:
+          'Why are ordinary retail salary accounts considered the holy grail of bank funding?',
+        reflectionOptions: [
+          {
+            id: 'ref_casa_loyal',
+            text: 'They provide stable, low-interest funding that depositors leave in the bank for daily convenience.',
+            isCorrect: true,
+            explanation:
+              'Exactly! People keep money in salary accounts for UPI and ATM ease, accepting 3% to 4% interest. Unlike corporate treasuries, they don’t pull their money out the moment rates twitch.',
+          },
+          {
+            id: 'ref_casa_bonus',
+            text: 'Because banks don’t have to keep any reserves against savings accounts.',
+            isCorrect: false,
+            explanation:
+              'Incorrect. Central banks require reserve buffers against all retail deposits.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'banking_act_4',
+      stepNumber: 4,
+      title: 'Investigate a Bank',
+      subtitle: 'Examine Beacon Commercial Bank’s forensic clues and apply your new knowledge to solve the profit puzzle.',
+      estimatedMinutes: 3,
+      xpReward: 100,
+      type: 'investigation',
+      investigationConfig: {
+        caseTitle: 'The Hidden Slippage Mystery',
+        companyName: 'Beacon Commercial Bank Ltd.',
+        ticker: 'BEACONBNK (Illustrative Case)',
+        intro:
+          'Beacon Commercial Bank made headlines with stellar numbers: +22% loan growth and an industry-beating 4.5% Net Interest Margin. Financial headlines praised the management. But as an investigative analyst, you examine four forensic clues before reaching a verdict.',
+        clues: [
+          {
+            id: 'clue_1',
+            title: 'Loan Portfolio Mix',
+            icon: '💳',
+            metricBadge: 'Advances Composition',
+            dataHighlight: 'Unsecured Personal Loans surged from 20% to 52% of total book',
+            observation:
+              'Management aggressively pivoted away from safe, secured home loans into instant digital loans charging 16% interest.',
+            implication:
+              'This explains the shiny 4.5% NIM: the bank charged sky-high interest rates to vulnerable borrowers.',
+          },
+          {
+            id: 'clue_2',
+            title: 'Deposit Funding Quality',
+            icon: '📉',
+            metricBadge: 'CASA Ratio',
+            dataHighlight: 'CASA Ratio collapsed from 44% down to 28%',
+            observation:
+              'To fund its rapid lending spree, Beacon had to borrow emergency wholesale deposits from institutions at 8.0%.',
+            implication:
+              'Sticky, low-cost retail funding was diluted. The bank’s funding base has become fragile and expensive.',
+          },
+          {
+            id: 'clue_3',
+            title: 'Asset Quality Slippage',
+            icon: '⚠️',
+            metricBadge: 'Gross NPA Trend',
+            dataHighlight: 'Gross NPAs surged from 1.1% to 3.9% in just 12 months',
+            observation:
+              'Early 30-day and 60-day loan delinquencies in the instant personal loan portfolio are spiking across the country.',
+            implication:
+              'Borrowers who took high-interest loans are starting to miss monthly EMI payments in large numbers.',
+          },
+          {
+            id: 'clue_4',
+            title: 'Provision Coverage Cushion',
+            icon: '🛡️',
+            metricBadge: 'Provision Coverage Ratio (PCR)',
+            dataHighlight: 'PCR was slashed from 75% down to 48%',
+            observation:
+              'Instead of setting aside cash to write off bad loans, management reduced provisioning buffers to keep reported net profit artificially high.',
+            implication:
+              'The bank is sweeping bad loans under the rug. When forced write-offs hit next quarter, reported profits will collapse.',
+          },
+        ],
+        question:
+          'Based on these four clues, what is the true financial health of Beacon Commercial Bank?',
+        options: [
+          {
+            id: 'verdict_bull',
+            text: 'Beacon is a fast-growing, highly profitable bank that will deliver lasting compounding returns.',
+            isBest: false,
+            verdictFeedback:
+              'Beware! You were fooled by the surface numbers. High NIM driven by risky borrowers and falling provisions is a classic warning sign of impending credit trouble.',
+          },
+          {
+            id: 'verdict_analyst',
+            text: 'Beacon sacrificed credit quality and deposit stability to artificially boost short-term NIM. A bad debt write-off storm is brewing.',
+            isBest: true,
+            verdictFeedback:
+              'Outstanding detective analysis! You looked beneath the headline 4.5% NIM and discovered that high rates came with toxic credit risk, eroding CASA, and under-provisioned NPAs.',
+          },
+          {
+            id: 'verdict_neutral',
+            text: 'The numbers look neutral because lower provisions indicate borrowers have become safer.',
+            isBest: false,
+            verdictFeedback:
+              'Incorrect. Lowering provisions when NPAs are actively tripling is an accounting red flag, not a sign of borrower safety.',
+          },
+        ],
+        nuancedTakeaway: {
+          title: 'The Detective’s Golden Banking Lesson',
+          summary:
+            'In banking, no single metric can tell you if a business is sound. High margins mean nothing if the loans are never repaid.',
+          lessons: [
+            'Never evaluate Net Interest Margin (NIM) without checking Asset Quality (Gross & Net NPAs).',
+            'Look for low-cost, sticky deposits (CASA Ratio) as the true competitive moat of a banking franchise.',
+            'Watch Provision Coverage Ratio (PCR): well-run banks maintain 70%+ buffers so bad loans never threaten their survival.',
+          ],
+        },
+      },
+    },
+  ],
+
   whatIsIt: {
     simpleDefinition:
       'Banking companies act as financial intermediaries. They collect savings deposits from individuals and deploy those funds as loans to creditworthy borrowers.',

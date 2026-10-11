@@ -24,6 +24,7 @@ interface HomeViewProps {
   onAskAi: (prompt: string) => void;
   onSelectSector: (sectorId: string) => void;
   onStartModule01?: () => void;
+  onOpenLeaderboard?: () => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -39,6 +40,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onAskAi,
   onSelectSector,
   onStartModule01,
+  onOpenLeaderboard,
 }) => {
   // Modal states
   const [isMarketModalOpen, setIsMarketModalOpen] = useState<boolean>(false);
@@ -97,6 +99,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         onToggleUserMode={toggleUserMode}
         onStartOrContinue={onStartOrContinueLesson}
         onStartModule01={onStartModule01}
+        onOpenLeaderboard={onOpenLeaderboard}
       />
 
       {/* 2. Explore Market */}

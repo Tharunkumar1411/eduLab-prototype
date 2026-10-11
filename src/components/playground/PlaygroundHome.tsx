@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { PathNode } from '../../data/learningPath.ts';
 import { PlaygroundCase } from '../../data/cases.ts';
 import { ConnectiveGamePath } from './ConnectiveGamePath.tsx';
 
@@ -19,6 +20,7 @@ interface PlaygroundHomeProps {
   initialOpenNode?: any | null;
   onClearInitialNode?: () => void;
   onStartModule01?: () => void;
+  onSelectLessonNode?: (node: PathNode) => void;
 }
 
 export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
@@ -32,6 +34,7 @@ export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
   initialOpenNode,
   onClearInitialNode,
   onStartModule01,
+  onSelectLessonNode,
 }) => {
   return (
     <div className="w-full">
@@ -46,6 +49,7 @@ export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
         initialOpenNode={initialOpenNode}
         onClearInitialNode={onClearInitialNode}
         onStartModule01={onStartModule01}
+        onSelectLessonNode={onSelectLessonNode}
       />
     </div>
   );

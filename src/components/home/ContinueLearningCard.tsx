@@ -13,6 +13,7 @@ interface ContinueLearningCardProps {
   onToggleUserMode?: () => void;
   onStartOrContinue: (node: PathNode) => void;
   onStartModule01?: () => void;
+  onOpenLeaderboard?: () => void;
 }
 
 export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
@@ -26,6 +27,7 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
   onToggleUserMode,
   onStartOrContinue,
   onStartModule01,
+  onOpenLeaderboard,
 }) => {
   // Render user streak and level badges strip
   const renderLearnerMetrics = () => (
@@ -35,10 +37,22 @@ export const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
         <span className="font-mono-num">{streakDays}d streak</span>
       </div>
 
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-teal-300 font-semibold shadow-xs">
-        <Sparkles className="w-3.5 h-3.5 text-teal-400" />
-        <span className="font-mono-num">{userXp.toLocaleString()} XP</span>
-      </div>
+      {onOpenLeaderboard ? (
+        <button
+          onClick={onOpenLeaderboard}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-950/80 hover:bg-teal-950/50 border border-slate-800 hover:border-teal-500/50 text-xs text-teal-300 font-semibold shadow-xs transition-colors cursor-pointer group"
+          title="View Global Leaderboard"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-teal-400 group-hover:scale-110 transition-transform" />
+          <span className="font-mono-num">{userXp.toLocaleString()} XP</span>
+          <span className="text-[10px] text-teal-400/80 font-normal underline">Rank</span>
+        </button>
+      ) : (
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-teal-300 font-semibold shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+          <span className="font-mono-num">{userXp.toLocaleString()} XP</span>
+        </div>
+      )}
 
       <div className="px-2.5 py-1 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 font-semibold shadow-xs">
         <span>Lvl {userLevel}</span>

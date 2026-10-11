@@ -12,10 +12,13 @@ import { InspectorFinChatbot, ChatContext } from './components/chat/InspectorFin
 import { HomeView } from './components/home/HomeView.tsx';
 import { SectorLearningHub } from './components/home/sector/SectorLearningHub.tsx';
 import { Module01Hub } from './components/modules/module01/Module01Hub.tsx';
+import { MicroLessonScreen } from './components/playground/MicroLessonScreen.tsx';
+import { GlobalLeaderboard } from './components/leaderboard/GlobalLeaderboard.tsx';
 import { getSectorById } from './data/sectors/index.ts';
 import { ThemeToggle } from './components/common/ThemeToggle.tsx';
+import { AppLogo } from './components/common/AppLogo.tsx';
 import { PathNode } from './data/learningPath.ts';
-import { Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Home, MessageSquare, Shield, Sparkles, TrendingUp, User, Zap } from 'lucide-react';
+import { Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Home, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
 
 type MainPillar = 'home' | 'playground' | 'tools';
 
@@ -24,9 +27,11 @@ export default function App() {
   const [activeCase, setActiveCase] = useState<PlaygroundCase | null>(null);
   const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  const [activePlaygroundLessonNode, setActivePlaygroundLessonNode] = useState<PathNode | null>(null);
   const [initialPlaygroundNode, setInitialPlaygroundNode] = useState<PathNode | null>(null);
   const [initialLabStockSymbol, setInitialLabStockSymbol] = useState<string | undefined>(undefined);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
 
   // Live progress tracking across Playground & Trading Lab
   const [caseProgress, setCaseProgress] = useState<CaseProgress | null>(null);
@@ -88,9 +93,11 @@ export default function App() {
   };
 
   const handleStartOrContinueLessonFromHome = (node: PathNode) => {
-    setInitialPlaygroundNode(node);
+    setActivePlaygroundLessonNode(node);
     setActivePillar('playground');
     setActiveCase(null);
+    setActiveSectorId(null);
+    setActiveModuleId(null);
   };
 
   const handleInvestigateCaseFromHome = (caseItem: PlaygroundCase) => {
@@ -174,9 +181,7 @@ export default function App() {
             }}
             className="flex items-center gap-3 cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-600 to-emerald-400 flex items-center justify-center shadow-lg shadow-teal-900/40 text-white font-bold text-lg font-mono-num">
-              ₹
-            </div>
+            <AppLogo size="md" />
             <div>
               <span className="font-extrabold text-base tracking-tight text-slate-100 block">
                 FinCraft
@@ -195,9 +200,10 @@ export default function App() {
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActiveModuleId(null);
+                setActivePlaygroundLessonNode(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId
+                activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId && !activePlaygroundLessonNode
                   ? 'bg-teal-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
@@ -212,9 +218,10 @@ export default function App() {
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActiveModuleId(null);
+                setActivePlaygroundLessonNode(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activePillar === 'playground' && !activeModuleId
+                (activePillar === 'playground' || activePlaygroundLessonNode) && !activeModuleId
                   ? 'bg-teal-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
@@ -229,6 +236,7 @@ export default function App() {
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActiveModuleId(null);
+                setActivePlaygroundLessonNode(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activePillar === 'tools'
@@ -243,6 +251,15 @@ export default function App() {
 
           {/* Header Action Controls */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowLeaderboardModal(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs text-amber-300 hover:text-amber-200 transition-colors cursor-pointer"
+              title="Global Learner Leaderboard"
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span className="font-medium">Leaderboard</span>
+            </button>
+
             <button
               onClick={() => setShowProfileModal(true)}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs text-slate-300 hover:text-teal-300 transition-colors cursor-pointer"
@@ -277,6 +294,16 @@ export default function App() {
               setActivePillar('playground');
               setActiveCase(null);
               setActiveSectorId(null);
+              setActivePlaygroundLessonNode(null);
+            }}
+          />
+        ) : activePlaygroundLessonNode ? (
+          <MicroLessonScreen
+            node={activePlaygroundLessonNode}
+            onBack={() => setActivePlaygroundLessonNode(null)}
+            onComplete={(nodeId, xpEarned) => {
+              handleCompleteNode(nodeId, xpEarned);
+              setActivePlaygroundLessonNode(null);
             }}
           />
         ) : activePillar === 'home' && !activeCase ? (
@@ -306,9 +333,11 @@ export default function App() {
                 setActivePillar('playground');
                 setActiveCase(null);
                 setActiveSectorId(null);
+                setActivePlaygroundLessonNode(null);
               }}
               onAskAi={handleAskAiFromHome}
               onStartModule01={() => setActiveModuleId('module_01')}
+              onOpenLeaderboard={() => setShowLeaderboardModal(true)}
             />
           )
         ) : activePillar === 'playground' || activeCase ? (
@@ -342,6 +371,7 @@ export default function App() {
               initialOpenNode={initialPlaygroundNode}
               onClearInitialNode={() => setInitialPlaygroundNode(null)}
               onStartModule01={() => setActiveModuleId('module_01')}
+              onSelectLessonNode={(node) => setActivePlaygroundLessonNode(node)}
             />
           )
         ) : (
@@ -359,7 +389,7 @@ export default function App() {
       {/* Mobile Fixed Bottom Navigation Bar (Thumb Friendly, 44px+ hit targets) */}
       <nav
         aria-label="Mobile Navigation"
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-4 items-center shadow-2xl"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-5 items-center shadow-2xl"
       >
         <button
           onClick={() => {
@@ -367,9 +397,10 @@ export default function App() {
             setActiveCase(null);
             setActiveSectorId(null);
             setActiveModuleId(null);
+            setActivePlaygroundLessonNode(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
-            activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId && !activePlaygroundLessonNode ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Home className="w-5 h-5" />
@@ -382,9 +413,10 @@ export default function App() {
             setActiveCase(null);
             setActiveSectorId(null);
             setActiveModuleId(null);
+            setActivePlaygroundLessonNode(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
-            activePillar === 'playground' && !activeCase && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            (activePillar === 'playground' || activePlaygroundLessonNode) && !activeCase && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Zap className="w-5 h-5" />
@@ -397,13 +429,22 @@ export default function App() {
             setActiveCase(null);
             setActiveSectorId(null);
             setActiveModuleId(null);
+            setActivePlaygroundLessonNode(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
             activePillar === 'tools' ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <TrendingUp className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Trading Lab</span>
+          <span className="text-[10px] tracking-tight mt-0.5">Lab</span>
+        </button>
+
+        <button
+          onClick={() => setShowLeaderboardModal(true)}
+          className="flex flex-col items-center justify-center min-h-[46px] py-1 text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
+        >
+          <Trophy className="w-5 h-5" />
+          <span className="text-[10px] tracking-tight mt-0.5">Ranks</span>
         </button>
 
         <button
@@ -421,9 +462,7 @@ export default function App() {
           <div className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-sm w-full p-6 space-y-5 shadow-2xl relative">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 font-bold">
-                  🎓
-                </div>
+                <AppLogo size="sm" withGlow={false} />
                 <div>
                   <h3 className="text-base font-bold text-slate-100">Learner Profile</h3>
                   <span className="text-xs text-slate-400">FinCraft Learner</span>
@@ -474,6 +513,32 @@ export default function App() {
               </p>
             </div>
 
+            {/* Global Learner Leaderboard Link */}
+            <button
+              onClick={() => {
+                setShowProfileModal(false);
+                setShowLeaderboardModal(true);
+              }}
+              className="w-full p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 hover:border-amber-400 flex items-center justify-between text-left transition-all cursor-pointer group shadow-xs"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                  <Trophy className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-amber-300 group-hover:text-amber-200 block">
+                    Global Leaderboard
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    See where you rank among learners worldwide
+                  </span>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-amber-400 group-hover:translate-x-0.5 transition-transform">
+                →
+              </span>
+            </button>
+
             {/* Theme Preference Setting */}
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
               <div>
@@ -489,6 +554,26 @@ export default function App() {
             >
               Continue Learning
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Global Learner Leaderboard Modal */}
+      {showLeaderboardModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative p-4 sm:p-6">
+            <GlobalLeaderboard
+              userXp={userXp}
+              userLevel={userLevel}
+              streakDays={streakDays}
+              completedNodeIdsCount={completedNodeIds.length}
+              completedCaseIdsCount={completedCaseIds.length}
+              onClose={() => setShowLeaderboardModal(false)}
+              onGoToLearning={() => {
+                setShowLeaderboardModal(false);
+                setActiveModuleId('module_01');
+              }}
+            />
           </div>
         </div>
       )}
@@ -589,7 +674,8 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-slate-950 py-6 px-4 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
+            <AppLogo size="xs" withGlow={false} />
             <span className="font-semibold text-slate-400">FinCraft</span>
             <span>·</span>
             <span>Build your financial skills.</span>

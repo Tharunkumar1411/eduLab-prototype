@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { LEARNING_UNITS, PathNode, UnitSection } from '../../data/learningPath.ts';
 import { PLAYGROUND_CASES, PlaygroundCase } from '../../data/cases.ts';
 import { CharacterMentor } from '../character/CharacterMentor.tsx';
-import { MicroLessonModal } from './MicroLessonModal.tsx';
+import { MicroLessonScreen } from './MicroLessonScreen.tsx';
 import { ChestRewardModal } from './ChestRewardModal.tsx';
 import { UnitGuidebookModal } from './UnitGuidebookModal.tsx';
 import { CasePreviewModal } from './CasePreviewModal.tsx';
@@ -41,6 +41,7 @@ interface ConnectiveGamePathProps {
   initialOpenNode?: PathNode | null;
   onClearInitialNode?: () => void;
   onStartModule01?: () => void;
+  onSelectLessonNode?: (node: PathNode) => void;
 }
 
 export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
@@ -54,6 +55,7 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
   initialOpenNode,
   onClearInitialNode,
   onStartModule01,
+  onSelectLessonNode,
 }) => {
   const [selectedLessonNode, setSelectedLessonNode] = useState<PathNode | null>(null);
   const [selectedChestNode, setSelectedChestNode] = useState<PathNode | null>(null);
@@ -69,7 +71,11 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
   React.useEffect(() => {
     if (initialOpenNode) {
       if (initialOpenNode.type === 'lesson' || initialOpenNode.type === 'challenge') {
-        setSelectedLessonNode(initialOpenNode);
+        if (onSelectLessonNode) {
+          onSelectLessonNode(initialOpenNode);
+        } else {
+          setSelectedLessonNode(initialOpenNode);
+        }
       } else if (initialOpenNode.type === 'case') {
         const matchedCase = PLAYGROUND_CASES.find(c => c.id === initialOpenNode.caseId) || PLAYGROUND_CASES[0];
         setSelectedCasePreview({
@@ -81,7 +87,7 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
       }
       onClearInitialNode?.();
     }
-  }, [initialOpenNode]);
+  }, [initialOpenNode, onSelectLessonNode]);
 
   // Flatten all nodes across units to compute global index & active node
   const allNodes = LEARNING_UNITS.flatMap(u => u.nodes);
@@ -112,7 +118,11 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
   const handleNodeClick = (node: PathNode, isLocked: boolean, isCompleted: boolean) => {
     if (node.type === 'lesson' || node.type === 'challenge') {
       if (!isLocked) {
-        setSelectedLessonNode(node);
+        if (onSelectLessonNode) {
+          onSelectLessonNode(node);
+        } else {
+          setSelectedLessonNode(node);
+        }
       }
     } else if (node.type === 'chest') {
       if (!isLocked && !isCompleted) {
@@ -132,6 +142,19 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
       }
     }
   };
+
+  if (selectedLessonNode) {
+    return (
+      <MicroLessonScreen
+        node={selectedLessonNode}
+        onBack={() => setSelectedLessonNode(null)}
+        onComplete={(nodeId, xp) => {
+          onCompleteNode(nodeId, xp);
+          setSelectedLessonNode(null);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 select-none pb-20">
@@ -402,18 +425,6 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
           <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
-
-      {/* Micro-Lesson Modal */}
-      {selectedLessonNode && (
-        <MicroLessonModal
-          node={selectedLessonNode}
-          onClose={() => setSelectedLessonNode(null)}
-          onComplete={(nodeId, xp) => {
-            onCompleteNode(nodeId, xp);
-            setSelectedLessonNode(null);
-          }}
-        />
-      )}
 
       {/* Chest Reward Modal */}
       {selectedChestNode && (

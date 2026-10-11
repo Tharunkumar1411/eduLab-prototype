@@ -75,21 +75,6 @@ export const Game1Marketplace: React.FC<Game1MarketplaceProps> = ({
 
       {/* Main Game Container */}
       <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-xl space-y-6">
-        {/* Mentor Character Header */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 rounded-2xl bg-slate-950/70 border border-slate-800/90">
-          <CharacterMentor state={dialogue.state} size="md" />
-          <div className="space-y-1.5 text-center sm:text-left flex-1">
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-bold text-teal-400 uppercase tracking-wider">
-              <span>Inspector Fin</span>
-              <span className="text-slate-600">·</span>
-              <span className="text-slate-400 normal-case">Your Financial Detective Guide</span>
-            </div>
-            <p className="text-sm sm:text-base text-slate-100 font-medium leading-relaxed">
-              "{dialogue.msg}"
-            </p>
-          </div>
-        </div>
-
         {/* STEP 1: Story Decision */}
         {step === 'story' && (
           <div className="space-y-5 animate-in fade-in duration-200">
@@ -140,6 +125,14 @@ export const Game1Marketplace: React.FC<Game1MarketplaceProps> = ({
                 })}
               </div>
             </div>
+
+            {/* Inline Choice Consequence */}
+            {selectedChoice && (
+              <div className="p-4 rounded-2xl bg-teal-950/40 border border-teal-500/30 text-xs sm:text-sm text-teal-200 flex items-start gap-3 animate-in fade-in duration-200">
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <p className="leading-relaxed font-medium">{dialogue.msg}</p>
+              </div>
+            )}
 
             {/* Next Action */}
             <div className="flex justify-end pt-2">

@@ -1,0 +1,92 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgTileGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B132B" />
+      <stop offset="45%" stop-color="#0D1B2A" />
+      <stop offset="100%" stop-color="#040814" />
+    </linearGradient>
+
+    <linearGradient id="tileBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.5" />
+      <stop offset="40%" stop-color="#10B981" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#1E293B" stop-opacity="0.6" />
+    </linearGradient>
+
+    <linearGradient id="bullHornsGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="35%" stop-color="#10B981" />
+      <stop offset="70%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <linearGradient id="goldSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="60%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <linearGradient id="bar1Grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#064E3B" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+
+    <linearGradient id="bar2Grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+
+    <linearGradient id="bar3Grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0891B2" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <radialGradient id="innerTileAura" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.22" />
+      <stop offset="60%" stop-color="#10B981" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#0B132B" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Rounded Squircle Container -->
+  <rect x="3" y="3" width="94" height="94" rx="24" fill="url(#bgTileGrad)" stroke="url(#tileBorderGrad)" stroke-width="2" />
+  <rect x="3" y="3" width="94" height="94" rx="24" fill="url(#innerTileAura)" />
+  <path d="M 5 27 C 5 14.85 14.85 5 27 5 L 73 5 C 85.15 5 95 14.85 95 27 C 95 35 60 48 5 35 Z" fill="white" fill-opacity="0.04" />
+
+  <!-- Candlestick Bars & Rising Market Base -->
+  <g id="chart-bars" opacity="0.95">
+    <rect x="24" y="60" width="8" height="18" rx="3" fill="url(#bar1Grad)" />
+    <line x1="28" y1="56" x2="28" y2="80" stroke="#10B981" stroke-width="1.5" stroke-linecap="round" opacity="0.6" />
+
+    <rect x="37" y="50" width="8" height="28" rx="3" fill="url(#bar2Grad)" />
+    <line x1="41" y1="45" x2="41" y2="81" stroke="#34D399" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
+
+    <rect x="50" y="40" width="8" height="38" rx="3" fill="url(#bar3Grad)" />
+    <line x1="54" y1="34" x2="54" y2="81" stroke="#38BDF8" stroke-width="1.5" stroke-linecap="round" opacity="0.8" />
+  </g>
+
+  <!-- Bull & Trend Geometry -->
+  <g id="bull-motif">
+    <path d="M 33 46 L 46 36 L 56 42 L 50 56 L 38 56 Z" fill="#0F766E" fill-opacity="0.85" stroke="#14B8A6" stroke-width="1" />
+    <polygon points="38,56 46,65 54,56 46,52" fill="url(#goldSparkGrad)" />
+    <path d="M 34 44 C 28 40 22 34 23 25 C 26 27 30 33 37 38 Z" fill="url(#bullHornsGrad)" />
+    <path d="M 23 66 C 30 63 36 57 44 49 C 52 41 62 31 74 21" stroke="url(#bullHornsGrad)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 64 20 L 76 19 L 75 31 L 70 26 L 64 20 Z" fill="#38BDF8" />
+    <path d="M 63 21 L 76 19 L 75 32 Z" fill="url(#bullHornsGrad)" />
+  </g>
+
+  <!-- Interconnected Data Points -->
+  <g id="nodes">
+    <circle cx="23" cy="66" r="3" fill="#10B981" stroke="#ECFDF5" stroke-width="1.5" />
+    <circle cx="44" cy="49" r="3" fill="#06B6D4" stroke="#F0FDF4" stroke-width="1.5" />
+    <circle cx="61" cy="32" r="3.5" fill="#FBBF24" stroke="#FFFBEB" stroke-width="1.5" />
+  </g>
+
+  <!-- Sparkle Stars -->
+  <g transform="translate(68, 38)">
+    <path d="M 0 -6 Q 0 0 6 0 Q 0 0 0 6 Q 0 0 -6 0 Q 0 0 0 -6 Z" fill="url(#goldSparkGrad)" />
+    <circle cx="0" cy="0" r="1.5" fill="#FEF08A" />
+  </g>
+  <g transform="translate(20, 22)">
+    <path d="M 0 -3.5 Q 0 0 3.5 0 Q 0 0 0 3.5 Q 0 0 -3.5 0 Q 0 0 0 -3.5 Z" fill="#38BDF8" opacity="0.8" />
+  </g>
+</svg>

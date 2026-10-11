@@ -89,21 +89,6 @@ export const Game3PriceDiscovery: React.FC<Game3PriceDiscoveryProps> = ({
 
       {/* Main Container */}
       <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-xl space-y-6">
-        {/* Mentor Header */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 rounded-2xl bg-slate-950/70 border border-slate-800/90">
-          <CharacterMentor state="thinking" size="md" />
-          <div className="space-y-1.5 text-center sm:text-left flex-1">
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-xs font-bold text-teal-400 uppercase tracking-wider">
-              <span>Inspector Fin</span>
-              <span className="text-slate-600">·</span>
-              <span className="text-slate-400 normal-case">The Mystery of Pricing</span>
-            </div>
-            <p className="text-sm sm:text-base text-slate-100 font-medium leading-relaxed">
-              "Your mango stall is getting popular. But something interesting is happening with prices. Let's run two small experiments!"
-            </p>
-          </div>
-        </div>
-
         {/* SUBSTAGE 1: Experiment A (High Supply, Low Demand) */}
         {subStage === 'exp_a' && (
           <div className="space-y-5 animate-in fade-in duration-200">
