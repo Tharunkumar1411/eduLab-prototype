@@ -18,15 +18,31 @@ import { getSectorById } from './data/sectors/index.ts';
 import { ThemeToggle } from './components/common/ThemeToggle.tsx';
 import { AppLogo } from './components/common/AppLogo.tsx';
 import { PathNode } from './data/learningPath.ts';
-import { Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Home, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
+import {
+  LearningModuleId,
+  ModuleProgress,
+  loadAllModulesProgress,
+  saveAllModulesProgress,
+  recordModuleActivityCompletion,
+} from './data/learningModules.ts';
+import { ModuleCatalogScreen } from './components/modules/ModuleCatalogScreen.tsx';
+import { ModuleNavigationHeader } from './components/modules/ModuleNavigationHeader.tsx';
+import { ModuleLandingPage } from './components/modules/ModuleLandingPage.tsx';
+import { MutualFundsHub } from './components/modules/mutualFunds/MutualFundsHub.tsx';
+import { ArrowLeft, Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Home, LayoutGrid, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
 
-type MainPillar = 'home' | 'playground' | 'tools';
+type MainPillar = 'home' | 'learn' | 'playground' | 'tools';
 
 export default function App() {
   const [activePillar, setActivePillar] = useState<MainPillar>('home');
   const [activeCase, setActiveCase] = useState<PlaygroundCase | null>(null);
   const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
+  const [selectedLearningModuleId, setSelectedLearningModuleId] = useState<LearningModuleId | null>(null);
+  const [stocksViewMode, setStocksViewMode] = useState<'overview' | 'path'>('overview');
+  const [modulesProgress, setModulesProgress] = useState<Record<LearningModuleId, ModuleProgress>>(() =>
+    loadAllModulesProgress()
+  );
   const [activePlaygroundLessonNode, setActivePlaygroundLessonNode] = useState<PathNode | null>(null);
   const [initialPlaygroundNode, setInitialPlaygroundNode] = useState<PathNode | null>(null);
   const [initialLabStockSymbol, setInitialLabStockSymbol] = useState<string | undefined>(undefined);
@@ -53,6 +69,21 @@ export default function App() {
       }
       return nextXp;
     });
+
+    // Also attribute XP to the currently active module if applicable
+    const activeMod = selectedLearningModuleId || 'stocks';
+    setModulesProgress(prev => {
+      const modProg = prev[activeMod];
+      const nextAll = {
+        ...prev,
+        [activeMod]: {
+          ...modProg,
+          earnedXp: modProg.earnedXp + amount,
+        },
+      };
+      saveAllModulesProgress(nextAll);
+      return nextAll;
+    });
   };
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
@@ -60,16 +91,32 @@ export default function App() {
   const [feedbackText, setFeedbackText] = useState<string>('');
 
   const handleCompleteNode = (nodeId: string, xpEarned: number) => {
+    // 1. Update Stocks module progress idempotently
+    setModulesProgress(prev => {
+      const stocksProg = prev.stocks;
+      const { updatedProgress, xpAwarded } = recordModuleActivityCompletion(stocksProg, nodeId, xpEarned);
+      const nextAll = {
+        ...prev,
+        stocks: updatedProgress,
+      };
+      saveAllModulesProgress(nextAll);
+
+      // Only award global XP if activity was newly completed (idempotent!)
+      if (xpAwarded > 0) {
+        setUserXp(curXp => {
+          const nextXp = curXp + xpAwarded;
+          const nextLevel = Math.floor(nextXp / 500) + 1;
+          if (nextLevel > userLevel) {
+            setUserLevel(nextLevel);
+          }
+          return nextXp;
+        });
+      }
+      return nextAll;
+    });
+
     if (!completedNodeIds.includes(nodeId)) {
       setCompletedNodeIds(prev => [...prev, nodeId]);
-      setUserXp(prev => {
-        const nextXp = prev + xpEarned;
-        const nextLevel = Math.floor(nextXp / 500) + 1;
-        if (nextLevel > userLevel) {
-          setUserLevel(nextLevel);
-        }
-        return nextXp;
-      });
     }
   };
 
@@ -78,23 +125,53 @@ export default function App() {
       setCompletedCaseIds(prev => [...prev, caseId]);
       // Also mark corresponding milestone node as complete
       if (caseId === 'case_vanishing_momentum') {
-        setCompletedNodeIds(prev => Array.from(new Set([...prev, 'node_lvl_12'])));
+        handleCompleteNode('node_lvl_12', xpEarned);
+      } else {
+        setModulesProgress(prev => {
+          const stocksProg = prev.stocks;
+          const { updatedProgress, xpAwarded } = recordModuleActivityCompletion(stocksProg, caseId, xpEarned);
+          const nextAll = { ...prev, stocks: updatedProgress };
+          saveAllModulesProgress(nextAll);
+          return nextAll;
+        });
+        setUserXp(prev => {
+          const nextXp = prev + xpEarned;
+          const nextLevel = Math.floor(nextXp / 500) + 1;
+          if (nextLevel > userLevel) {
+            setUserLevel(nextLevel);
+          }
+          return nextXp;
+        });
       }
-      setUserXp(prev => {
-        const nextXp = prev + xpEarned;
-        // check level up (500 XP per level)
-        const nextLevel = Math.floor(nextXp / 500) + 1;
-        if (nextLevel > userLevel) {
-          setUserLevel(nextLevel);
-        }
-        return nextXp;
-      });
     }
+  };
+
+  const handleCompleteMutualFundsLevel = (levelId: string, xpEarned: number) => {
+    setModulesProgress(prev => {
+      const mfProg = prev['mutual-funds'];
+      const { updatedProgress, xpAwarded } = recordModuleActivityCompletion(mfProg, levelId, xpEarned);
+      const nextAll = { ...prev, 'mutual-funds': updatedProgress };
+      saveAllModulesProgress(nextAll);
+
+      // Only award global XP if activity was newly completed (idempotent!)
+      if (xpAwarded > 0) {
+        setUserXp(curXp => {
+          const nextXp = curXp + xpAwarded;
+          const nextLevel = Math.floor(nextXp / 500) + 1;
+          if (nextLevel > userLevel) {
+            setUserLevel(nextLevel);
+          }
+          return nextXp;
+        });
+      }
+      return nextAll;
+    });
   };
 
   const handleStartOrContinueLessonFromHome = (node: PathNode) => {
     setActivePlaygroundLessonNode(node);
-    setActivePillar('playground');
+    setActivePillar('learn');
+    setSelectedLearningModuleId('stocks');
     setActiveCase(null);
     setActiveSectorId(null);
     setActiveModuleId(null);
@@ -102,7 +179,8 @@ export default function App() {
 
   const handleInvestigateCaseFromHome = (caseItem: PlaygroundCase) => {
     setActiveCase(caseItem);
-    setActivePillar('playground');
+    setActivePillar('learn');
+    setSelectedLearningModuleId('stocks');
   };
 
   const handleExploreSectorInLabFromHome = (stockSymbol: string) => {
@@ -214,20 +292,20 @@ export default function App() {
 
             <button
               onClick={() => {
-                setActivePillar('playground');
+                setActivePillar('learn');
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActiveModuleId(null);
                 setActivePlaygroundLessonNode(null);
               }}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                (activePillar === 'playground' || activePlaygroundLessonNode) && !activeModuleId
+                (activePillar === 'learn' || activePillar === 'playground' || activePlaygroundLessonNode) && !activeCase && !activeSectorId
                   ? 'bg-teal-600 text-white shadow-xs'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Zap className="w-3.5 h-3.5" />
-              <span>Playground</span>
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Learn</span>
             </button>
 
             <button
@@ -288,25 +366,47 @@ export default function App() {
           <Module01Hub
             userXp={userXp}
             onAwardXp={handleAwardXp}
-            onBackToMain={() => setActiveModuleId(null)}
+            onBackToMain={() => {
+              setActiveModuleId(null);
+              setActivePillar('learn');
+              setSelectedLearningModuleId('stocks');
+            }}
             onGoToPlayground={() => {
               setActiveModuleId(null);
-              setActivePillar('playground');
-              setActiveCase(null);
-              setActiveSectorId(null);
-              setActivePlaygroundLessonNode(null);
+              setActivePillar('learn');
+              setSelectedLearningModuleId('stocks');
+              setStocksViewMode('path');
             }}
           />
         ) : activePlaygroundLessonNode ? (
           <MicroLessonScreen
             node={activePlaygroundLessonNode}
-            onBack={() => setActivePlaygroundLessonNode(null)}
+            onBack={() => {
+              setActivePlaygroundLessonNode(null);
+              setActivePillar('learn');
+            }}
             onComplete={(nodeId, xpEarned) => {
               handleCompleteNode(nodeId, xpEarned);
               setActivePlaygroundLessonNode(null);
+              setActivePillar('learn');
             }}
           />
-        ) : activePillar === 'home' && !activeCase ? (
+        ) : activeCase ? (
+          <CaseInvestigation
+            caseData={activeCase}
+            onBack={() => {
+              setActiveCase(null);
+              setCaseProgress(null);
+              setActivePillar('learn');
+            }}
+            onCompleteCase={handleCompleteCase}
+            onProgressUpdate={setCaseProgress}
+            onGoToTradingLab={() => {
+              setActivePillar('tools');
+              setActiveCase(null);
+            }}
+          />
+        ) : activePillar === 'home' ? (
           activeSectorId && getSectorById(activeSectorId) ? (
             <SectorLearningHub
               sector={getSectorById(activeSectorId)!}
@@ -330,7 +430,8 @@ export default function App() {
               onExploreSectorInLab={handleExploreSectorInLabFromHome}
               onSelectSector={(sectorId) => setActiveSectorId(sectorId)}
               onGoToPlayground={() => {
-                setActivePillar('playground');
+                setActivePillar('learn');
+                setSelectedLearningModuleId(null);
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActivePlaygroundLessonNode(null);
@@ -340,44 +441,100 @@ export default function App() {
               onOpenLeaderboard={() => setShowLeaderboardModal(true)}
             />
           )
-        ) : activePillar === 'playground' || activeCase ? (
-          activeCase ? (
-            <CaseInvestigation
-              caseData={activeCase}
-              onBack={() => {
-                setActiveCase(null);
-                setCaseProgress(null);
+        ) : activePillar === 'learn' || activePillar === 'playground' ? (
+          <div className="space-y-6">
+            {/* Global Module Navigation Header */}
+            <ModuleNavigationHeader
+              activeModuleId={selectedLearningModuleId}
+              onSelectModule={(modId) => {
+                setSelectedLearningModuleId(modId);
+                setStocksViewMode('overview');
               }}
-              onCompleteCase={handleCompleteCase}
-              onProgressUpdate={setCaseProgress}
-              onGoToTradingLab={() => {
-                setActivePillar('tools');
-                setActiveCase(null);
-              }}
+              modulesProgress={modulesProgress}
+              currentSubView={stocksViewMode}
+              onNavigateSubView={(v) => setStocksViewMode(v)}
             />
-          ) : (
-            <PlaygroundHome
-              userXp={userXp}
-              userLevel={userLevel}
-              streakDays={streakDays}
-              completedCaseIds={completedCaseIds}
-              completedNodeIds={completedNodeIds}
-              onCompleteNode={handleCompleteNode}
-              onSelectCase={(c) => {
-                setActiveCase(c);
-                setCaseProgress(null);
-              }}
-              onGoToTradingLab={() => setActivePillar('tools')}
-              initialOpenNode={initialPlaygroundNode}
-              onClearInitialNode={() => setInitialPlaygroundNode(null)}
-              onStartModule01={() => setActiveModuleId('module_01')}
-              onSelectLessonNode={(node) => setActivePlaygroundLessonNode(node)}
-            />
-          )
+
+            {/* If no module is selected, render the Global Module Catalog Screen */}
+            {selectedLearningModuleId === null ? (
+              <ModuleCatalogScreen
+                modulesProgress={modulesProgress}
+                onSelectModule={(modId) => {
+                  setSelectedLearningModuleId(modId);
+                  setStocksViewMode('overview');
+                }}
+                userTotalXp={userXp}
+              />
+            ) : selectedLearningModuleId === 'stocks' && stocksViewMode === 'path' ? (
+              /* The Serpentine Winding Game Path for Stocks */
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setStocksViewMode('overview')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 hover:text-white transition-all cursor-pointer group"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
+                    <span>Stocks Overview</span>
+                  </button>
+                  <span className="text-xs font-bold text-teal-400">
+                    Interactive 3D Game Path
+                  </span>
+                </div>
+
+                <PlaygroundHome
+                  userXp={userXp}
+                  userLevel={userLevel}
+                  streakDays={streakDays}
+                  completedCaseIds={completedCaseIds}
+                  completedNodeIds={completedNodeIds}
+                  onCompleteNode={handleCompleteNode}
+                  onSelectCase={(c) => {
+                    setActiveCase(c);
+                    setCaseProgress(null);
+                  }}
+                  onGoToTradingLab={() => setActivePillar('tools')}
+                  initialOpenNode={initialPlaygroundNode}
+                  onClearInitialNode={() => setInitialPlaygroundNode(null)}
+                  onStartModule01={() => setActiveModuleId('module_01')}
+                  onSelectLessonNode={(node) => setActivePlaygroundLessonNode(node)}
+                />
+              </div>
+            ) : selectedLearningModuleId === 'mutual-funds' ? (
+              /* Dedicated Mutual Funds Module Hub & Level Runner */
+              <MutualFundsHub
+                userXp={userXp}
+                progress={modulesProgress['mutual-funds']}
+                onCompleteLevel={handleCompleteMutualFundsLevel}
+                onBackToCatalog={() => setSelectedLearningModuleId(null)}
+              />
+            ) : (
+              /* Reusable Module Landing Page for Stocks, Bonds, or F&O */
+              <ModuleLandingPage
+                moduleId={selectedLearningModuleId}
+                progress={modulesProgress[selectedLearningModuleId]}
+                onBackToCatalog={() => setSelectedLearningModuleId(null)}
+                onStartOrResumeLesson={(node) => {
+                  setActivePlaygroundLessonNode(node);
+                }}
+                onOpenGamePath={() => setStocksViewMode('path')}
+                onStartModule01={() => setActiveModuleId('module_01')}
+                onInvestigateCase={(c) => {
+                  setActiveCase(c);
+                }}
+                onSwitchModule={(newModId) => {
+                  setSelectedLearningModuleId(newModId);
+                  setStocksViewMode('overview');
+                }}
+                onCompleteMutualFundsLevel={handleCompleteMutualFundsLevel}
+                userXp={userXp}
+              />
+            )}
+          </div>
         ) : (
           <TradingLab
             onGoToPlayground={() => {
-              setActivePillar('playground');
+              setActivePillar('learn');
+              setSelectedLearningModuleId('stocks');
               setActiveCase(null);
             }}
             onLabStateUpdate={setLabProgress}
@@ -409,18 +566,18 @@ export default function App() {
 
         <button
           onClick={() => {
-            setActivePillar('playground');
+            setActivePillar('learn');
             setActiveCase(null);
             setActiveSectorId(null);
             setActiveModuleId(null);
             setActivePlaygroundLessonNode(null);
           }}
           className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
-            (activePillar === 'playground' || activePlaygroundLessonNode) && !activeCase && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            (activePillar === 'learn' || activePillar === 'playground' || activePlaygroundLessonNode) && !activeCase && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Zap className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Playground</span>
+          <BookOpen className="w-5 h-5" />
+          <span className="text-[10px] tracking-tight mt-0.5">Learn</span>
         </button>
 
         <button
@@ -501,6 +658,31 @@ export default function App() {
                 <span className="text-lg font-bold text-emerald-400 font-mono-num mt-0.5 block">
                   {completedNodeIds.length} Done
                 </span>
+              </div>
+            </div>
+
+            {/* Module Breakdown */}
+            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
+              <span className="font-semibold text-teal-400 block">Modules Progress</span>
+              <div className="space-y-1 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300">📈 Stocks & Equity</span>
+                  <span className="text-emerald-400 font-bold font-mono-num">
+                    {modulesProgress.stocks.earnedXp} XP ({modulesProgress.stocks.completedActivityIds.length} done)
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-slate-500">
+                  <span>🥧 Mutual Funds</span>
+                  <span className="text-[10px]">Planned</span>
+                </div>
+                <div className="flex items-center justify-between text-slate-500">
+                  <span>🏛️ Bonds</span>
+                  <span className="text-[10px]">Planned</span>
+                </div>
+                <div className="flex items-center justify-between text-slate-500">
+                  <span>⚡ Futures & Options</span>
+                  <span className="text-[10px]">Planned</span>
+                </div>
               </div>
             </div>
 
