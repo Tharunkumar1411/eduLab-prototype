@@ -7,6 +7,8 @@
  * All data is fictional and clearly labeled as simulated educational models.
  */
 
+import { UnitSection, PathNode } from './learningPath.ts';
+
 export interface InvestorProfile {
   id: string;
   name: string;
@@ -709,5 +711,172 @@ export const MUTUAL_FUNDS_GLOSSARY: GlossaryTerm[] = [
     fullExplanation: 'Exit load discourages short-term speculative trading in long-term funds. The fee collected is typically credited back to the fund scheme to protect remaining long-term investors.',
     commonMistake: 'Thinking exit load applies forever; most equity funds have an exit load only if redeemed within 365 days (1 year).',
     example: '1.0% exit load if redeemed within 1 year; 0% exit load if redeemed after 365 days.',
+  },
+];
+
+// =========================================================================
+// DUOLINGO-SYSTEM LEARNING UNITS FOR MUTUAL FUNDS
+// =========================================================================
+
+export const MUTUAL_FUNDS_UNITS: UnitSection[] = [
+  {
+    id: 1,
+    sectionNumber: 1,
+    unitNumber: 1,
+    title: 'Foundations: Pooling, NAV & SIPs',
+    themeColor: 'from-teal-600 via-emerald-600 to-teal-500',
+    description: 'Learn how small savers pool capital, how NAV unit allocation works, and why monthly SIP compounding beats market timing.',
+    guidebook: {
+      title: 'Unit 1: Mutual Funds Foundations',
+      summary: 'Mutual funds pool savings into a professionally managed trust to purchase diversified portfolios that individual investors cannot easily assemble alone.',
+      keyTakeaways: [
+        {
+          term: 'Collective Pooling',
+          explanation: 'Savers pool money together. Instead of holding shares directly, they hold proportionate units of the scheme.',
+        },
+        {
+          term: 'Net Asset Value (NAV)',
+          explanation: 'NAV is the per-unit price: (Assets - Liabilities) / Outstanding Units. A ₹10 NAV is not cheaper than a ₹100 NAV.',
+        },
+        {
+          term: 'Rupee-Cost Averaging',
+          explanation: 'Fixed monthly SIP investments buy more units when NAV is low and fewer when NAV is high, lowering your average cost.',
+        },
+      ],
+    },
+    nodes: [
+      {
+        id: 'mf_lvl_1',
+        unitId: 1,
+        nodeIndex: 0,
+        title: 'Build a Fund & Collective Pooling',
+        subtitle: 'How 3 small savers pool money into a diversified basket',
+        levelBadge: 'Level 1',
+        type: 'lesson',
+        xpReward: 150,
+        iconType: 'book',
+        align: 'center',
+        estimatedMinutes: 5,
+      },
+      {
+        id: 'mf_lvl_2',
+        unitId: 1,
+        nodeIndex: 1,
+        title: 'NAV Mechanics & The Monthly SIP',
+        subtitle: 'The NAV Machine and Rupee-Cost Averaging simulator',
+        levelBadge: 'Level 2',
+        type: 'lesson',
+        xpReward: 200,
+        iconType: 'chart',
+        align: 'left',
+        estimatedMinutes: 6,
+      },
+      {
+        id: 'mf_chest_1',
+        unitId: 1,
+        nodeIndex: 2,
+        title: 'Rupee-Cost Averaging Milestone',
+        subtitle: 'Bonus milestone reward chest',
+        levelBadge: 'Bonus',
+        type: 'chest',
+        xpReward: 100,
+        iconType: 'chest',
+        align: 'far-left',
+        estimatedMinutes: 1,
+        chestReward: {
+          xp: 100,
+          badgeName: 'SIP Champion',
+          badgeIcon: '🌱',
+          quote: 'Disciplined periodic investing harnesses market volatility into long-term compounding.',
+        },
+      },
+    ],
+  },
+  {
+    id: 2,
+    sectionNumber: 1,
+    unitNumber: 2,
+    title: 'Strategy: Categories, Fees & Investigation',
+    themeColor: 'from-emerald-600 via-teal-600 to-cyan-600',
+    description: 'Explore Equity, Debt, Hybrid & Index fund trade-offs, unmask expense ratio drag, and solve the forensic Fund Comparison Case.',
+    guidebook: {
+      title: 'Unit 2: Fund Categories & Forensic Analysis',
+      summary: 'Selecting funds requires matching risk horizons to categories, watching for fee erosion, and evaluating portfolio diversification.',
+      keyTakeaways: [
+        {
+          term: 'Fund Categories',
+          explanation: 'Equity funds seek growth with market volatility; Debt funds offer stability with interest rate risk; Hybrids balance both.',
+        },
+        {
+          term: 'Total Expense Ratio (TER)',
+          explanation: 'Annual fee deducted daily from NAV. A 1% extra fee can erode over 20% of your total return over a 20-year horizon.',
+        },
+        {
+          term: 'Forensic Evaluation',
+          explanation: 'Past 1-year returns are deceptive. Look at 3-5 year rolling returns, benchmark comparison, and riskometer disclosures.',
+        },
+      ],
+    },
+    nodes: [
+      {
+        id: 'mf_lvl_3',
+        unitId: 2,
+        nodeIndex: 0,
+        title: 'Match the Fund to the Life Goal',
+        subtitle: 'Equity, Debt, Hybrid & Index fund trade-offs',
+        levelBadge: 'Level 3',
+        type: 'lesson',
+        xpReward: 200,
+        iconType: 'shield',
+        align: 'center',
+        estimatedMinutes: 6,
+      },
+      {
+        id: 'mf_lvl_4',
+        unitId: 2,
+        nodeIndex: 1,
+        title: 'Risk, Fees & The TER Drag Trap',
+        subtitle: 'How ongoing expense ratios erode wealth over time',
+        levelBadge: 'Level 4',
+        type: 'lesson',
+        xpReward: 250,
+        iconType: 'flame',
+        align: 'right',
+        estimatedMinutes: 7,
+      },
+      {
+        id: 'mf_lvl_5',
+        unitId: 2,
+        nodeIndex: 2,
+        title: 'The Fund Comparison Mystery',
+        subtitle: 'Evaluate Alpha vs Beta vs Gamma with real evidence',
+        levelBadge: 'Boss Case',
+        type: 'case',
+        xpReward: 350,
+        iconType: 'crown',
+        align: 'far-right',
+        estimatedMinutes: 8,
+        caseId: 'case_fund_investigation',
+      },
+      {
+        id: 'mf_chest_2',
+        unitId: 2,
+        nodeIndex: 3,
+        title: 'Master Fund Architect Chest',
+        subtitle: 'Curriculum completion grand reward',
+        levelBadge: 'Mastery',
+        type: 'chest',
+        xpReward: 150,
+        iconType: 'chest',
+        align: 'center',
+        estimatedMinutes: 1,
+        chestReward: {
+          xp: 150,
+          badgeName: 'Certified Fund Detective',
+          badgeIcon: '🎓',
+          quote: 'You evaluate mutual funds on evidence, costs, and risk — not headlines or hype!',
+        },
+      },
+    ],
   },
 ];

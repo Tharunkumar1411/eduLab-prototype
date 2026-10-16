@@ -6,9 +6,11 @@
 import React from 'react';
 import { PathNode } from '../../data/learningPath.ts';
 import { PlaygroundCase } from '../../data/cases.ts';
+import { LearningModuleId } from '../../data/learningModules.ts';
 import { ConnectiveGamePath } from './ConnectiveGamePath.tsx';
 
 interface PlaygroundHomeProps {
+  moduleId?: LearningModuleId;
   userXp: number;
   userLevel: number;
   streakDays: number;
@@ -24,9 +26,11 @@ interface PlaygroundHomeProps {
 }
 
 export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
+  moduleId = 'stocks',
   userXp,
   userLevel,
   streakDays,
+  completedCaseIds,
   completedNodeIds,
   onCompleteNode,
   onSelectCase,
@@ -39,6 +43,7 @@ export const PlaygroundHome: React.FC<PlaygroundHomeProps> = ({
   return (
     <div className="w-full">
       <ConnectiveGamePath
+        moduleId={moduleId}
         userXp={userXp}
         userLevel={userLevel}
         streakDays={streakDays}

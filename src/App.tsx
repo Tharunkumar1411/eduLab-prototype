@@ -29,10 +29,9 @@ import {
 import { ModuleCatalogScreen } from './components/modules/ModuleCatalogScreen.tsx';
 import { ModuleNavigationHeader } from './components/modules/ModuleNavigationHeader.tsx';
 import { ModuleLandingPage } from './components/modules/ModuleLandingPage.tsx';
-import { MutualFundsHub } from './components/modules/mutualFunds/MutualFundsHub.tsx';
 import { ProfileView } from './components/profile/ProfileView.tsx';
 import { OnboardingModal } from './components/onboarding/OnboardingModal.tsx';
-import { ArrowLeft, Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Gamepad2, Home, LayoutGrid, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
+import { ArrowLeft, Award, BookOpen, Bot, CheckCircle2, Coffee, Compass, Flame, Gamepad2, Home, LayoutGrid, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
 
 type MainPillar = 'home' | 'learn' | 'playground' | 'tools' | 'profile';
 
@@ -285,7 +284,7 @@ export default function App() {
 
           {/* Desktop Product Navigation Switcher */}
           <nav aria-label="Main Navigation" className="hidden sm:flex items-center gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800">
-            {/* 1. Overview */}
+            {/* 1. Lounge */}
             <button
               onClick={() => {
                 setActivePillar('home');
@@ -300,8 +299,8 @@ export default function App() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span>Overview</span>
+              <Coffee className="w-3.5 h-3.5" />
+              <span>Lounge</span>
             </button>
 
             {/* 2. Playground (Root Tab) */}
@@ -371,15 +370,6 @@ export default function App() {
             >
               <Trophy className="w-3.5 h-3.5 text-amber-400" />
               <span className="font-medium">Leaderboard</span>
-            </button>
-
-            <button
-              onClick={() => setShowProfileModal(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs text-slate-300 hover:text-teal-300 transition-colors cursor-pointer"
-              title="View Learner Profile"
-            >
-              <User className="w-3.5 h-3.5 text-teal-400" />
-              <span className="font-medium">Profile</span>
             </button>
 
             <ThemeToggle />
@@ -478,15 +468,26 @@ export default function App() {
           )
         ) : activePillar === 'learn' || activePillar === 'playground' ? (
           <div className="space-y-4">
-            {/* When Stocks is selected (default), render the Duolingo-style Serpentine Path directly */}
-            {selectedLearningModuleId === 'stocks' ? (
+            {/* Centralized Duolingo System Learning Playground for both Stocks and Mutual Funds */}
+            {selectedLearningModuleId === 'stocks' || selectedLearningModuleId === 'mutual-funds' ? (
               <PlaygroundHome
+                moduleId={selectedLearningModuleId}
                 userXp={userXp}
                 userLevel={userLevel}
                 streakDays={streakDays}
                 completedCaseIds={completedCaseIds}
-                completedNodeIds={completedNodeIds}
-                onCompleteNode={handleCompleteNode}
+                completedNodeIds={
+                  selectedLearningModuleId === 'mutual-funds'
+                    ? modulesProgress['mutual-funds'].completedActivityIds
+                    : completedNodeIds
+                }
+                onCompleteNode={(nodeId, xp) => {
+                  if (selectedLearningModuleId === 'mutual-funds') {
+                    handleCompleteMutualFundsLevel(nodeId, xp);
+                  } else {
+                    handleCompleteNode(nodeId, xp);
+                  }
+                }}
                 onSelectCase={(c) => {
                   setActiveCase(c);
                   setCaseProgress(null);
@@ -496,16 +497,6 @@ export default function App() {
                 onClearInitialNode={() => setInitialPlaygroundNode(null)}
                 onStartModule01={() => setActiveModuleId('module_01')}
                 onSelectLessonNode={(node) => setActivePlaygroundLessonNode(node)}
-              />
-            ) : selectedLearningModuleId === 'mutual-funds' ? (
-              /* Dedicated Mutual Funds Module Hub & Level Runner */
-              <MutualFundsHub
-                userXp={userXp}
-                progress={modulesProgress['mutual-funds']}
-                onCompleteLevel={handleCompleteMutualFundsLevel}
-                onBackToCatalog={() => {
-                  setActivePillar('profile');
-                }}
               />
             ) : (
               /* Planned Modules: Bonds or F&O */
@@ -583,12 +574,12 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Fixed Bottom Navigation Bar (4 tabs only: Overview, Playground, Trading Lab, Profile) */}
+      {/* Mobile Fixed Bottom Navigation Bar (4 tabs only: Lounge, Playground, Trading Lab, Profile) */}
       <nav
         aria-label="Mobile Navigation"
         className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-4 items-center shadow-2xl"
       >
-        {/* 1. Overview (renamed from Home) */}
+        {/* 1. Lounge */}
         <button
           onClick={() => {
             setActivePillar('home');
@@ -601,8 +592,8 @@ export default function App() {
             activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId && !activePlaygroundLessonNode ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <LayoutGrid className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Overview</span>
+          <Coffee className="w-5 h-5" />
+          <span className="text-[10px] tracking-tight mt-0.5">Lounge</span>
         </button>
 
         {/* 2. Playground (Root Tab - user always lands here initially) */}

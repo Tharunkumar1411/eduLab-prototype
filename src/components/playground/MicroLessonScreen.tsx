@@ -91,59 +91,27 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
     return (
       <div className="w-full max-w-4xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300 select-none">
         {/* Top Screen Navigation Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:px-5 sm:py-3.5 shadow-lg backdrop-blur-md">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:px-5 sm:py-3.5 shadow-lg backdrop-blur-md">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={handleExit}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer group"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer group shrink-0"
             >
               <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
               <span>Back to Path</span>
             </button>
 
-            <div className="h-4 w-px bg-slate-800 hidden sm:block" />
+            <div className="h-4 w-px bg-slate-800 hidden sm:block shrink-0" />
 
-            <div className="text-xs font-bold text-slate-300">
+            <div className="text-xs font-bold text-slate-300 truncate">
               <span className="text-teal-400">Level {guidedLesson.levelNumber}</span>
               <span className="text-slate-600 mx-1.5">·</span>
               <span className="text-slate-100">{guidedLesson.title}</span>
             </div>
           </div>
 
-          {/* Duolingo-style Stages Breadcrumb Bar */}
-          <div className="flex items-center justify-center gap-1 sm:gap-1.5">
-            {stages.map((stg, idx) => {
-              const IconComponent = stg.icon;
-              const isPassed = idx < currentStageIndex;
-              const isCurrent = idx === currentStageIndex;
-
-              return (
-                <button
-                  key={stg.key}
-                  onClick={() => {
-                    // Allow navigating back to completed stages
-                    if (isPassed || isCurrent) {
-                      setCurrentStage(stg.key);
-                    }
-                  }}
-                  disabled={!isPassed && !isCurrent}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                    isCurrent
-                      ? 'bg-teal-500/20 border border-teal-500/60 text-teal-300 shadow-xs ring-1 ring-teal-500/30'
-                      : isPassed
-                      ? 'bg-emerald-950/60 border border-emerald-800/50 text-emerald-400 hover:bg-emerald-900/50 cursor-pointer'
-                      : 'text-slate-600 border border-transparent cursor-not-allowed'
-                  }`}
-                >
-                  <IconComponent className={`w-3.5 h-3.5 ${isCurrent ? 'text-teal-400 animate-pulse' : ''}`} />
-                  <span className="hidden sm:inline">{stg.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
           {/* XP Reward Counter */}
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 font-mono-num bg-amber-950/60 border border-amber-800/40 px-3 py-1.5 rounded-xl self-end sm:self-auto">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 font-mono-num bg-amber-950/60 border border-amber-800/40 px-3 py-1.5 rounded-xl shrink-0">
             <Sparkles className="w-3.5 h-3.5" />
             <span>+{guidedLesson.xpReward} XP</span>
           </div>

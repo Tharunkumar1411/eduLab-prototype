@@ -6,12 +6,20 @@
 
 import React, { useState } from 'react';
 import { LEARNING_UNITS, PathNode, UnitSection } from '../../data/learningPath.ts';
+import { MUTUAL_FUNDS_UNITS } from '../../data/mutualFundsData.ts';
+import { LearningModuleId } from '../../data/learningModules.ts';
 import { PLAYGROUND_CASES, PlaygroundCase } from '../../data/cases.ts';
 import { CharacterMentor } from '../character/CharacterMentor.tsx';
 import { MicroLessonScreen } from './MicroLessonScreen.tsx';
 import { ChestRewardModal } from './ChestRewardModal.tsx';
 import { UnitGuidebookModal } from './UnitGuidebookModal.tsx';
 import { CasePreviewModal } from './CasePreviewModal.tsx';
+import { Level1BuildAFund } from '../modules/mutualFunds/Level1BuildAFund.tsx';
+import { Level2NavAndSip } from '../modules/mutualFunds/Level2NavAndSip.tsx';
+import { Level3MatchTheFund } from '../modules/mutualFunds/Level3MatchTheFund.tsx';
+import { Level4RiskAndFees } from '../modules/mutualFunds/Level4RiskAndFees.tsx';
+import { Level5FundInvestigator } from '../modules/mutualFunds/Level5FundInvestigator.tsx';
+import { MutualFundsGlossaryModal } from '../modules/mutualFunds/MutualFundsGlossaryModal.tsx';
 import {
   Award,
   BookOpen,
@@ -31,6 +39,7 @@ import {
 } from 'lucide-react';
 
 interface ConnectiveGamePathProps {
+  moduleId?: LearningModuleId;
   userXp: number;
   userLevel: number;
   streakDays: number;
@@ -45,6 +54,7 @@ interface ConnectiveGamePathProps {
 }
 
 export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
+  moduleId = 'stocks',
   userXp,
   userLevel,
   streakDays,
@@ -66,6 +76,11 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
     isCompleted: boolean;
   } | null>(null);
   const [activeGuidebookUnit, setActiveGuidebookUnit] = useState<UnitSection | null>(null);
+  const [activeMfLevelId, setActiveMfLevelId] = useState<string | null>(null);
+  const [isMfGlossaryOpen, setIsMfGlossaryOpen] = useState<boolean>(false);
+
+  // Dynamic Units based on selected module
+  const learningUnits = moduleId === 'mutual-funds' ? MUTUAL_FUNDS_UNITS : LEARNING_UNITS;
 
   // Automatically trigger lesson if coming from Home screen
   React.useEffect(() => {
@@ -90,23 +105,25 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
   }, [initialOpenNode, onSelectLessonNode]);
 
   // Flatten all nodes across units to compute global index & active node
-  const allNodes = LEARNING_UNITS.flatMap(u => u.nodes);
+  const allNodes = learningUnits.flatMap(u => u.nodes);
 
   // Find the first uncompleted node as the active node
   const activeNodeIndex = allNodes.findIndex(n => !completedNodeIds.includes(n.id));
   const activeNode = activeNodeIndex >= 0 ? allNodes[activeNodeIndex] : allNodes[allNodes.length - 1];
 
-  const defaultUnitId = activeNode ? activeNode.unitId : 1;
+  const defaultUnitId = activeNode ? activeNode.unitId : (learningUnits[0]?.id || 1);
   const [activeUnitId, setActiveUnitId] = useState<number>(defaultUnitId);
 
-  // Update active unit if active node changes to another unit and wasn't manually overridden
+  // Update active unit if active node changes to another unit or module changes
   React.useEffect(() => {
     if (activeNode) {
       setActiveUnitId(activeNode.unitId);
+    } else if (learningUnits.length > 0) {
+      setActiveUnitId(learningUnits[0].id);
     }
-  }, [completedNodeIds.length]);
+  }, [completedNodeIds.length, moduleId]);
 
-  const currentUnit = LEARNING_UNITS.find(u => u.id === activeUnitId) || LEARNING_UNITS[0];
+  const currentUnit = learningUnits.find(u => u.id === activeUnitId) || learningUnits[0] || LEARNING_UNITS[0];
 
   // Alternating horizontal offsets for the serpentine path
   // [0 = center, -1 = left, -2 = far-left, 0 = center, 1 = right, 2 = far-right]
@@ -116,6 +133,14 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
   };
 
   const handleNodeClick = (node: PathNode, isLocked: boolean, isCompleted: boolean) => {
+    // Mutual funds interactive level launcher
+    if (node.id.startsWith('mf_lvl_')) {
+      if (!isLocked) {
+        setActiveMfLevelId(node.id);
+      }
+      return;
+    }
+
     if (node.type === 'lesson' || node.type === 'challenge') {
       if (!isLocked) {
         if (onSelectLessonNode) {
@@ -142,6 +167,63 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
       }
     }
   };
+
+  // Render Mutual Funds Interactive Activity Screen
+  if (activeMfLevelId === 'mf_lvl_1') {
+    return (
+      <Level1BuildAFund
+        onComplete={(xp) => {
+          onCompleteNode('mf_lvl_1', xp);
+          setActiveMfLevelId(null);
+        }}
+        onBack={() => setActiveMfLevelId(null)}
+      />
+    );
+  }
+  if (activeMfLevelId === 'mf_lvl_2') {
+    return (
+      <Level2NavAndSip
+        onComplete={(xp) => {
+          onCompleteNode('mf_lvl_2', xp);
+          setActiveMfLevelId(null);
+        }}
+        onBack={() => setActiveMfLevelId(null)}
+      />
+    );
+  }
+  if (activeMfLevelId === 'mf_lvl_3') {
+    return (
+      <Level3MatchTheFund
+        onComplete={(xp) => {
+          onCompleteNode('mf_lvl_3', xp);
+          setActiveMfLevelId(null);
+        }}
+        onBack={() => setActiveMfLevelId(null)}
+      />
+    );
+  }
+  if (activeMfLevelId === 'mf_lvl_4') {
+    return (
+      <Level4RiskAndFees
+        onComplete={(xp) => {
+          onCompleteNode('mf_lvl_4', xp);
+          setActiveMfLevelId(null);
+        }}
+        onBack={() => setActiveMfLevelId(null)}
+      />
+    );
+  }
+  if (activeMfLevelId === 'mf_lvl_5' || activeMfLevelId === 'case_fund_investigation') {
+    return (
+      <Level5FundInvestigator
+        onComplete={(xp) => {
+          onCompleteNode('mf_lvl_5', xp);
+          setActiveMfLevelId(null);
+        }}
+        onBack={() => setActiveMfLevelId(null)}
+      />
+    );
+  }
 
   if (selectedLessonNode) {
     return (
@@ -183,10 +265,21 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
           <Shield className="w-3.5 h-3.5 text-teal-400" />
           <span>Lvl {userLevel}</span>
         </div>
+
+        {/* Mutual Funds Glossary Trigger */}
+        {moduleId === 'mutual-funds' && (
+          <button
+            onClick={() => setIsMfGlossaryOpen(true)}
+            className="flex items-center gap-1.5 text-teal-300 hover:text-white font-bold text-xs bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 transition-colors cursor-pointer"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-teal-400" />
+            <span>Glossary</span>
+          </button>
+        )}
       </div>
 
-      {/* Module 01 Featured Quest Banner */}
-      {onStartModule01 && (
+      {/* Module 01 Featured Quest Banner (Stocks only) */}
+      {onStartModule01 && moduleId === 'stocks' && (
         <div
           onClick={onStartModule01}
           className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/60 border border-teal-500/40 hover:border-teal-400 shadow-lg cursor-pointer transition-all flex items-center justify-between gap-4 group"
@@ -215,8 +308,8 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
         </div>
       )}
 
-      {/* Duolingo Section / Unit Header Banner (Just like in the screenshot!) */}
-      <div className="rounded-2xl p-5 bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-500 text-white shadow-xl relative overflow-hidden">
+      {/* Duolingo Section / Unit Header Banner */}
+      <div className={`rounded-2xl p-5 bg-gradient-to-r ${currentUnit.themeColor || 'from-teal-600 via-emerald-600 to-teal-500'} text-white shadow-xl relative overflow-hidden`}>
         {/* Subtle patterned overlay */}
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px] pointer-events-none" />
 
@@ -236,7 +329,7 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
           {/* Guidebook Button */}
           <button
             onClick={() => setActiveGuidebookUnit(currentUnit)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs backdrop-blur-md border border-white/30 transition-all shrink-0 active:scale-95"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs backdrop-blur-md border border-white/30 transition-all shrink-0 active:scale-95 cursor-pointer"
             title="Open Unit Guidebook"
           >
             <BookOpen className="w-4 h-4" />
@@ -246,11 +339,11 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
 
         {/* Unit switcher tabs */}
         <div className="relative mt-4 pt-3 border-t border-white/20 flex items-center gap-2 overflow-x-auto scrollbar-none">
-          {LEARNING_UNITS.map(unit => (
+          {learningUnits.map(unit => (
             <button
               key={unit.id}
               onClick={() => setActiveUnitId(unit.id)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 ${
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
                 activeUnitId === unit.id
                   ? 'bg-white text-teal-900 shadow-sm'
                   : 'bg-black/20 text-white hover:bg-black/30'
@@ -406,7 +499,9 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
               {currentUnit.nodes.find(n => n.type === 'case')?.title || 'Forensic Case Investigation'}
             </h4>
             <p className="text-xs text-slate-400">
-              Apply your collected clues to solve real corporate autopsies with Inspector Fin.
+              {moduleId === 'mutual-funds'
+                ? 'Put your fund evaluation skills to the test in the forensic Fund Comparison Case.'
+                : 'Apply your collected clues to solve real corporate autopsies with Inspector Fin.'}
             </p>
           </div>
         </div>
@@ -415,11 +510,15 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
           onClick={() => {
             const caseNode = currentUnit.nodes.find(n => n.type === 'case');
             if (caseNode) {
-              const matched = PLAYGROUND_CASES.find(c => c.id === caseNode.caseId) || PLAYGROUND_CASES[0];
-              onSelectCase(matched);
+              if (caseNode.id.startsWith('mf_lvl_')) {
+                setActiveMfLevelId(caseNode.id);
+              } else {
+                const matched = PLAYGROUND_CASES.find(c => c.id === caseNode.caseId) || PLAYGROUND_CASES[0];
+                onSelectCase(matched);
+              }
             }
           }}
-          className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition-all shadow-md shrink-0 flex items-center gap-1.5"
+          className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition-all shadow-md shrink-0 flex items-center gap-1.5 cursor-pointer"
         >
           <span>Examine Case</span>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -461,6 +560,12 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
           }}
         />
       )}
+
+      {/* Mutual Funds Glossary Modal */}
+      <MutualFundsGlossaryModal
+        isOpen={isMfGlossaryOpen}
+        onClose={() => setIsMfGlossaryOpen(false)}
+      />
     </div>
   );
 };
