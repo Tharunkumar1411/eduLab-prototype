@@ -30,7 +30,7 @@ import { ModuleCatalogScreen } from './components/modules/ModuleCatalogScreen.ts
 import { ModuleNavigationHeader } from './components/modules/ModuleNavigationHeader.tsx';
 import { ModuleLandingPage } from './components/modules/ModuleLandingPage.tsx';
 import { ProfileView } from './components/profile/ProfileView.tsx';
-import { OnboardingModal } from './components/onboarding/OnboardingModal.tsx';
+import { OnboardingScreen } from './components/onboarding/OnboardingScreen.tsx';
 import { ArrowLeft, Award, BookOpen, Bot, CheckCircle2, Coffee, Compass, Flame, Gamepad2, Home, LayoutGrid, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
 
 type MainPillar = 'home' | 'learn' | 'playground' | 'tools' | 'profile';
@@ -247,6 +247,22 @@ export default function App() {
     experimentReturnDiff: labProgress?.experimentReturnDiff,
     experimentDrawdownDiff: labProgress?.experimentDrawdownDiff,
   };
+
+  if (showOnboarding) {
+    return (
+      <OnboardingScreen
+        onComplete={(modId) => {
+          setSelectedLearningModuleId(modId);
+          setShowOnboarding(false);
+          setActivePillar('playground');
+        }}
+        onSkip={() => {
+          setShowOnboarding(false);
+          setActivePillar('playground');
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-teal-500 selection:text-white">
@@ -929,17 +945,6 @@ export default function App() {
         onOpenChange={setIsChatOpen}
         externalPrompt={chatExternalPrompt}
         onClearExternalPrompt={() => setChatExternalPrompt(null)}
-      />
-
-      {/* User Onboarding & Module Selection Flow */}
-      <OnboardingModal
-        isOpen={showOnboarding}
-        onComplete={(modId) => {
-          setSelectedLearningModuleId(modId);
-          setShowOnboarding(false);
-          setActivePillar('playground');
-        }}
-        onClose={() => setShowOnboarding(false)}
       />
     </div>
   );
