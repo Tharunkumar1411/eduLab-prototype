@@ -10,26 +10,25 @@ import {
   PieChart,
   Landmark,
   Zap,
-  LayoutGrid,
-  ChevronRight,
   Sparkles,
+  Layers,
 } from 'lucide-react';
 
 interface ModuleNavigationHeaderProps {
   activeModuleId: LearningModuleId | null;
-  onSelectModule: (moduleId: LearningModuleId | null) => void;
+  onSelectModule: (moduleId: LearningModuleId) => void;
   modulesProgress: Record<LearningModuleId, ModuleProgress>;
   currentSubView?: 'overview' | 'path' | 'investigation';
   onNavigateSubView?: (view: 'overview' | 'path') => void;
 }
 
 export const ModuleNavigationHeader: React.FC<ModuleNavigationHeaderProps> = ({
-  activeModuleId,
+  activeModuleId = 'stocks',
   onSelectModule,
   modulesProgress,
-  currentSubView = 'overview',
-  onNavigateSubView,
 }) => {
+  const currentModuleId = activeModuleId || 'stocks';
+  const currentDef = MODULE_DEFINITIONS[currentModuleId];
   const moduleList: LearningModuleId[] = ['stocks', 'mutual-funds', 'bonds', 'fno'];
 
   const getModuleIcon = (iconName: string, className: string = 'w-4 h-4') => {
@@ -48,37 +47,37 @@ export const ModuleNavigationHeader: React.FC<ModuleNavigationHeaderProps> = ({
   };
 
   return (
-    <div className="w-full bg-slate-900/90 border border-slate-800 rounded-2xl p-2 sm:p-2.5 shadow-lg backdrop-blur-md mb-6 animate-in fade-in duration-200">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
-        {/* Left: All Modules Back/Home Link */}
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => onSelectModule(null)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeModuleId === null
-                ? 'bg-teal-500 text-slate-950 shadow-xs'
-                : 'bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-750 border border-slate-700/60'
-            }`}
-          >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>All Modules</span>
-          </button>
-
-          {activeModuleId && (
-            <div className="hidden sm:flex items-center text-xs text-slate-500 font-medium">
-              <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
-              <span className="text-slate-300 ml-1">
-                {MODULE_DEFINITIONS[activeModuleId].shortTitle}
+    <div className="w-full max-w-2xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-2 sm:p-2.5 shadow-lg backdrop-blur-md mb-4 animate-in fade-in duration-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        {/* Left: Active Course Identifier (Duolingo Style) */}
+        <div className="flex items-center gap-2">
+          <div className={`p-1.5 rounded-xl bg-slate-950 border border-slate-800 ${currentDef.accentColor.text}`}>
+            {getModuleIcon(currentDef.iconName, 'w-4 h-4')}
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-slate-100">
+                {currentDef.shortTitle}
+              </span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-teal-500/10 text-teal-300 font-bold border border-teal-500/20">
+                Active Path
               </span>
             </div>
-          )}
+            <span className="text-[10px] text-slate-400 block leading-tight">
+              {currentModuleId === 'stocks'
+                ? 'Duolingo-style 4 Units Serpentine Trail'
+                : currentModuleId === 'mutual-funds'
+                ? '5 Progressive Interactive Levels'
+                : 'Upcoming Curriculum'}
+            </span>
+          </div>
         </div>
 
-        {/* Right: Quick Module Switcher Pills (Horizontal Scroll on Mobile) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+        {/* Right: Quick Module Switcher Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none">
           {moduleList.map((modId) => {
             const def = MODULE_DEFINITIONS[modId];
-            const isActive = activeModuleId === modId;
+            const isActive = currentModuleId === modId;
             const progress = modulesProgress[modId];
             const stats = getModuleStats(modId, progress);
 
@@ -86,14 +85,14 @@ export const ModuleNavigationHeader: React.FC<ModuleNavigationHeaderProps> = ({
               <button
                 key={modId}
                 onClick={() => onSelectModule(modId)}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-teal-600/90 text-white shadow-sm ring-1 ring-teal-400'
+                    ? 'bg-teal-500 text-slate-950 shadow-sm shadow-teal-500/20'
                     : 'bg-slate-950/70 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
                 }`}
                 title={def.title}
               >
-                <span className={isActive ? 'text-white' : def.accentColor.text}>
+                <span className={isActive ? 'text-slate-950' : def.accentColor.text}>
                   {getModuleIcon(def.iconName, 'w-3.5 h-3.5')}
                 </span>
                 <span>{def.shortTitle}</span>
@@ -103,7 +102,7 @@ export const ModuleNavigationHeader: React.FC<ModuleNavigationHeaderProps> = ({
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono-num ${
                         isActive
-                          ? 'bg-teal-900/80 text-teal-200'
+                          ? 'bg-teal-700 text-teal-100'
                           : 'bg-slate-800 text-teal-400'
                       }`}
                     >

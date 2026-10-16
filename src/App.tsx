@@ -24,25 +24,35 @@ import {
   loadAllModulesProgress,
   saveAllModulesProgress,
   recordModuleActivityCompletion,
+  MODULE_DEFINITIONS,
 } from './data/learningModules.ts';
 import { ModuleCatalogScreen } from './components/modules/ModuleCatalogScreen.tsx';
 import { ModuleNavigationHeader } from './components/modules/ModuleNavigationHeader.tsx';
 import { ModuleLandingPage } from './components/modules/ModuleLandingPage.tsx';
 import { MutualFundsHub } from './components/modules/mutualFunds/MutualFundsHub.tsx';
-import { ArrowLeft, Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Home, LayoutGrid, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
+import { ProfileView } from './components/profile/ProfileView.tsx';
+import { OnboardingModal } from './components/onboarding/OnboardingModal.tsx';
+import { ArrowLeft, Award, BookOpen, Bot, CheckCircle2, Compass, Flame, Gamepad2, Home, LayoutGrid, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
 
-type MainPillar = 'home' | 'learn' | 'playground' | 'tools';
+type MainPillar = 'home' | 'learn' | 'playground' | 'tools' | 'profile';
 
 export default function App() {
-  const [activePillar, setActivePillar] = useState<MainPillar>('home');
+  const [activePillar, setActivePillar] = useState<MainPillar>('playground');
   const [activeCase, setActiveCase] = useState<PlaygroundCase | null>(null);
   const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
-  const [selectedLearningModuleId, setSelectedLearningModuleId] = useState<LearningModuleId | null>(null);
-  const [stocksViewMode, setStocksViewMode] = useState<'overview' | 'path'>('overview');
+  const [selectedLearningModuleId, setSelectedLearningModuleId] = useState<LearningModuleId>('stocks');
+  const [stocksViewMode, setStocksViewMode] = useState<'overview' | 'path'>('path');
   const [modulesProgress, setModulesProgress] = useState<Record<LearningModuleId, ModuleProgress>>(() =>
     loadAllModulesProgress()
   );
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    try {
+      return !localStorage.getItem('fincraft_onboarded_v1');
+    } catch {
+      return false;
+    }
+  });
   const [activePlaygroundLessonNode, setActivePlaygroundLessonNode] = useState<PathNode | null>(null);
   const [initialPlaygroundNode, setInitialPlaygroundNode] = useState<PathNode | null>(null);
   const [initialLabStockSymbol, setInitialLabStockSymbol] = useState<string | undefined>(undefined);
@@ -254,8 +264,11 @@ export default function App() {
           {/* Brand Logo & Tagline */}
           <div
             onClick={() => {
-              setActivePillar('home');
+              setActivePillar('playground');
               setActiveCase(null);
+              setActiveSectorId(null);
+              setActiveModuleId(null);
+              setActivePlaygroundLessonNode(null);
             }}
             className="flex items-center gap-3 cursor-pointer"
           >
@@ -272,6 +285,7 @@ export default function App() {
 
           {/* Desktop Product Navigation Switcher */}
           <nav aria-label="Main Navigation" className="hidden sm:flex items-center gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800">
+            {/* 1. Overview */}
             <button
               onClick={() => {
                 setActivePillar('home');
@@ -286,13 +300,14 @@ export default function App() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <Home className="w-3.5 h-3.5" />
-              <span>Home</span>
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Overview</span>
             </button>
 
+            {/* 2. Playground (Root Tab) */}
             <button
               onClick={() => {
-                setActivePillar('learn');
+                setActivePillar('playground');
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActiveModuleId(null);
@@ -304,10 +319,11 @@ export default function App() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Learn</span>
+              <Gamepad2 className="w-3.5 h-3.5" />
+              <span>Playground</span>
             </button>
 
+            {/* 3. Trading Lab */}
             <button
               onClick={() => {
                 setActivePillar('tools');
@@ -324,6 +340,25 @@ export default function App() {
             >
               <TrendingUp className="w-3.5 h-3.5" />
               <span>Trading Lab</span>
+            </button>
+
+            {/* 4. Profile */}
+            <button
+              onClick={() => {
+                setActivePillar('profile');
+                setActiveCase(null);
+                setActiveSectorId(null);
+                setActiveModuleId(null);
+                setActivePlaygroundLessonNode(null);
+              }}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                activePillar === 'profile'
+                  ? 'bg-teal-600 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Profile</span>
             </button>
           </nav>
 
@@ -430,8 +465,8 @@ export default function App() {
               onExploreSectorInLab={handleExploreSectorInLabFromHome}
               onSelectSector={(sectorId) => setActiveSectorId(sectorId)}
               onGoToPlayground={() => {
-                setActivePillar('learn');
-                setSelectedLearningModuleId(null);
+                setActivePillar('playground');
+                setSelectedLearningModuleId('stocks');
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActivePlaygroundLessonNode(null);
@@ -442,98 +477,103 @@ export default function App() {
             />
           )
         ) : activePillar === 'learn' || activePillar === 'playground' ? (
-          <div className="space-y-6">
-            {/* Global Module Navigation Header */}
-            <ModuleNavigationHeader
-              activeModuleId={selectedLearningModuleId}
-              onSelectModule={(modId) => {
-                setSelectedLearningModuleId(modId);
-                setStocksViewMode('overview');
-              }}
-              modulesProgress={modulesProgress}
-              currentSubView={stocksViewMode}
-              onNavigateSubView={(v) => setStocksViewMode(v)}
-            />
-
-            {/* If no module is selected, render the Global Module Catalog Screen */}
-            {selectedLearningModuleId === null ? (
-              <ModuleCatalogScreen
-                modulesProgress={modulesProgress}
-                onSelectModule={(modId) => {
-                  setSelectedLearningModuleId(modId);
-                  setStocksViewMode('overview');
+          <div className="space-y-4">
+            {/* When Stocks is selected (default), render the Duolingo-style Serpentine Path directly */}
+            {selectedLearningModuleId === 'stocks' ? (
+              <PlaygroundHome
+                userXp={userXp}
+                userLevel={userLevel}
+                streakDays={streakDays}
+                completedCaseIds={completedCaseIds}
+                completedNodeIds={completedNodeIds}
+                onCompleteNode={handleCompleteNode}
+                onSelectCase={(c) => {
+                  setActiveCase(c);
+                  setCaseProgress(null);
                 }}
-                userTotalXp={userXp}
+                onGoToTradingLab={() => setActivePillar('tools')}
+                initialOpenNode={initialPlaygroundNode}
+                onClearInitialNode={() => setInitialPlaygroundNode(null)}
+                onStartModule01={() => setActiveModuleId('module_01')}
+                onSelectLessonNode={(node) => setActivePlaygroundLessonNode(node)}
               />
-            ) : selectedLearningModuleId === 'stocks' && stocksViewMode === 'path' ? (
-              /* The Serpentine Winding Game Path for Stocks */
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => setStocksViewMode('overview')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 hover:text-white transition-all cursor-pointer group"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
-                    <span>Stocks Overview</span>
-                  </button>
-                  <span className="text-xs font-bold text-teal-400">
-                    Interactive 3D Game Path
-                  </span>
-                </div>
-
-                <PlaygroundHome
-                  userXp={userXp}
-                  userLevel={userLevel}
-                  streakDays={streakDays}
-                  completedCaseIds={completedCaseIds}
-                  completedNodeIds={completedNodeIds}
-                  onCompleteNode={handleCompleteNode}
-                  onSelectCase={(c) => {
-                    setActiveCase(c);
-                    setCaseProgress(null);
-                  }}
-                  onGoToTradingLab={() => setActivePillar('tools')}
-                  initialOpenNode={initialPlaygroundNode}
-                  onClearInitialNode={() => setInitialPlaygroundNode(null)}
-                  onStartModule01={() => setActiveModuleId('module_01')}
-                  onSelectLessonNode={(node) => setActivePlaygroundLessonNode(node)}
-                />
-              </div>
             ) : selectedLearningModuleId === 'mutual-funds' ? (
               /* Dedicated Mutual Funds Module Hub & Level Runner */
               <MutualFundsHub
                 userXp={userXp}
                 progress={modulesProgress['mutual-funds']}
                 onCompleteLevel={handleCompleteMutualFundsLevel}
-                onBackToCatalog={() => setSelectedLearningModuleId(null)}
+                onBackToCatalog={() => {
+                  setActivePillar('profile');
+                }}
               />
             ) : (
-              /* Reusable Module Landing Page for Stocks, Bonds, or F&O */
-              <ModuleLandingPage
-                moduleId={selectedLearningModuleId}
-                progress={modulesProgress[selectedLearningModuleId]}
-                onBackToCatalog={() => setSelectedLearningModuleId(null)}
-                onStartOrResumeLesson={(node) => {
-                  setActivePlaygroundLessonNode(node);
-                }}
-                onOpenGamePath={() => setStocksViewMode('path')}
-                onStartModule01={() => setActiveModuleId('module_01')}
-                onInvestigateCase={(c) => {
-                  setActiveCase(c);
-                }}
-                onSwitchModule={(newModId) => {
-                  setSelectedLearningModuleId(newModId);
-                  setStocksViewMode('overview');
-                }}
-                onCompleteMutualFundsLevel={handleCompleteMutualFundsLevel}
-                userXp={userXp}
-              />
+              /* Planned Modules: Bonds or F&O */
+              <div className="max-w-2xl mx-auto p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto text-xl font-bold">
+                  ⏱️
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-slate-100">
+                    {MODULE_DEFINITIONS[selectedLearningModuleId].title}
+                  </h3>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto">
+                    {MODULE_DEFINITIONS[selectedLearningModuleId].description}
+                  </p>
+                </div>
+                <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-300">
+                  <span>Curriculum roadmap in development. Please select an active module from your Profile:</span>
+                </div>
+                <div className="flex items-center justify-center gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      setSelectedLearningModuleId('stocks');
+                      setActivePillar('playground');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>📈 Stocks Path</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedLearningModuleId('mutual-funds');
+                      setActivePillar('playground');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-teal-300 border border-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>🥧 Mutual Funds Path</span>
+                  </button>
+                </div>
+              </div>
             )}
           </div>
+        ) : activePillar === 'profile' ? (
+          <ProfileView
+            userXp={userXp}
+            userLevel={userLevel}
+            streakDays={streakDays}
+            completedNodeIds={completedNodeIds}
+            completedCaseIds={completedCaseIds}
+            modulesProgress={modulesProgress}
+            activeModuleId={selectedLearningModuleId}
+            onSelectModule={(modId) => {
+              setSelectedLearningModuleId(modId);
+            }}
+            onNavigateToModule={(modId) => {
+              setActivePillar('playground');
+              setSelectedLearningModuleId(modId);
+              setStocksViewMode('path');
+            }}
+            onOpenLeaderboard={() => setShowLeaderboardModal(true)}
+            onGoToPlayground={() => {
+              setActivePillar('playground');
+            }}
+            onOpenOnboarding={() => setShowOnboarding(true)}
+          />
         ) : (
           <TradingLab
             onGoToPlayground={() => {
-              setActivePillar('learn');
+              setActivePillar('playground');
               setSelectedLearningModuleId('stocks');
               setActiveCase(null);
             }}
@@ -543,11 +583,12 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Fixed Bottom Navigation Bar (Thumb Friendly, 44px+ hit targets) */}
+      {/* Mobile Fixed Bottom Navigation Bar (4 tabs only: Overview, Playground, Trading Lab, Profile) */}
       <nav
         aria-label="Mobile Navigation"
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-5 items-center shadow-2xl"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-4 items-center shadow-2xl"
       >
+        {/* 1. Overview (renamed from Home) */}
         <button
           onClick={() => {
             setActivePillar('home');
@@ -560,13 +601,14 @@ export default function App() {
             activePillar === 'home' && !activeCase && !activeSectorId && !activeModuleId && !activePlaygroundLessonNode ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Home className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Home</span>
+          <LayoutGrid className="w-5 h-5" />
+          <span className="text-[10px] tracking-tight mt-0.5">Overview</span>
         </button>
 
+        {/* 2. Playground (Root Tab - user always lands here initially) */}
         <button
           onClick={() => {
-            setActivePillar('learn');
+            setActivePillar('playground');
             setActiveCase(null);
             setActiveSectorId(null);
             setActiveModuleId(null);
@@ -576,10 +618,11 @@ export default function App() {
             (activePillar === 'learn' || activePillar === 'playground' || activePlaygroundLessonNode) && !activeCase && !activeModuleId ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <BookOpen className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Learn</span>
+          <Gamepad2 className="w-5 h-5" />
+          <span className="text-[10px] tracking-tight mt-0.5">Playground</span>
         </button>
 
+        {/* 3. Trading Lab */}
         <button
           onClick={() => {
             setActivePillar('tools');
@@ -593,20 +636,21 @@ export default function App() {
           }`}
         >
           <TrendingUp className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Lab</span>
+          <span className="text-[10px] tracking-tight mt-0.5">Trading Lab</span>
         </button>
 
+        {/* 4. Profile */}
         <button
-          onClick={() => setShowLeaderboardModal(true)}
-          className="flex flex-col items-center justify-center min-h-[46px] py-1 text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
-        >
-          <Trophy className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Ranks</span>
-        </button>
-
-        <button
-          onClick={() => setShowProfileModal(true)}
-          className="flex flex-col items-center justify-center min-h-[46px] py-1 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+          onClick={() => {
+            setActivePillar('profile');
+            setActiveCase(null);
+            setActiveSectorId(null);
+            setActiveModuleId(null);
+            setActivePlaygroundLessonNode(null);
+          }}
+          className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
+            activePillar === 'profile' ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+          }`}
         >
           <User className="w-5 h-5" />
           <span className="text-[10px] tracking-tight mt-0.5">Profile</span>
@@ -671,9 +715,11 @@ export default function App() {
                     {modulesProgress.stocks.earnedXp} XP ({modulesProgress.stocks.completedActivityIds.length} done)
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-slate-500">
-                  <span>🥧 Mutual Funds</span>
-                  <span className="text-[10px]">Planned</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-300">🥧 Mutual Funds</span>
+                  <span className="text-teal-400 font-bold font-mono-num">
+                    {modulesProgress['mutual-funds'].earnedXp} XP ({modulesProgress['mutual-funds'].completedActivityIds.length} done)
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-slate-500">
                   <span>🏛️ Bonds</span>
@@ -685,6 +731,18 @@ export default function App() {
                 </div>
               </div>
             </div>
+
+            {/* Open Full Profile & Module Selector */}
+            <button
+              onClick={() => {
+                setShowProfileModal(false);
+                setActivePillar('profile');
+              }}
+              className="w-full py-2.5 px-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md"
+            >
+              <User className="w-4 h-4" />
+              <span>Open Full Profile & Switch Module</span>
+            </button>
 
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1">
               <span className="font-semibold text-teal-400 block">Forensic Cases Solved</span>
@@ -880,6 +938,17 @@ export default function App() {
         onOpenChange={setIsChatOpen}
         externalPrompt={chatExternalPrompt}
         onClearExternalPrompt={() => setChatExternalPrompt(null)}
+      />
+
+      {/* User Onboarding & Module Selection Flow */}
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onComplete={(modId) => {
+          setSelectedLearningModuleId(modId);
+          setShowOnboarding(false);
+          setActivePillar('playground');
+        }}
+        onClose={() => setShowOnboarding(false)}
       />
     </div>
   );

@@ -19,7 +19,7 @@ export interface ChatMessage {
 }
 
 export interface ChatContext {
-  currentPillar: 'home' | 'learn' | 'playground' | 'tools';
+  currentPillar: 'home' | 'learn' | 'playground' | 'tools' | 'profile';
   // Playground
   activeCaseId?: string;
   activeCaseTitle?: string;
