@@ -89,7 +89,7 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
     const selectedCard = guidedLesson.try.cards.find(c => c.id === trySelectedCardId);
 
     return (
-      <div className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 pb-16 sm:pb-20 animate-in fade-in duration-300 select-none">
+      <div className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 pb-28 sm:pb-24 animate-in fade-in duration-300 select-none">
         {/* Top Screen Navigation Bar */}
         <div className="flex items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 sm:px-5 sm:py-3 shadow-lg backdrop-blur-md">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -126,8 +126,8 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
           />
         </div>
 
-        {/* Screen Content Container */}
-        <div className="rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-slate-800 p-4 sm:p-7 shadow-xl space-y-4 sm:space-y-5">
+        {/* Screen Content Container (transparent — individual cards provide their own chrome) */}
+        <div className="space-y-4 sm:space-y-5">
           {/* ============================================================ */}
           {/* STAGE 1: LEARN (Direct Core Mental Model & Thinking Pillars)  */}
           {/* ============================================================ */}
@@ -187,16 +187,18 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
                 </span>
               </div>
 
-              {/* Bottom Action */}
-              <div className="flex justify-end pt-1">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStage('see')}
-                  className="px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-teal-500/20"
-                >
-                  <span>See it in action</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+              {/* Fixed Bottom CTA */}
+              <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-3 py-3 sm:px-4 sm:py-3.5 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+                <div className="max-w-4xl mx-auto">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStage('see')}
+                    className="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/25"
+                  >
+                    <span>See it in action</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -325,25 +327,27 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
                 </span>
               </div>
 
-              {/* Bottom Navigation */}
-              <div className="flex items-stretch gap-2 sm:gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStage('learn')}
-                  className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
-                  aria-label="Back to Learn"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Back</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentStage('try')}
-                  className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/25"
-                >
-                  <span>Continue to Challenge</span>
-                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                </button>
+              {/* Fixed Bottom CTA */}
+              <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-3 py-3 sm:px-4 sm:py-3.5 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+                <div className="max-w-4xl mx-auto flex items-stretch gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStage('learn')}
+                    className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                    aria-label="Back to Learn"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Back</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStage('try')}
+                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/25"
+                  >
+                    <span>Continue to Challenge</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -455,40 +459,42 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
                 })}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-stretch gap-2 sm:gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStage('see')}
-                  className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
-                  aria-label="Back to See"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Back</span>
-                </button>
+              {/* Fixed Bottom CTA */}
+              <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-3 py-3 sm:px-4 sm:py-3.5 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+                <div className="max-w-4xl mx-auto flex items-stretch gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStage('see')}
+                    className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                    aria-label="Back to See"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Back</span>
+                  </button>
 
-                {!trySubmitted ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (trySelectedCardId) setTrySubmitted(true);
-                    }}
-                    disabled={!trySelectedCardId}
-                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 disabled:bg-slate-800 disabled:bg-none disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
-                  >
-                    <span>{trySelectedCardId ? 'Check my answer' : 'Pick a card to continue'}</span>
-                    {trySelectedCardId && <ArrowRight className="w-4 h-4 stroke-[2.5]" />}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStage('decide')}
-                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
-                  >
-                    <span>Continue to Decision</span>
-                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                  </button>
-                )}
+                  {!trySubmitted ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (trySelectedCardId) setTrySubmitted(true);
+                      }}
+                      disabled={!trySelectedCardId}
+                      className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 disabled:bg-slate-800 disabled:bg-none disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
+                    >
+                      <span>{trySelectedCardId ? 'Check my answer' : 'Pick a card to continue'}</span>
+                      {trySelectedCardId && <ArrowRight className="w-4 h-4 stroke-[2.5]" />}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStage('decide')}
+                      className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
+                    >
+                      <span>Continue to Decision</span>
+                      <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -610,40 +616,42 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="flex items-stretch gap-2 sm:gap-3 pt-4 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStage('try')}
-                  className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
-                  aria-label="Back to Challenge"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline">Back</span>
-                </button>
+              {/* Fixed Bottom CTA */}
+              <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-3 py-3 sm:px-4 sm:py-3.5 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+                <div className="max-w-4xl mx-auto flex items-stretch gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStage('try')}
+                    className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                    aria-label="Back to Challenge"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Back</span>
+                  </button>
 
-                {!decideSubmitted ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (decideSelectedOptionId) setDecideSubmitted(true);
-                    }}
-                    disabled={!decideSelectedOptionId}
-                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 disabled:bg-slate-800 disabled:bg-none disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
-                  >
-                    <span>{decideSelectedOptionId ? 'Submit decision' : 'Choose an option to continue'}</span>
-                    {decideSelectedOptionId && <ArrowRight className="w-4 h-4 stroke-[2.5]" />}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStage('reflect')}
-                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
-                  >
-                    <span>View takeaway & claim XP</span>
-                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                  </button>
-                )}
+                  {!decideSubmitted ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (decideSelectedOptionId) setDecideSubmitted(true);
+                      }}
+                      disabled={!decideSelectedOptionId}
+                      className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 disabled:bg-slate-800 disabled:bg-none disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
+                    >
+                      <span>{decideSelectedOptionId ? 'Submit decision' : 'Choose an option to continue'}</span>
+                      {decideSelectedOptionId && <ArrowRight className="w-4 h-4 stroke-[2.5]" />}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStage('reflect')}
+                      className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
+                    >
+                      <span>View takeaway & claim XP</span>
+                      <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -699,16 +707,18 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
                 </div>
               </div>
 
-              {/* Primary Claim XP Action */}
-              <div className="pt-4">
-                <button
-                  type="button"
-                  onClick={handleFinishGuidedLesson}
-                  className="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:brightness-110 text-slate-950 font-black rounded-2xl text-base transition-all flex items-center justify-center gap-3 shadow-xl shadow-emerald-500/25 cursor-pointer"
-                >
-                  <span>Claim +{guidedLesson.xpReward} XP & Continue Path</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                </button>
+              {/* Fixed Bottom CTA — Claim XP */}
+              <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-3 py-3 sm:px-4 sm:py-3.5 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+                <div className="max-w-4xl mx-auto">
+                  <button
+                    type="button"
+                    onClick={handleFinishGuidedLesson}
+                    className="w-full min-h-[52px] bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:brightness-110 text-slate-950 font-black rounded-xl text-sm sm:text-base transition-all flex items-center justify-center gap-2 sm:gap-3 shadow-xl shadow-emerald-500/25 cursor-pointer"
+                  >
+                    <span>Claim +{guidedLesson.xpReward} XP & Continue</span>
+                    <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
