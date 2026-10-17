@@ -10,35 +10,44 @@
   html.light {
     color-scheme: light;
 
-    /* Invert Slate scale for rich light mode surfaces & text */
-    --color-slate-950: #f8fafc;
-    --color-slate-900: #ffffff;
-    --color-slate-850: #f1f5f9;
-    --color-slate-800: #e2e8f0;
-    --color-slate-750: #cbd5e1;
-    --color-slate-700: #94a3b8;
-    --color-slate-600: #64748b;
-    --color-slate-500: #475569;
-    --color-slate-400: #334155;
-    --color-slate-300: #1e293b;
-    --color-slate-200: #0f172a;
-    --color-slate-100: #020617;
+    /* Slate scale — page is slightly tinted so white cards sit visibly above it. */
+    --color-slate-950: #eef2f7;   /* page bg */
+    --color-slate-900: #ffffff;   /* card bg */
+    --color-slate-850: #f8fafc;   /* muted card bg */
+    --color-slate-800: #e2e8f0;   /* border / chip bg */
+    --color-slate-750: #cbd5e1;   /* muted border */
+    --color-slate-700: #94a3b8;   /* placeholder */
+    --color-slate-600: #64748b;   /* sub text */
+    --color-slate-500: #475569;   /* label */
+    --color-slate-400: #334155;   /* muted body */
+    --color-slate-300: #1e293b;   /* body */
+    --color-slate-200: #0f172a;   /* heading */
+    --color-slate-100: #020617;   /* max emphasis */
 
-    /* Soft pastel card insets */
+    /* Soft pastel accent card insets (used as backgrounds) */
     --color-teal-950: #f0fdfa;
     --color-emerald-950: #ecfdf5;
     --color-amber-950: #fffbeb;
     --color-rose-950: #fff1f2;
 
-    /* High-contrast accessible accents for white backgrounds */
-    --color-teal-400: #0d9488;
+    /* Light accent tones get darkened — in dark mode these mean "soft accent text",
+       but on a white page they'd vanish, so we flip them to deep accents for contrast. */
+    --color-teal-100: #115e59;
+    --color-teal-200: #0f766e;
     --color-teal-300: #0f766e;
-    --color-emerald-400: #059669;
+    --color-teal-400: #0d9488;
+    --color-emerald-100: #065f46;
+    --color-emerald-200: #047857;
     --color-emerald-300: #047857;
-    --color-amber-400: #d97706;
+    --color-emerald-400: #059669;
+    --color-amber-100: #92400e;
+    --color-amber-200: #b45309;
     --color-amber-300: #b45309;
-    --color-rose-400: #e11d48;
+    --color-amber-400: #d97706;
+    --color-rose-100: #9f1239;
+    --color-rose-200: #be123c;
     --color-rose-300: #be123c;
+    --color-rose-400: #e11d48;
   }
 
   body {
@@ -72,10 +81,38 @@
   background: var(--color-slate-600, #475569);
 }
 
-/* Subtle card elevation in light mode */
-html.light .bg-slate-900 {
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+/* ---------------------------------------------------------------------------
+ * Light-mode foreground override: `text-slate-950` is overloaded in the codebase.
+ * In dark mode the token means both "page bg" (dark) AND "high-contrast text on
+ * bright accent buttons" (also dark). When we invert the var to make page bg
+ * light, button text would also go white and vanish on teal/emerald/amber.
+ * Pin the TEXT utility to a real dark color so button labels stay readable.
+ * ------------------------------------------------------------------------- */
+html.light .text-slate-950 { color: #0b1121; }
+
+/* `text-white` is used as "contrast on dark bg" throughout dark-mode components.
+ * On light-mode glass surfaces it becomes invisible. Where it still sits on a
+ * saturated accent background it stays white (good), but on neutral/slate
+ * backgrounds we promote it to a readable near-black. Scoped to common
+ * neutral surfaces only — accent backgrounds are not affected. */
+html.light .bg-slate-800 .text-white,
+html.light .bg-slate-900 .text-white,
+html.light [class*="bg-slate-800/"] .text-white,
+html.light [class*="bg-slate-900/"] .text-white {
+  color: #0f172a;
 }
+
+/* Card elevation for every slate card variant in light mode. */
+html.light .bg-slate-900,
+html.light [class*="bg-slate-900/"],
+html.light [class*="bg-slate-850/"] {
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+}
+
+/* Scrollbars in light mode — don't invert the track darker than the page. */
+html.light ::-webkit-scrollbar-track { background: #eef2f7; }
+html.light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* Smooth selection colors */
 ::selection {
