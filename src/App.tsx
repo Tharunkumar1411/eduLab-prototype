@@ -466,13 +466,13 @@ export default function App() {
               streakDays={streakDays}
               completedNodeIds={completedNodeIds}
               completedCaseIds={completedCaseIds}
+              activeModuleId={selectedLearningModuleId}
               onStartOrContinueLesson={handleStartOrContinueLessonFromHome}
               onInvestigateCase={handleInvestigateCaseFromHome}
               onExploreSectorInLab={handleExploreSectorInLabFromHome}
               onSelectSector={(sectorId) => setActiveSectorId(sectorId)}
               onGoToPlayground={() => {
                 setActivePillar('playground');
-                setSelectedLearningModuleId('stocks');
                 setActiveCase(null);
                 setActiveSectorId(null);
                 setActivePlaygroundLessonNode(null);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LEARNING_UNITS, PathNode } from '../../data/learningPath.ts';
 import { PLAYGROUND_CASES, PlaygroundCase } from '../../data/cases.ts';
 import { SectorDetail, MarketStory } from '../../data/homeData.ts';
+import { LearningModuleId } from '../../data/learningModules.ts';
 import { HomeAiChatSection } from './HomeAiChatSection.tsx';
 import { ContinueLearningCard } from './ContinueLearningCard.tsx';
 import { TodayCaseCard } from './TodayCaseCard.tsx';
@@ -17,6 +18,7 @@ interface HomeViewProps {
   streakDays: number;
   completedNodeIds: string[];
   completedCaseIds: string[];
+  activeModuleId?: LearningModuleId;
   onStartOrContinueLesson: (node: PathNode) => void;
   onInvestigateCase: (caseItem: PlaygroundCase) => void;
   onExploreSectorInLab: (stockSymbol: string) => void;
@@ -33,6 +35,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   streakDays,
   completedNodeIds,
   completedCaseIds,
+  activeModuleId,
   onStartOrContinueLesson,
   onInvestigateCase,
   onExploreSectorInLab,
@@ -95,10 +98,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
         streakDays={streakDays}
         userLevel={userLevel}
         userXp={userXp}
+        activeModuleId={activeModuleId}
         isSimulatingNewUser={isNewUser}
         onToggleUserMode={toggleUserMode}
         onStartOrContinue={onStartOrContinueLesson}
         onStartModule01={onStartModule01}
+        onGoToPlayground={onGoToPlayground}
         onOpenLeaderboard={onOpenLeaderboard}
       />
 
