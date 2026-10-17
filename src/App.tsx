@@ -264,16 +264,25 @@ export default function App() {
     );
   }
 
+  // In an immersive lesson/case/module screen the lesson owns the full viewport
+  // and brings its own back button — hide the global chrome.
+  const isImmersiveLesson = Boolean(
+    activeModuleId === 'module_01' || activePlaygroundLessonNode || activeCase,
+  );
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-teal-500 selection:text-white">
       {/* SEBI Compliance Educational Banner */}
-      <div className="bg-slate-900 border-b border-slate-800 text-slate-400 py-1.5 px-4 text-center text-[11px]">
-        <span>
-          FinCraft is an interactive educational playground. All market cases & backtest simulations are purely for learning. Not SEBI registered investment advice.
-        </span>
-      </div>
+      {!isImmersiveLesson && (
+        <div className="bg-slate-900 border-b border-slate-800 text-slate-400 py-1.5 px-4 text-center text-[11px]">
+          <span>
+            FinCraft is an interactive educational playground. All market cases & backtest simulations are purely for learning. Not SEBI registered investment advice.
+          </span>
+        </div>
+      )}
 
       {/* Primary Header & Navigation */}
+      {!isImmersiveLesson && (
       <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-8 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Brand Logo & Tagline */}
@@ -400,9 +409,10 @@ export default function App() {
           </div>
         </div>
       </header>
+      )}
 
       {/* Main App Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8">
+      <main className={`flex-1 max-w-7xl w-full mx-auto ${isImmersiveLesson ? 'p-2 sm:p-4' : 'p-4 sm:p-8'}`}>
         {activeModuleId === 'module_01' ? (
           <Module01Hub
             userXp={userXp}
@@ -591,6 +601,7 @@ export default function App() {
       </main>
 
       {/* Mobile Fixed Bottom Navigation Bar (4 tabs only: Lounge, Playground, Trading Lab, Profile) */}
+      {!isImmersiveLesson && (
       <nav
         aria-label="Mobile Navigation"
         className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-4 items-center shadow-2xl"
@@ -663,6 +674,7 @@ export default function App() {
           <span className="text-[10px] tracking-tight mt-0.5">Profile</span>
         </button>
       </nav>
+      )}
 
       {/* Beginner-friendly Profile / Progress Modal */}
       {showProfileModal && (
@@ -919,33 +931,37 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-6 px-4 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <AppLogo size="xs" withGlow={false} />
-            <span className="font-semibold text-slate-400">FinCraft</span>
-            <span>·</span>
-            <span>Build your financial skills.</span>
-          </div>
+      {!isImmersiveLesson && (
+        <footer className="border-t border-slate-800/80 bg-slate-950 py-6 px-4 text-xs text-slate-500">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <AppLogo size="xs" withGlow={false} />
+              <span className="font-semibold text-slate-400">FinCraft</span>
+              <span>·</span>
+              <span>Build your financial skills.</span>
+            </div>
 
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Deterministic Indian Blue-chip Data</span>
-            <span>·</span>
-            <span>Zero Look-Ahead Backtesting</span>
-            <span>·</span>
-            <span>Educational Simulator</span>
+            <div className="flex items-center gap-4 text-[11px]">
+              <span>Deterministic Indian Blue-chip Data</span>
+              <span>·</span>
+              <span>Zero Look-Ahead Backtesting</span>
+              <span>·</span>
+              <span>Educational Simulator</span>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
-      {/* Floating Gemini Chatbot Mentor */}
-      <InspectorFinChatbot
-        context={chatContext}
-        isOpen={isChatOpen}
-        onOpenChange={setIsChatOpen}
-        externalPrompt={chatExternalPrompt}
-        onClearExternalPrompt={() => setChatExternalPrompt(null)}
-      />
+      {/* Floating Gemini Chatbot Mentor — suppressed in immersive lessons */}
+      {!isImmersiveLesson && (
+        <InspectorFinChatbot
+          context={chatContext}
+          isOpen={isChatOpen}
+          onOpenChange={setIsChatOpen}
+          externalPrompt={chatExternalPrompt}
+          onClearExternalPrompt={() => setChatExternalPrompt(null)}
+        />
+      )}
     </div>
   );
 }

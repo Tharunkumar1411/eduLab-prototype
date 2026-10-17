@@ -89,36 +89,37 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
     const selectedCard = guidedLesson.try.cards.find(c => c.id === trySelectedCardId);
 
     return (
-      <div className="w-full max-w-4xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300 select-none">
+      <div className="w-full max-w-4xl mx-auto space-y-3 sm:space-y-4 pb-16 sm:pb-20 animate-in fade-in duration-300 select-none">
         {/* Top Screen Navigation Bar */}
-        <div className="flex items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:px-5 sm:py-3.5 shadow-lg backdrop-blur-md">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 sm:px-5 sm:py-3 shadow-lg backdrop-blur-md">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={handleExit}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer group shrink-0"
+              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 rounded-lg bg-slate-800/90 hover:bg-slate-750 border border-slate-700/80 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer group shrink-0"
+              title="Back to Path"
             >
               <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:-translate-x-0.5 transition-transform" />
-              <span>Back to Path</span>
+              <span className="hidden sm:inline">Back to Path</span>
             </button>
 
             <div className="h-4 w-px bg-slate-800 hidden sm:block shrink-0" />
 
             <div className="text-xs font-bold text-slate-300 truncate">
-              <span className="text-teal-400">Level {guidedLesson.levelNumber}</span>
+              <span className="text-teal-400">Lvl {guidedLesson.levelNumber}</span>
               <span className="text-slate-600 mx-1.5">·</span>
               <span className="text-slate-100">{guidedLesson.title}</span>
             </div>
           </div>
 
           {/* XP Reward Counter */}
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 font-mono-num bg-amber-950/60 border border-amber-800/40 px-3 py-1.5 rounded-xl shrink-0">
+          <div className="flex items-center gap-1 text-xs font-bold text-amber-400 font-mono-num bg-amber-950/60 border border-amber-800/40 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg shrink-0">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>+{guidedLesson.xpReward} XP</span>
+            <span>+{guidedLesson.xpReward}</span>
           </div>
         </div>
 
         {/* Continuous Progress Bar */}
-        <div className="w-full bg-slate-800/60 h-2 rounded-full overflow-hidden border border-slate-700/50">
+        <div className="w-full bg-slate-800/60 h-1.5 rounded-full overflow-hidden border border-slate-700/50">
           <div
             className="bg-gradient-to-r from-teal-500 via-teal-400 to-emerald-400 h-full rounded-full transition-all duration-300 ease-out"
             style={{ width: `${progressPercent}%` }}
@@ -126,74 +127,74 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
         </div>
 
         {/* Screen Content Container */}
-        <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-xl space-y-6">
+        <div className="rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-slate-800 p-4 sm:p-7 shadow-xl space-y-4 sm:space-y-5">
           {/* ============================================================ */}
           {/* STAGE 1: LEARN (Direct Core Mental Model & Thinking Pillars)  */}
           {/* ============================================================ */}
           {currentStage === 'learn' && (
-            <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="space-y-4 animate-in fade-in duration-300">
               {/* Core Concept Spotlight Card */}
-              <div className="p-6 sm:p-7 bg-gradient-to-br from-teal-950/50 via-slate-900 to-slate-950 border border-teal-500/40 rounded-2xl space-y-4 shadow-md">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 text-teal-400" />
-                    <span className="text-xs font-bold text-teal-400 uppercase tracking-wider">
-                      Core Mental Model · Stage 1 of 5
+              <div className="p-4 sm:p-6 bg-gradient-to-br from-teal-950/50 via-slate-900 to-slate-950 border border-teal-500/40 rounded-2xl space-y-3 shadow-md">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Lightbulb className="w-4 h-4 text-teal-400 shrink-0" />
+                    <span className="text-[11px] sm:text-xs font-bold text-teal-400 uppercase tracking-wider truncate">
+                      Core Model · 1/5
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700/60">
-                    ~{guidedLesson.estimatedMinutes} min
+                  <span className="text-[11px] font-bold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/60 shrink-0">
+                    ~{guidedLesson.estimatedMinutes}m
                   </span>
                 </div>
 
-                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-100 tracking-tight">
+                <h2 className="text-lg sm:text-2xl font-extrabold text-slate-100 tracking-tight leading-tight">
                   {guidedLesson.learn.conceptTitle}
                 </h2>
 
-                <div className="p-4 bg-teal-500/10 border border-teal-500/30 rounded-xl">
-                  <p className="text-sm sm:text-base font-semibold text-teal-200 leading-relaxed">
+                <div className="p-3 sm:p-4 bg-teal-500/10 border border-teal-500/30 rounded-xl">
+                  <p className="text-sm sm:text-base font-semibold text-teal-200 leading-snug">
                     💡 {guidedLesson.learn.conceptHighlight}
                   </p>
                 </div>
               </div>
 
               {/* Mental Model Pillars */}
-              <div className="space-y-3">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+              <div className="space-y-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                   How an Astute Investor Thinks
                 </span>
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 gap-2">
                   {guidedLesson.learn.mentalModel.map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex items-start gap-3.5 p-4 bg-slate-950/80 border border-slate-800 rounded-xl text-xs sm:text-sm text-slate-200 leading-relaxed hover:border-slate-700 transition-colors"
+                      className="flex items-start gap-2.5 p-3 bg-slate-950/80 border border-slate-800 rounded-xl text-xs sm:text-sm text-slate-200 leading-snug hover:border-slate-700 transition-colors"
                     >
-                      <div className="w-6 h-6 rounded-lg bg-teal-500/20 border border-teal-500/40 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                      <div className="w-5 h-5 rounded-md bg-teal-500/20 border border-teal-500/40 text-teal-400 flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-bold">
                         {idx + 1}
                       </div>
-                      <span className="pt-0.5">{item}</span>
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Investor Question Prompt */}
-              <div className="p-4 bg-amber-950/30 border border-amber-800/50 rounded-xl flex items-center gap-3 text-xs sm:text-sm text-amber-200">
-                <HelpCircle className="w-5 h-5 text-amber-400 shrink-0" />
-                <span>
-                  <strong className="font-bold text-amber-300">The Key Investor Question:</strong>{' '}
+              <div className="p-3 bg-amber-950/30 border border-amber-800/50 rounded-xl flex items-start gap-2.5 text-xs sm:text-sm text-amber-200">
+                <HelpCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <span className="leading-snug">
+                  <strong className="font-bold text-amber-300">Key Question:</strong>{' '}
                   {guidedLesson.learn.investorQuestion}
                 </span>
               </div>
 
               {/* Bottom Action */}
-              <div className="flex justify-end pt-3">
+              <div className="flex justify-end pt-1">
                 <button
                   type="button"
                   onClick={() => setCurrentStage('see')}
-                  className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-teal-500/20"
+                  className="px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-teal-500/20"
                 >
-                  <span>Continue to See It in Action</span>
+                  <span>See it in action</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -325,21 +326,23 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
               </div>
 
               {/* Bottom Navigation */}
-              <div className="flex items-center justify-between pt-3">
+              <div className="flex items-stretch gap-2 sm:gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setCurrentStage('learn')}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 cursor-pointer"
+                  className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                  aria-label="Back to Learn"
                 >
-                  ← Back to Learn
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentStage('try')}
-                  className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-teal-500/20"
+                  className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/25"
                 >
                   <span>Continue to Challenge</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
             </div>
@@ -453,13 +456,15 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-3">
+              <div className="flex items-stretch gap-2 sm:gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setCurrentStage('see')}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 cursor-pointer"
+                  className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                  aria-label="Back to See"
                 >
-                  ← Back to See
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back</span>
                 </button>
 
                 {!trySubmitted ? (
@@ -469,19 +474,19 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
                       if (trySelectedCardId) setTrySubmitted(true);
                     }}
                     disabled={!trySelectedCardId}
-                    className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-bold text-sm transition-all flex items-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
+                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 disabled:bg-slate-800 disabled:bg-none disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
                   >
-                    <span>Check My Answer</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>{trySelectedCardId ? 'Check my answer' : 'Pick a card to continue'}</span>
+                    {trySelectedCardId && <ArrowRight className="w-4 h-4 stroke-[2.5]" />}
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setCurrentStage('decide')}
-                    className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm transition-all flex items-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
+                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
                   >
                     <span>Continue to Decision</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                   </button>
                 )}
               </div>
@@ -606,13 +611,15 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between pt-3">
+              <div className="flex items-stretch gap-2 sm:gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setCurrentStage('try')}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 cursor-pointer"
+                  className="shrink-0 px-3 sm:px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-sm font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all cursor-pointer"
+                  aria-label="Back to Challenge"
                 >
-                  ← Back to Challenge
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back</span>
                 </button>
 
                 {!decideSubmitted ? (
@@ -622,19 +629,19 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
                       if (decideSelectedOptionId) setDecideSubmitted(true);
                     }}
                     disabled={!decideSelectedOptionId}
-                    className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 font-bold text-sm transition-all flex items-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
+                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 disabled:bg-slate-800 disabled:bg-none disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
                   >
-                    <span>Submit Decision</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>{decideSelectedOptionId ? 'Submit decision' : 'Choose an option to continue'}</span>
+                    {decideSelectedOptionId && <ArrowRight className="w-4 h-4 stroke-[2.5]" />}
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setCurrentStage('reflect')}
-                    className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm transition-all flex items-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
+                    className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 cursor-pointer"
                   >
-                    <span>View Takeaway & Claim XP</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>View takeaway & claim XP</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                   </button>
                 )}
               </div>
