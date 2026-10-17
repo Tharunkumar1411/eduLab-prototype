@@ -4,7 +4,8 @@
  * Supports states: idle, talking, thinking, happy, surprised, confused, celebrating.
  */
 
-import React, { useEffect, useId, useState } from 'react';
+import React, { useCallback, useEffect, useId, useState } from 'react';
+import { FinanceCharacter } from './FinanceCharacter.tsx';
 
 export type CharacterState =
   | 'idle'
@@ -144,15 +145,17 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
     `}</style>
   );
 
-  const avatarNode = (
-    <div className={`relative shrink-0 flex flex-col items-center ${!message ? className : ''}`}>
-      <div className={`relative ${sizeClasses} select-none transition-transform duration-300 flex items-center justify-center`}>
-        <svg
-          viewBox="0 0 120 120"
-          className={`w-full h-full filter drop-shadow-md transition-all duration-300 ${getBodyMotionClass()}`}
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+  // SVG fallback body — rendered inside FinanceCharacter when the Rive asset
+  // is not available (or still loading), and also when Rive fails. Keeping this
+  // inline means callers never see a flash of empty content.
+  const renderSvgFallback = useCallback(
+    () => (
+      <svg
+        viewBox="0 0 120 120"
+        className={`w-full h-full filter drop-shadow-md transition-all duration-300 ${getBodyMotionClass()}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
             <defs>
               <linearGradient id={`${gradientId}-coat`} x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#1E293B" />
@@ -313,16 +316,30 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
               </g>
             )}
           </svg>
-        </div>
+    ),
+    // The fallback captures state + animation class via closure. We don't need
+    // getBodyMotionClass in deps since it's recomputed every render anyway.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state, gradientId, prefersReducedMotion],
+  );
 
-        {/* Name tag - only rendered if explicitly requested */}
-        {showNameTag && (
-          <span className="text-[10px] sm:text-[11px] font-semibold text-teal-400 uppercase tracking-wider mt-1 text-center whitespace-nowrap">
-            Inspector Fin
-          </span>
-        )}
-      </div>
-    );
+  const avatarNode = (
+    <div className={`relative shrink-0 flex flex-col items-center ${!message ? className : ''}`}>
+      <FinanceCharacter
+        state={state}
+        size={size}
+        className="select-none transition-transform duration-300"
+        renderFallback={renderSvgFallback}
+      />
+
+      {/* Name tag - only rendered if explicitly requested */}
+      {showNameTag && (
+        <span className="text-[10px] sm:text-[11px] font-semibold text-teal-400 uppercase tracking-wider mt-1 text-center whitespace-nowrap">
+          Inspector Fin
+        </span>
+      )}
+    </div>
+  );
 
     if (!message) {
       return (
