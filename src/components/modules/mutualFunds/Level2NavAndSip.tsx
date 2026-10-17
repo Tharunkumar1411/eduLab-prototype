@@ -1,71 +1,172 @@
-import React, { useState } from 'react';
-import {
-  SIP_SIMULATION_MONTHS,
-} from '../../../data/mutualFundsData.ts';
+/**
+ * Mutual Funds — Level 2: The NAV Machine lesson.
+ *
+ * A stage-driven, story-based lesson built on `useNavLessonMachine`.
+ * Mentor "Inspector Fin" reacts via `useCharacterController`.
+ * NAV math lives in `src/data/navCalculations.ts` and never depends on
+ * animation state.
+ */
+
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
   Sparkles,
   Calculator,
-  Calendar,
   TrendingUp,
   TrendingDown,
-  HelpCircle,
+  CircleEqual,
   Award,
+  Lightbulb,
+  CheckCircle2,
   AlertCircle,
-  RotateCcw,
+  Lock,
 } from 'lucide-react';
+
+import { CharacterMentor } from '../../character/CharacterMentor.tsx';
+import { useCharacterController } from '../../character/useCharacterController.ts';
+import { useAnimatedNumber } from '../../common/useAnimatedNumber.ts';
+import {
+  INVESTMENT_AMOUNT_OPTIONS,
+  NAV_CHANGE_OPTIONS,
+  buildHoldingSnapshot,
+  buildMythbusterComparison,
+  calculateUnits,
+  formatPercent,
+  formatRupee,
+  formatUnits,
+} from '../../../data/navCalculations.ts';
+import {
+  MythbusterPrediction,
+  useNavLessonMachine,
+} from './useNavLessonMachine.ts';
 
 interface Level2NavAndSipProps {
   onComplete: (xpEarned: number) => void;
   onBack: () => void;
 }
 
-type TabType = 'nav_machine' | 'sip_simulator' | 'reflection' | 'completed';
+const LESSON_XP_REWARD = 200;
+
+const STAGE_LABELS: Record<string, string> = {
+  intro: 'Set the Stage',
+  chooseInvestment: 'Choose an Investment',
+  calculateUnits: 'Calculate Units',
+  changeNav: 'Change the NAV',
+  observeValue: 'Observe the Consequence',
+  mythbuster: 'Mythbuster',
+  reflection: 'Reflection',
+  complete: 'Complete',
+};
+
+interface QuizOption {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  explanation: string;
+}
 
 export const Level2NavAndSip: React.FC<Level2NavAndSipProps> = ({ onComplete, onBack }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('nav_machine');
+  const machine = useNavLessonMachine();
+  const { state } = machine;
+  const character = useCharacterController({
+    initialState: 'talking',
+    initialMessage: "Hi, I'm Inspector Fin. Let's crack the NAV code together.",
+    initialSubMessage: 'A quick experiment with ₹2,000 before you ever invest a rupee.',
+  });
 
-  // --- Part 1: NAV Machine State ---
-  const [investedAmount, setInvestedAmount] = useState<number>(2000);
-  const [initialNav, setInitialNav] = useState<number>(20);
-  const [simulatedNav, setSimulatedNav] = useState<number>(25);
+  const completeAwardedRef = useRef(false);
 
-  const unitsAllocated = investedAmount / initialNav;
-  const currentPortfolioValue = unitsAllocated * simulatedNav;
-  const netGainOrLoss = currentPortfolioValue - investedAmount;
-  const percentageReturn = ((simulatedNav - initialNav) / initialNav) * 100;
+  // Emit the entry message/reaction whenever the stage changes.
+  useEffect(() => {
+    switch (state.stage) {
+      case 'intro':
+        character.speak(
+          "Hi, I'm Inspector Fin. Let's crack the NAV code together.",
+          'A quick experiment with ₹2,000 before you ever invest a rupee.',
+        );
+        character.react('talking', { durationMs: 2200 });
+        break;
+      case 'chooseInvestment':
+        character.speak(
+          'Pick an investment amount.',
+          "This is money going in — not the number of units you'll receive.",
+        );
+        character.react('thinking', { durationMs: 2500 });
+        break;
+      case 'calculateUnits':
+        character.speak(
+          'At an NAV of ₹20, how many units does your money buy?',
+          'Units = Amount ÷ NAV. The display will count them up for you.',
+        );
+        character.react('surprised', { durationMs: 2000 });
+        break;
+      case 'changeNav':
+        character.speak(
+          'Markets move. Pick a scenario and watch the NAV shift.',
+          'Your unit count stays frozen — only the per-unit value changes.',
+        );
+        character.react('talking', { durationMs: 2200 });
+        break;
+      case 'observeValue':
+        character.speak(
+          'What actually changed just now — the number of units, or the value per unit?',
+        );
+        character.react('thinking', { durationMs: 2000 });
+        break;
+      case 'mythbuster':
+        character.speak(
+          'A fund with NAV ₹10 vs one with NAV ₹100 — predict who wins.',
+          'Both go up by the same 10%. Where do you bet?',
+        );
+        character.react('surprised', { durationMs: 2000 });
+        break;
+      case 'reflection':
+        character.speak(
+          'One last thought experiment to lock the lesson in.',
+        );
+        character.react('talking', { durationMs: 2000 });
+        break;
+      case 'complete':
+        character.speak(
+          'You cracked it! NAV is the per-unit value — nothing more, nothing less.',
+          `+${LESSON_XP_REWARD} XP added to your Mutual Funds journey.`,
+        );
+        character.react('celebrating', { durationMs: 2400 });
+        break;
+      default:
+        break;
+    }
+    // Only re-run on stage change (character hook identity is stable via useMemo).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.stage]);
 
-  // --- Part 2: SIP Simulator State ---
-  const [revealedMonthIndex, setRevealedMonthIndex] = useState<number>(1); // 1 to 6
+  // Idempotent XP award on first entry to `complete`.
+  useEffect(() => {
+    if (state.stage === 'complete' && !completeAwardedRef.current) {
+      completeAwardedRef.current = true;
+      onComplete(LESSON_XP_REWARD);
+    }
+  }, [state.stage, onComplete]);
 
-  const visibleSipMonths = SIP_SIMULATION_MONTHS.slice(0, revealedMonthIndex);
-  const totalSipInvested = visibleSipMonths.reduce((sum, m) => sum + m.monthlyContribution, 0);
-  const totalSipUnits = visibleSipMonths.reduce((sum, m) => sum + m.monthlyContribution / m.simulatedNav, 0);
-  const currentSipNav = visibleSipMonths[visibleSipMonths.length - 1].simulatedNav;
-  const currentSipValue = totalSipUnits * currentSipNav;
-  const sipNetGain = currentSipValue - totalSipInvested;
-  const sipPercentGain = totalSipInvested > 0 ? (sipNetGain / totalSipInvested) * 100 : 0;
-
-  // --- Reflection State ---
-  const [selectedReflection, setSelectedReflection] = useState<string | null>(null);
-
-  const handleNextFromNav = () => {
-    setActiveTab('sip_simulator');
+  const handleSendAndReact = (action: Parameters<typeof machine.send>[0]) => {
+    const { event } = machine.send(action);
+    if (event) {
+      character.emit(event);
+    }
   };
 
-  const handleNextFromSip = () => {
-    setActiveTab('reflection');
+  const handleAnswerFeedback = (isCorrect: boolean) => {
+    character.react(isCorrect ? 'happy' : 'confused', { durationMs: 1800 });
   };
 
-  const handleFinishLevel = () => {
-    setActiveTab('completed');
-    onComplete(200);
-  };
+  const stageIndex = machine.stageIndex;
+  const stageTotal = machine.stageTotal;
+  const progressPercent = Math.round(((stageIndex + 1) / stageTotal) * 100);
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300">
-      {/* Top Header & Breadcrumb */}
+    <div className="w-full max-w-4xl mx-auto space-y-4 pb-24 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+      {/* Lesson Header */}
       <div className="flex items-center justify-between gap-4">
         <button
           onClick={onBack}
@@ -78,467 +179,731 @@ export const Level2NavAndSip: React.FC<Level2NavAndSipProps> = ({ onComplete, on
         <div className="flex items-center gap-2 text-xs font-semibold">
           <span className="text-teal-400">Level 2 of 5</span>
           <span className="text-slate-600">·</span>
-          <span className="text-slate-300">NAV & The Monthly SIP</span>
+          <span className="text-slate-300">NAV Machine</span>
         </div>
       </div>
 
-      {/* Main Container */}
-      <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-6 sm:p-8 shadow-xl space-y-6">
-        {/* ======================================================== */}
-        {/* TAB 1: THE NAV MACHINE */}
-        {/* ======================================================== */}
-        {activeTab === 'nav_machine' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold">
-                <Calculator className="w-3.5 h-3.5" />
-                <span>Interactive Experiment 1: The NAV Machine</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-100">
-                How Do Mutual Fund Units & NAV Work?
-              </h2>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                When you invest in a mutual fund, you purchase <strong>Units</strong> at the scheme's
-                current <strong>Net Asset Value (NAV)</strong>. Try changing your investment amount and watching what happens when NAV moves:
-              </p>
-            </div>
+      {/* Progress strip */}
+      <div className="rounded-2xl bg-slate-900/70 border border-slate-800 p-3 space-y-2">
+        <div className="flex items-center justify-between text-[11px] font-semibold">
+          <span className="text-slate-400">
+            Step {stageIndex + 1} of {stageTotal} ·{' '}
+            <span className="text-teal-300">{STAGE_LABELS[state.stage]}</span>
+          </span>
+          <span className="text-slate-500 font-mono-num">{progressPercent}%</span>
+        </div>
+        <div className="h-1.5 bg-slate-950 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 motion-safe:transition-all motion-safe:duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </div>
 
-            {/* Interactive Inputs Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Input 1: Invested Amount */}
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                  Select Investment Amount
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[1000, 2000, 5000, 10000].map((amt) => (
-                    <button
-                      key={amt}
-                      onClick={() => setInvestedAmount(amt)}
-                      className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        investedAmount === amt
-                          ? 'bg-teal-500 text-slate-950 shadow-md'
-                          : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
-                      }`}
-                    >
-                      ₹{amt.toLocaleString()}
-                    </button>
-                  ))}
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Initial Launch Purchase NAV: <strong className="text-slate-300">₹{initialNav}.00</strong>
-                </div>
-              </div>
+      {/* Character + Dialogue */}
+      <div className="rounded-3xl bg-slate-900/90 border border-slate-800 p-5 sm:p-6">
+        <CharacterMentor
+          state={character.state}
+          message={character.message}
+          subMessage={character.subMessage}
+          size="md"
+          revealProgressively
+        />
+      </div>
 
-              {/* Input 2: Simulate NAV Market Movement */}
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
-                <div className="flex justify-between items-center">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    Simulate Market NAV Change
-                  </label>
-                  <span className="text-sm font-extrabold text-teal-300 font-mono-num">
-                    ₹{simulatedNav.toFixed(2)}
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { nav: 16, label: '-20% Dip' },
-                    { nav: 20, label: 'Even (₹20)' },
-                    { nav: 25, label: '+25% Gain' },
-                    { nav: 30, label: '+50% Surge' },
-                  ].map((sc) => (
-                    <button
-                      key={sc.nav}
-                      onClick={() => setSimulatedNav(sc.nav)}
-                      className={`py-2 px-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        simulatedNav === sc.nav
-                          ? 'bg-emerald-500 text-slate-950 shadow-md'
-                          : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
-                      }`}
-                    >
-                      {sc.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  Click a scenario button above to observe NAV fluctuations.
-                </div>
-              </div>
-            </div>
-
-            {/* Results Display */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 space-y-4">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-teal-400 block">
-                Calculated Investor Holdings (Fictional Simulation)
-              </span>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Units Held</span>
-                  <span className="text-base sm:text-lg font-black text-slate-100 font-mono-num">
-                    {unitsAllocated.toFixed(2)}
-                  </span>
-                  <span className="text-[10px] text-slate-500 block">Amount ÷ ₹{initialNav}</span>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Current NAV</span>
-                  <span className="text-base sm:text-lg font-black text-slate-100 font-mono-num">
-                    ₹{simulatedNav.toFixed(2)}
-                  </span>
-                  <span className="text-[10px] text-slate-500 block">Per Unit Value</span>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Current Value</span>
-                  <span className="text-base sm:text-lg font-black text-teal-300 font-mono-num">
-                    ₹{currentPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                  </span>
-                  <span className="text-[10px] text-slate-500 block">Units × Current NAV</span>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 uppercase font-bold block">Gain / Loss</span>
-                  <span
-                    className={`text-base sm:text-lg font-black font-mono-num flex items-center justify-center gap-1 ${
-                      netGainOrLoss >= 0 ? 'text-emerald-400' : 'text-rose-400'
-                    }`}
-                  >
-                    {netGainOrLoss >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                    {netGainOrLoss >= 0 ? '+' : ''}₹{netGainOrLoss.toLocaleString()} ({percentageReturn > 0 ? '+' : ''}{percentageReturn.toFixed(0)}%)
-                  </span>
-                  <span className="text-[10px] text-slate-500 block">Unrealized P&L</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Critical Beginner Epiphany: Is ₹10 NAV "Cheaper" than ₹100 NAV? */}
-            <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-xs sm:text-sm text-amber-200 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-amber-300">
-                <Sparkles className="w-4 h-4" />
-                <span>Mythbuster: "Is a ₹10 NAV fund cheaper or better than a ₹100 NAV fund?"</span>
-              </div>
-              <p className="leading-relaxed opacity-95">
-                <strong>No! NAV does NOT indicate cheapness.</strong> A stock with ₹100 price might be cheap or expensive depending on earnings. But in a mutual fund, NAV is simply the mathematical division of assets by total units.
-              </p>
-              <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div>
-                  <span className="font-bold text-slate-200 block">Fund A (NAV ₹10)</span>
-                  <span className="text-slate-400">Invest ₹10,000 → You get 1,000 units.</span>
-                  <span className="text-teal-400 block mt-0.5">If underlying stocks rise 10%, NAV becomes ₹11. Value = ₹11,000 (+₹1,000).</span>
-                </div>
-                <div>
-                  <span className="font-bold text-slate-200 block">Fund B (NAV ₹100)</span>
-                  <span className="text-slate-400">Invest ₹10,000 → You get 100 units.</span>
-                  <span className="text-teal-400 block mt-0.5">If underlying stocks rise 10%, NAV becomes ₹110. Value = ₹11,000 (+₹1,000).</span>
-                </div>
-              </div>
-              <p className="text-[11px] text-amber-300/80 font-medium">
-                Both investors made the exact same ₹1,000 gain! Never pick a fund just because its NAV is low.
-              </p>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={handleNextFromNav}
-                className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/20"
-              >
-                <span>Experiment 2: The Monthly SIP Simulator</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+      {/* Stage Body */}
+      <div
+        key={state.stage}
+        className="rounded-3xl bg-slate-900/90 border border-slate-800 p-5 sm:p-7 shadow-xl motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300"
+      >
+        {state.stage === 'intro' && (
+          <IntroStage onStart={() => handleSendAndReact({ type: 'START' })} />
         )}
 
-        {/* ======================================================== */}
-        {/* TAB 2: SIP SIMULATOR (RUPEE COST AVERAGING) */}
-        {/* ======================================================== */}
-        {activeTab === 'sip_simulator' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Interactive Experiment 2: The Monthly Investor</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-100">
-                Why Market Dips Are the Best Friend of an SIP Investor
-              </h2>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                A <strong>Systematic Investment Plan (SIP)</strong> invests a fixed amount (₹1,000) every month.
-                Watch what happens as the market experiences a real-world cycle of a bull peak, a crash, and a rebound:
-              </p>
-            </div>
-
-            {/* Interactive Month Stepper Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-400">Simulation Progress:</span>
-                <span className="px-2.5 py-1 rounded-lg bg-teal-950 border border-teal-500/30 text-teal-300 font-extrabold text-xs">
-                  Month {revealedMonthIndex} of 6
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {revealedMonthIndex < 6 ? (
-                  <button
-                    type="button"
-                    onClick={() => setRevealedMonthIndex((prev) => Math.min(6, prev + 1))}
-                    className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md"
-                  >
-                    <span>Simulate Next Month</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setRevealedMonthIndex(1)}
-                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Replay Simulation</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Step-by-Step SIP Table */}
-            <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/80">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase text-[11px] bg-slate-900/60">
-                    <th className="p-3 sm:p-4">Month</th>
-                    <th className="p-3 sm:p-4">Market Mood</th>
-                    <th className="p-3 sm:p-4">SIP Rupee</th>
-                    <th className="p-3 sm:p-4">Scheme NAV</th>
-                    <th className="p-3 sm:p-4">Units Bought</th>
-                    <th className="p-3 sm:p-4 text-right">Total Accumulated</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 text-slate-200">
-                  {visibleSipMonths.map((m) => {
-                    const unitsThisMonth = m.monthlyContribution / m.simulatedNav;
-                    const isBargain = m.simulatedNav <= 40;
-                    return (
-                      <tr key={m.monthNumber} className="hover:bg-slate-900/30 transition-colors">
-                        <td className="p-3 sm:p-4 font-bold">{m.monthName}</td>
-                        <td className="p-3 sm:p-4">
-                          <span
-                            className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${
-                              m.simulatedNav <= 35
-                                ? 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
-                                : m.simulatedNav <= 40
-                                ? 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
-                                : 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
-                            }`}
-                          >
-                            {m.marketCondition}
-                          </span>
-                        </td>
-                        <td className="p-3 sm:p-4 font-mono-num font-semibold">₹{m.monthlyContribution}</td>
-                        <td className="p-3 sm:p-4 font-mono-num font-bold text-slate-100">
-                          ₹{m.simulatedNav.toFixed(1)}
-                        </td>
-                        <td className="p-3 sm:p-4 font-mono-num">
-                          <span className={`font-extrabold ${isBargain ? 'text-teal-400' : 'text-slate-300'}`}>
-                            {unitsThisMonth.toFixed(2)} units
-                          </span>
-                          {isBargain && (
-                            <span className="ml-1.5 text-[10px] text-teal-400 font-bold hidden sm:inline">
-                              (Discount Accumulation!)
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-3 sm:p-4 font-mono-num font-semibold text-right text-emerald-400">
-                          {visibleSipMonths
-                            .slice(0, m.monthNumber)
-                            .reduce((s, x) => s + x.monthlyContribution / x.simulatedNav, 0)
-                            .toFixed(2)} u
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Total Results Summary Strip */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-teal-950/60 via-slate-950 to-emerald-950/60 border border-teal-500/40 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Total Deposited</span>
-                <span className="text-base sm:text-lg font-black text-slate-100 font-mono-num">
-                  ₹{totalSipInvested.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-500">{revealedMonthIndex} months × ₹1,000</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Units Accumulated</span>
-                <span className="text-base sm:text-lg font-black text-teal-300 font-mono-num">
-                  {totalSipUnits.toFixed(2)} units
-                </span>
-                <span className="text-[10px] text-slate-500">Average Cost: ₹{(totalSipInvested / Math.max(1, totalSipUnits)).toFixed(2)}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Ending Value</span>
-                <span className="text-base sm:text-lg font-black text-emerald-300 font-mono-num">
-                  ₹{currentSipValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </span>
-                <span className="text-[10px] text-slate-500">{totalSipUnits.toFixed(1)} u × ₹{currentSipNav} NAV</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-400 uppercase font-bold block">Unrealized Profit</span>
-                <span className="text-base sm:text-lg font-black text-emerald-400 font-mono-num">
-                  +₹{sipNetGain.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({sipPercentGain.toFixed(1)}%)
-                </span>
-                <span className="text-[10px] text-emerald-400/80 font-semibold">Rupee-Cost Averaged!</span>
-              </div>
-            </div>
-
-            {/* SEBI Compliance & Educational Disclaimer Box */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-400 space-y-1">
-              <span className="font-bold text-slate-300 block flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                <span>Deterministic Educational Simulation Disclaimer</span>
-              </span>
-              <p className="leading-relaxed text-[11px]">
-                All simulated NAVs are fictional figures created to demonstrate the mathematical mechanics of <strong>Rupee-Cost Averaging</strong>.
-                SIP does not guarantee profits or eliminate market risk. If markets experience prolonged multi-year downturns, portfolio values can remain negative.
-              </p>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={handleNextFromSip}
-                className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/20"
-              >
-                <span>Continue to Level 2 Reflection</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+        {state.stage === 'chooseInvestment' && (
+          <ChooseInvestmentStage
+            invested={state.invested}
+            onSelect={(amount) => machine.send({ type: 'SELECT_AMOUNT', amount })}
+            onConfirm={() => handleSendAndReact({ type: 'CONFIRM_AMOUNT' })}
+          />
         )}
 
-        {/* ======================================================== */}
-        {/* TAB 3: REFLECTION */}
-        {/* ======================================================== */}
-        {activeTab === 'reflection' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold">
-                <HelpCircle className="w-3.5 h-3.5" />
-                <span>Level 2 Reflection</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-100">
-                If the NAV Drops From ₹50 to ₹35, Does a Monthly SIP Investor Suffer a Permanent Loss?
-              </h2>
-              <p className="text-sm text-slate-300">
-                Reflect on what happened to the unit allocation during Month 3 in the simulator.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {[
-                {
-                  id: 'ref_loss',
-                  text: 'Yes, the money is gone forever, so the investor should cancel their SIP immediately.',
-                  isCorrect: false,
-                  feedback: 'Incorrect! In an equity fund with quality holdings, price drops are paper fluctuations. Cancelling the SIP during a drop deprives you of the chance to accumulate cheap units at discount prices.',
-                },
-                {
-                  id: 'ref_accumulate',
-                  text: 'No, the current paper value is lower temporarily, but the next ₹1,000 installment will buy MORE units at the lower NAV, lowering the average cost per unit.',
-                  isCorrect: true,
-                  feedback: 'Brilliant! That is the core superpower of an SIP. Falling markets are a buying discount for disciplined savers accumulating units over a multi-year horizon.',
-                },
-                {
-                  id: 'ref_nav_cheap',
-                  text: 'Yes, because a lower NAV proves the fund manager made mistakes.',
-                  isCorrect: false,
-                  feedback: 'Incorrect! When the broader stock market corrects, all equity fund NAVs decline, regardless of manager skill. Macro market cycles affect all equity schemes.',
-                },
-              ].map((opt) => {
-                const isSelected = selectedReflection === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => setSelectedReflection(opt.id)}
-                    className={`w-full p-4 rounded-2xl border text-left text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                      isSelected
-                        ? opt.isCorrect
-                          ? 'bg-emerald-950/60 border-emerald-500 text-emerald-200'
-                          : 'bg-rose-950/60 border-rose-500 text-rose-200'
-                        : 'bg-slate-950/70 border-slate-800 hover:border-slate-700 text-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center shrink-0 mt-0.5 font-mono text-xs">
-                        {isSelected ? (opt.isCorrect ? '✓' : '✕') : '○'}
-                      </span>
-                      <div className="space-y-1">
-                        <p>{opt.text}</p>
-                        {isSelected && (
-                          <p className={`text-xs mt-2 ${opt.isCorrect ? 'text-emerald-300' : 'text-rose-300'}`}>
-                            {opt.feedback}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {selectedReflection && (
-              <div className="flex justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={handleFinishLevel}
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 hover:brightness-110 text-slate-950 font-black text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-teal-500/20"
-                >
-                  <span>Complete Level 2 & Claim +200 XP</span>
-                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                </button>
-              </div>
-            )}
-          </div>
+        {state.stage === 'calculateUnits' && (
+          <CalculateUnitsStage
+            invested={state.invested}
+            nav={state.initialNav}
+            selectedAnswerId={state.unitsQuizAnswerId}
+            onAnswer={(answerId, isCorrect) => {
+              machine.send({ type: 'ANSWER_UNITS_QUIZ', answerId, isCorrect });
+              handleAnswerFeedback(isCorrect);
+            }}
+            onContinue={() => handleSendAndReact({ type: 'ADVANCE_TO_NAV_CHANGE' })}
+          />
         )}
 
-        {/* ======================================================== */}
-        {/* TAB 4: COMPLETED */}
-        {/* ======================================================== */}
-        {activeTab === 'completed' && (
-          <div className="py-8 text-center space-y-5 animate-in fade-in duration-300">
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-2xl">
-              ✓
-            </div>
-
-            <div className="space-y-2">
-              <h3 className="text-2xl font-black text-slate-100">
-                Level 2 Mastered!
-              </h3>
-              <p className="text-sm text-slate-300 max-w-md mx-auto">
-                You understand how NAV is calculated, why a lower NAV doesn't mean cheapness, and how SIP rupee-cost averaging works over market cycles.
-              </p>
-            </div>
-
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold text-sm">
-              <Award className="w-4 h-4" />
-              <span>+200 XP Earned</span>
-            </div>
-
-            <div className="pt-4">
-              <button
-                type="button"
-                onClick={onBack}
-                className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm cursor-pointer"
-              >
-                Return to Mutual Funds Journey
-              </button>
-            </div>
-          </div>
+        {state.stage === 'changeNav' && (
+          <ChangeNavStage
+            invested={state.invested}
+            initialNav={state.initialNav}
+            currentNav={state.currentNav}
+            scenarioKey={state.navScenario}
+            onSelect={(scenario) => handleSendAndReact({ type: 'SELECT_NAV_SCENARIO', scenario })}
+            onContinue={() => handleSendAndReact({ type: 'ADVANCE_TO_OBSERVE' })}
+          />
         )}
+
+        {state.stage === 'observeValue' && (
+          <ObserveValueStage
+            invested={state.invested}
+            initialNav={state.initialNav}
+            currentNav={state.currentNav}
+            scenarioKey={state.navScenario}
+            selectedAnswerId={state.observationAnswerId}
+            onAnswer={(answerId, isCorrect) => {
+              machine.send({ type: 'ANSWER_OBSERVATION', answerId, isCorrect });
+              handleAnswerFeedback(isCorrect);
+            }}
+            onContinue={() => handleSendAndReact({ type: 'ADVANCE_TO_MYTH' })}
+          />
+        )}
+
+        {state.stage === 'mythbuster' && (
+          <MythbusterStage
+            prediction={state.mythbusterPrediction}
+            revealed={state.mythbusterRevealed}
+            onPredict={(prediction) => machine.send({ type: 'PREDICT_MYTH', prediction })}
+            onReveal={() => {
+              const correct = state.mythbusterPrediction === 'equal';
+              handleSendAndReact({ type: 'REVEAL_MYTH' });
+              handleAnswerFeedback(correct);
+            }}
+            onContinue={() => handleSendAndReact({ type: 'ADVANCE_TO_REFLECTION' })}
+          />
+        )}
+
+        {state.stage === 'reflection' && (
+          <ReflectionStage
+            selectedAnswerId={state.reflectionAnswerId}
+            onAnswer={(answerId, isCorrect) => {
+              machine.send({ type: 'ANSWER_REFLECTION', answerId, isCorrect });
+              handleAnswerFeedback(isCorrect);
+            }}
+            onFinish={() => handleSendAndReact({ type: 'FINISH' })}
+          />
+        )}
+
+        {state.stage === 'complete' && (
+          <CompleteStage
+            correctAnswers={machine.correctAnswersCount}
+            totalQuizzes={4}
+            onReturn={onBack}
+          />
+        )}
+      </div>
+
+      {/* Educational Disclaimer */}
+      <div className="rounded-2xl bg-slate-900/60 border border-slate-800 px-4 py-3 text-[11px] text-slate-400 flex items-start gap-2">
+        <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+        <span className="leading-relaxed">
+          Educational simulation. All NAV figures and scenarios are deterministic examples designed to illustrate the mechanics of mutual fund units. Real investing involves fees, taxes, distributions, and market risk not modelled here.
+        </span>
       </div>
     </div>
   );
 };
+
+/* --------------------------------------------------------------------------
+ * STAGE COMPONENTS
+ * -------------------------------------------------------------------------- */
+
+const StageIntro: React.FC<{ icon: React.ReactNode; eyebrow: string; title: string }> = ({ icon, eyebrow, title }) => (
+  <div className="space-y-2 mb-5">
+    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold">
+      {icon}
+      <span>{eyebrow}</span>
+    </div>
+    <h2 className="text-xl sm:text-2xl font-black text-slate-100">{title}</h2>
+  </div>
+);
+
+const PrimaryActionButton: React.FC<{
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+}> = ({ onClick, disabled, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    className={`px-6 py-3 rounded-xl font-black text-sm flex items-center gap-2 transition-all cursor-pointer shadow-lg ${
+      disabled
+        ? 'bg-slate-800 text-slate-500 cursor-not-allowed shadow-none'
+        : 'bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-teal-500/20'
+    }`}
+  >
+    {children}
+  </button>
+);
+
+/* --- Stage: Intro --- */
+const IntroStage: React.FC<{ onStart: () => void }> = ({ onStart }) => (
+  <div className="space-y-5">
+    <StageIntro
+      icon={<Sparkles className="w-3.5 h-3.5" />}
+      eyebrow="Step 1 · Set the Stage"
+      title="You have ₹2,000. What does NAV actually tell you?"
+    />
+    <p className="text-sm text-slate-300 leading-relaxed">
+      <strong>NAV</strong> is short for <strong>Net Asset Value</strong>. It is the per-unit value of a mutual fund, recalculated at the end of every trading day. Before you ever buy a unit, let's run a short, controlled experiment on exactly what NAV changes — and what it doesn't.
+    </p>
+    <div className="flex justify-end">
+      <PrimaryActionButton onClick={onStart}>
+        <span>Start the experiment</span>
+        <ArrowRight className="w-4 h-4" />
+      </PrimaryActionButton>
+    </div>
+  </div>
+);
+
+/* --- Stage: Choose Investment --- */
+const ChooseInvestmentStage: React.FC<{
+  invested: number;
+  onSelect: (amount: number) => void;
+  onConfirm: () => void;
+}> = ({ invested, onSelect, onConfirm }) => (
+  <div className="space-y-5">
+    <StageIntro
+      icon={<Calculator className="w-3.5 h-3.5" />}
+      eyebrow="Step 2 · Choose an Investment"
+      title="Pick your experiment amount."
+    />
+    <p className="text-sm text-slate-300 leading-relaxed">
+      This is <strong>the rupees going in</strong>, not the units you receive. We'll work out the units next, together.
+    </p>
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {INVESTMENT_AMOUNT_OPTIONS.map((amount) => (
+        <button
+          key={amount}
+          type="button"
+          onClick={() => onSelect(amount)}
+          className={`py-4 rounded-2xl text-sm font-black transition-all cursor-pointer border ${
+            invested === amount
+              ? 'bg-teal-500 text-slate-950 border-teal-400 shadow-lg shadow-teal-500/20'
+              : 'bg-slate-950/70 text-slate-200 border-slate-800 hover:border-slate-700'
+          }`}
+        >
+          ₹{amount.toLocaleString('en-IN')}
+        </button>
+      ))}
+    </div>
+    <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-400">
+      You selected <strong className="text-slate-200 font-mono-num">₹{invested.toLocaleString('en-IN')}</strong>. This is money going in, not the number of units received yet.
+    </div>
+    <div className="flex justify-end">
+      <PrimaryActionButton onClick={onConfirm}>
+        <span>Lock amount & see units</span>
+        <ArrowRight className="w-4 h-4" />
+      </PrimaryActionButton>
+    </div>
+  </div>
+);
+
+/* --- Stage: Calculate Units --- */
+const CalculateUnitsStage: React.FC<{
+  invested: number;
+  nav: number;
+  selectedAnswerId: string | null;
+  onAnswer: (answerId: string, isCorrect: boolean) => void;
+  onContinue: () => void;
+}> = ({ invested, nav, selectedAnswerId, onAnswer, onContinue }) => {
+  const units = calculateUnits(invested, nav);
+  const displayedUnits = useAnimatedNumber(units, 900);
+
+  const options: QuizOption[] = useMemo(() => {
+    const correctUnits = calculateUnits(invested * 2, nav);
+    return [
+      {
+        id: 'half',
+        text: `${(units / 2).toFixed(2)} units`,
+        isCorrect: false,
+        explanation: 'Think again — the amount doubled, not halved.',
+      },
+      {
+        id: 'same',
+        text: `${units.toFixed(2)} units`,
+        isCorrect: false,
+        explanation: 'Not quite — units scale with the amount you invest at the same NAV.',
+      },
+      {
+        id: 'double',
+        text: `${correctUnits.toFixed(2)} units`,
+        isCorrect: true,
+        explanation: 'Correct! Twice the amount at the same NAV = twice the units.',
+      },
+    ].sort((a, b) => a.id.localeCompare(b.id));
+  }, [invested, nav, units]);
+
+  const selected = options.find((o) => o.id === selectedAnswerId);
+
+  return (
+    <div className="space-y-5">
+      <StageIntro
+        icon={<Calculator className="w-3.5 h-3.5" />}
+        eyebrow="Step 3 · Calculate Units"
+        title="The money-to-units handshake."
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <StatBox label="Investment" value={formatRupee(invested)} caption="Rupees in" />
+        <StatBox label="NAV per unit" value={formatRupee(nav, 2)} caption="At the moment of purchase" />
+        <StatBox
+          label="Units received"
+          value={displayedUnits.toFixed(2)}
+          caption={`Amount ÷ ₹${nav}`}
+          accent="teal"
+        />
+      </div>
+      <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-sm text-slate-300 leading-relaxed">
+        <span className="text-xs font-bold uppercase tracking-wider text-teal-400 block mb-1">
+          Observation Quiz
+        </span>
+        If you invested <strong className="text-slate-100 font-mono-num">twice as much</strong> at the same NAV of ₹{nav}, how many units would you receive?
+      </div>
+      <div className="space-y-2">
+        {options.map((opt) => (
+          <QuizButton
+            key={opt.id}
+            option={opt}
+            selected={selectedAnswerId === opt.id}
+          onClick={() => onAnswer(opt.id, opt.isCorrect)}
+          />
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <PrimaryActionButton
+          onClick={onContinue}
+          disabled={!selected?.isCorrect}
+        >
+          <span>{selected?.isCorrect ? 'Continue to NAV change' : 'Pick the correct answer to continue'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </PrimaryActionButton>
+      </div>
+    </div>
+  );
+};
+
+/* --- Stage: Change NAV --- */
+const ChangeNavStage: React.FC<{
+  invested: number;
+  initialNav: number;
+  currentNav: number;
+  scenarioKey: string | null;
+  onSelect: (scenario: 'dip20' | 'flat' | 'up25' | 'up50') => void;
+  onContinue: () => void;
+}> = ({ invested, initialNav, currentNav, scenarioKey, onSelect, onContinue }) => {
+  const snapshot = buildHoldingSnapshot(invested, initialNav, currentNav);
+  const displayedNav = useAnimatedNumber(snapshot.currentNav, 650);
+  const displayedValue = useAnimatedNumber(snapshot.currentValue, 650);
+  const displayedPnL = useAnimatedNumber(snapshot.profitLoss, 650);
+
+  const direction: 'up' | 'down' | 'flat' =
+    snapshot.profitLoss > 0 ? 'up' : snapshot.profitLoss < 0 ? 'down' : 'flat';
+
+  return (
+    <div className="space-y-5">
+      <StageIntro
+        icon={<TrendingUp className="w-3.5 h-3.5" />}
+        eyebrow="Step 4 · Change the NAV"
+        title="Markets move. Your unit count doesn't."
+      />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {NAV_CHANGE_OPTIONS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => onSelect(option.key)}
+            className={`py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer border ${
+              scenarioKey === option.key
+                ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
+                : 'bg-slate-950/70 text-slate-200 border-slate-800 hover:border-slate-700'
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatBox
+          label="Units held"
+          value={snapshot.units.toFixed(2)}
+          caption="Unchanged"
+          icon={<Lock className="w-3 h-3" />}
+        />
+        <StatBox label="Current NAV" value={formatRupee(displayedNav, 2)} caption="Per unit value" />
+        <StatBox
+          label="Current value"
+          value={formatRupee(displayedValue)}
+          caption="Units × Current NAV"
+          accent="teal"
+        />
+        <StatBox
+          label={direction === 'down' ? 'Loss' : direction === 'up' ? 'Gain' : 'No change'}
+          value={`${snapshot.profitLoss >= 0 ? '+' : ''}${formatRupee(displayedPnL)}`}
+          caption={formatPercent(snapshot.returnPercent)}
+          accent={direction === 'down' ? 'rose' : direction === 'up' ? 'emerald' : 'slate'}
+          icon={
+            direction === 'down' ? (
+              <TrendingDown className="w-3 h-3" />
+            ) : direction === 'up' ? (
+              <TrendingUp className="w-3 h-3" />
+            ) : (
+              <CircleEqual className="w-3 h-3" />
+            )
+          }
+        />
+      </div>
+
+      <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <span className="font-bold text-slate-100 block mb-1">What just happened?</span>
+        You still own <strong className="font-mono-num text-slate-100">{snapshot.units.toFixed(2)}</strong> units. The <strong>per-unit value</strong> moved from ₹{initialNav} to ₹{snapshot.currentNav.toFixed(2)}. No units were bought or sold.
+      </div>
+
+      <div className="flex justify-end">
+        <PrimaryActionButton onClick={onContinue} disabled={scenarioKey === null}>
+          <span>Observe the consequence</span>
+          <ArrowRight className="w-4 h-4" />
+        </PrimaryActionButton>
+      </div>
+    </div>
+  );
+};
+
+/* --- Stage: Observe Value --- */
+const ObserveValueStage: React.FC<{
+  invested: number;
+  initialNav: number;
+  currentNav: number;
+  scenarioKey: string | null;
+  selectedAnswerId: string | null;
+  onAnswer: (answerId: string, isCorrect: boolean) => void;
+  onContinue: () => void;
+}> = ({ invested, initialNav, currentNav, selectedAnswerId, onAnswer, onContinue }) => {
+  const snapshot = buildHoldingSnapshot(invested, initialNav, currentNav);
+  const options: QuizOption[] = [
+    {
+      id: 'units_changed',
+      text: 'The number of units I own changed.',
+      isCorrect: false,
+      explanation: 'Not quite — you did not buy or sell. Unit count stayed the same.',
+    },
+    {
+      id: 'nav_changed',
+      text: 'The value of each unit changed. Units stayed exactly the same.',
+      isCorrect: true,
+      explanation: `Exactly. NAV moved from ₹${initialNav} to ₹${snapshot.currentNav.toFixed(2)}. You still own ${snapshot.units.toFixed(2)} units.`,
+    },
+    {
+      id: 'invested_changed',
+      text: 'The money I originally invested changed.',
+      isCorrect: false,
+      explanation: 'Your invested amount is fixed history. What moved is the per-unit NAV.',
+    },
+  ];
+
+  const selected = options.find((o) => o.id === selectedAnswerId);
+
+  return (
+    <div className="space-y-5">
+      <StageIntro
+        icon={<Lightbulb className="w-3.5 h-3.5" />}
+        eyebrow="Step 5 · Observe the Consequence"
+        title={`You still own ${snapshot.units.toFixed(2)} units. What changed?`}
+      />
+      <div className="space-y-2">
+        {options.map((opt) => (
+          <QuizButton
+            key={opt.id}
+            option={opt}
+            selected={selectedAnswerId === opt.id}
+            onClick={() => onAnswer(opt.id, opt.isCorrect)}
+          />
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <PrimaryActionButton onClick={onContinue} disabled={!selected?.isCorrect}>
+          <span>{selected?.isCorrect ? 'Continue to Mythbuster' : 'Pick the correct answer to continue'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </PrimaryActionButton>
+      </div>
+    </div>
+  );
+};
+
+/* --- Stage: Mythbuster --- */
+const MythbusterStage: React.FC<{
+  prediction: MythbusterPrediction | null;
+  revealed: boolean;
+  onPredict: (prediction: MythbusterPrediction) => void;
+  onReveal: () => void;
+  onContinue: () => void;
+}> = ({ prediction, revealed, onPredict, onReveal, onContinue }) => {
+  const comparison = buildMythbusterComparison();
+
+  const predictionOptions: { id: MythbusterPrediction; label: string; detail: string }[] = [
+    { id: 'A', label: 'Fund A (₹10 NAV) wins', detail: 'Looks "cheap" because the NAV is low.' },
+    { id: 'equal', label: 'Both end exactly equal', detail: 'If the underlying moves the same %, outcome is the same.' },
+    { id: 'B', label: 'Fund B (₹100 NAV) wins', detail: 'Looks "premium" because the NAV is high.' },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <StageIntro
+        icon={<Sparkles className="w-3.5 h-3.5" />}
+        eyebrow="Step 6 · Mythbuster"
+        title="Is a ₹10 NAV fund automatically cheaper than a ₹100 one?"
+      />
+      <p className="text-sm text-slate-300 leading-relaxed">
+        Both funds hold similar underlying assets. Both go up by the same {comparison.underlyingGrowthPercent}%. You invest {formatRupee(comparison.fundA.invested)} in each. Predict the outcome first — then we'll reveal the math.
+      </p>
+
+      <div className="space-y-2">
+        {predictionOptions.map((opt) => (
+          <button
+            key={opt.id}
+            type="button"
+            onClick={() => onPredict(opt.id)}
+            disabled={revealed}
+            className={`w-full text-left p-4 rounded-2xl border transition-all ${
+              prediction === opt.id
+                ? 'bg-teal-500/10 border-teal-500 text-teal-200'
+                : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700'
+            } ${revealed ? 'opacity-80 cursor-default' : 'cursor-pointer'}`}
+          >
+            <span className="block text-sm font-bold">{opt.label}</span>
+            <span className="block text-xs text-slate-400 mt-0.5">{opt.detail}</span>
+          </button>
+        ))}
+      </div>
+
+      {!revealed && (
+        <div className="flex justify-end">
+          <PrimaryActionButton onClick={onReveal} disabled={prediction === null}>
+            <span>Reveal the math</span>
+            <ArrowRight className="w-4 h-4" />
+          </PrimaryActionButton>
+        </div>
+      )}
+
+      {revealed && (
+        <div className="space-y-4 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <FundRevealCard fund={comparison.fundA} underlyingGrowthPercent={comparison.underlyingGrowthPercent} />
+            <FundRevealCard fund={comparison.fundB} underlyingGrowthPercent={comparison.underlyingGrowthPercent} />
+          </div>
+          <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-sm text-amber-100 leading-relaxed">
+            <strong>Both end at {formatRupee(comparison.fundA.endValue)}.</strong> NAV level says nothing about cheapness. What drives value is the <em>% change</em> in the underlying — not whether the starting NAV was ₹10 or ₹100.
+          </div>
+          <div className="flex justify-end">
+            <PrimaryActionButton onClick={onContinue}>
+              <span>One last reflection</span>
+              <ArrowRight className="w-4 h-4" />
+            </PrimaryActionButton>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const FundRevealCard: React.FC<{
+  fund: ReturnType<typeof buildMythbusterComparison>['fundA'];
+  underlyingGrowthPercent: number;
+}> = ({ fund, underlyingGrowthPercent }) => (
+  <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1 text-sm">
+    <span className="text-xs font-bold uppercase tracking-wider text-teal-400 block">
+      {fund.label} · NAV ₹{fund.nav}
+    </span>
+    <div className="text-slate-200">
+      Invest <span className="font-mono-num">{formatRupee(fund.invested)}</span> → receive
+      {' '}
+      <span className="font-mono-num text-teal-300 font-bold">{formatUnits(fund.units)}</span>.
+    </div>
+    <div className="text-slate-300">
+      Underlying rises <strong>{underlyingGrowthPercent}%</strong>, NAV becomes
+      {' '}
+      <span className="font-mono-num text-slate-100 font-bold">₹{fund.gainedNav.toFixed(2)}</span>.
+    </div>
+    <div className="text-emerald-300 font-bold font-mono-num">
+      Ending value: {formatRupee(fund.endValue)} ({fund.profit >= 0 ? '+' : ''}{formatRupee(fund.profit)})
+    </div>
+  </div>
+);
+
+/* --- Stage: Reflection --- */
+const ReflectionStage: React.FC<{
+  selectedAnswerId: string | null;
+  onAnswer: (answerId: string, isCorrect: boolean) => void;
+  onFinish: () => void;
+}> = ({ selectedAnswerId, onAnswer, onFinish }) => {
+  const options: QuizOption[] = [
+    {
+      id: 'units',
+      text: 'The number of units I own changes my investment\'s value.',
+      isCorrect: false,
+      explanation: 'Only when you buy or sell. Day-to-day, units stay constant.',
+    },
+    {
+      id: 'nav',
+      text: 'The NAV (per-unit value) is what moves my investment\'s value day to day.',
+      isCorrect: true,
+      explanation: 'Right. In this experiment, with no buys or sells, every movement in your portfolio value came from NAV, not units.',
+    },
+    {
+      id: 'both',
+      text: 'Both change constantly, independently of each other.',
+      isCorrect: false,
+      explanation: 'Not in this experiment. Units only change when you transact. NAV moves every market day.',
+    },
+  ];
+
+  const selected = options.find((o) => o.id === selectedAnswerId);
+
+  return (
+    <div className="space-y-5">
+      <StageIntro
+        icon={<Lightbulb className="w-3.5 h-3.5" />}
+        eyebrow="Step 7 · Reflection"
+        title="Which changes your investment's value in this experiment?"
+      />
+      <div className="space-y-2">
+        {options.map((opt) => (
+          <QuizButton
+            key={opt.id}
+            option={opt}
+            selected={selectedAnswerId === opt.id}
+            onClick={() => onAnswer(opt.id, opt.isCorrect)}
+          />
+        ))}
+      </div>
+      <div className="flex justify-end">
+        <PrimaryActionButton onClick={onFinish} disabled={!selected?.isCorrect}>
+          <span>{selected?.isCorrect ? `Complete Level 2 & claim +${LESSON_XP_REWARD} XP` : 'Pick the correct answer to continue'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </PrimaryActionButton>
+      </div>
+    </div>
+  );
+};
+
+/* --- Stage: Complete --- */
+const CompleteStage: React.FC<{
+  correctAnswers: number;
+  totalQuizzes: number;
+  onReturn: () => void;
+}> = ({ correctAnswers, totalQuizzes, onReturn }) => (
+  <div className="py-6 text-center space-y-5 motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300">
+    <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
+      <CheckCircle2 className="w-8 h-8" />
+    </div>
+    <div className="space-y-2">
+      <h3 className="text-2xl font-black text-slate-100">Level 2 Mastered</h3>
+      <p className="text-sm text-slate-300 max-w-md mx-auto">
+        NAV = per-unit value. Units are what you own. Day-to-day, NAV moves — your unit count doesn't. A low NAV isn't "cheap"; only % change in the underlying matters.
+      </p>
+    </div>
+    <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+      <SummaryTile label="Correct answers" value={`${correctAnswers}/${totalQuizzes}`} />
+      <SummaryTile label="XP earned" value={`+${LESSON_XP_REWARD}`} accent="amber" />
+    </div>
+    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-extrabold text-sm">
+      <Award className="w-4 h-4" />
+      <span>+{LESSON_XP_REWARD} XP added</span>
+    </div>
+    <div className="flex items-center justify-center gap-3 pt-2">
+      <button
+        type="button"
+        onClick={onReturn}
+        className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm cursor-pointer"
+      >
+        Return to Mutual Funds Hub
+      </button>
+    </div>
+  </div>
+);
+
+/* --------------------------------------------------------------------------
+ * SHARED LITTLE COMPONENTS
+ * -------------------------------------------------------------------------- */
+
+const StatBox: React.FC<{
+  label: string;
+  value: React.ReactNode;
+  caption?: string;
+  accent?: 'teal' | 'emerald' | 'rose' | 'slate';
+  icon?: React.ReactNode;
+}> = ({ label, value, caption, accent, icon }) => {
+  const accentClass =
+    accent === 'teal'
+      ? 'text-teal-300'
+      : accent === 'emerald'
+      ? 'text-emerald-300'
+      : accent === 'rose'
+      ? 'text-rose-300'
+      : 'text-slate-100';
+  return (
+    <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+      <span className="text-[10px] text-slate-400 uppercase font-bold flex items-center gap-1">
+        {icon}
+        <span>{label}</span>
+      </span>
+      <span className={`text-base sm:text-lg font-black font-mono-num block ${accentClass}`}>
+        {typeof value === 'number' ? value.toFixed(2) : value}
+      </span>
+      {caption && <span className="text-[10px] text-slate-500 block">{caption}</span>}
+    </div>
+  );
+};
+
+const QuizButton: React.FC<{
+  option: QuizOption;
+  selected: boolean;
+  onClick: () => void;
+}> = ({ option, selected, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`w-full text-left p-4 rounded-2xl border text-sm font-semibold transition-all cursor-pointer ${
+      selected
+        ? option.isCorrect
+          ? 'bg-emerald-950/60 border-emerald-500 text-emerald-100'
+          : 'bg-rose-950/60 border-rose-500 text-rose-100'
+        : 'bg-slate-950/70 border-slate-800 text-slate-200 hover:border-slate-700'
+    }`}
+  >
+    <div className="flex items-start gap-3">
+      <span className="w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center shrink-0 mt-0.5 font-mono text-xs">
+        {selected ? (option.isCorrect ? '✓' : '✕') : '○'}
+      </span>
+      <div className="space-y-1">
+        <p>{option.text}</p>
+        {selected && (
+          <p className={`text-xs ${option.isCorrect ? 'text-emerald-300' : 'text-rose-300'}`}>
+            {option.explanation}
+          </p>
+        )}
+      </div>
+    </div>
+  </button>
+);
+
+const SummaryTile: React.FC<{ label: string; value: string; accent?: 'amber' | 'teal' }> = ({ label, value, accent }) => (
+  <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-center">
+    <span className="text-[10px] text-slate-400 uppercase font-bold block tracking-wider">
+      {label}
+    </span>
+    <span className={`text-lg font-black font-mono-num block mt-0.5 ${accent === 'amber' ? 'text-amber-300' : 'text-teal-300'}`}>
+      {value}
+    </span>
+  </div>
+);
+

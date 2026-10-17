@@ -278,81 +278,24 @@ export const ConnectiveGamePath: React.FC<ConnectiveGamePathProps> = ({
         )}
       </div>
 
-      {/* Module 01 Featured Quest Banner (Stocks only) */}
-      {onStartModule01 && moduleId === 'stocks' && (
-        <div
-          onClick={onStartModule01}
-          className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/60 border border-teal-500/40 hover:border-teal-400 shadow-lg cursor-pointer transition-all flex items-center justify-between gap-4 group"
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-3xl p-2 rounded-xl bg-teal-500/10 border border-teal-500/20">
-              🥭
-            </span>
-            <div>
-              <div className="flex items-center gap-2 text-[10px] font-bold text-teal-400 uppercase tracking-wider">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                <span>Beginner Quest · Module 01</span>
-              </div>
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-100 group-hover:text-teal-300 transition-colors">
-                What Is a Market? (5 Interactive Mini-Games)
-              </h3>
-              <p className="text-xs text-slate-400 line-clamp-1">
-                Learn how buyers, sellers, prices, and stock trades work through friendly stories.
-              </p>
-            </div>
-          </div>
-          <button className="px-3.5 py-1.5 rounded-xl bg-teal-500 text-slate-950 text-xs font-bold shrink-0 flex items-center gap-1 group-hover:bg-teal-400 transition-colors cursor-pointer">
-            <span>Play</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
-      {/* Duolingo Section / Unit Header Banner */}
-      <div className={`rounded-2xl p-5 bg-gradient-to-r ${currentUnit.themeColor || 'from-teal-600 via-emerald-600 to-teal-500'} text-white shadow-xl relative overflow-hidden`}>
-        {/* Subtle patterned overlay */}
-        <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px] pointer-events-none" />
-
-        <div className="relative flex items-center justify-between gap-4">
-          <div className="space-y-1">
-            <span className="text-[11px] font-black uppercase tracking-widest text-teal-100 opacity-90 block">
-              SECTION {currentUnit.sectionNumber}, UNIT {currentUnit.unitNumber}
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-sm">
-              {currentUnit.title}
-            </h2>
-            <p className="text-xs text-teal-50/90 line-clamp-1 max-w-sm">
-              {currentUnit.description}
-            </p>
-          </div>
-
-          {/* Guidebook Button */}
-          <button
-            onClick={() => setActiveGuidebookUnit(currentUnit)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs backdrop-blur-md border border-white/30 transition-all shrink-0 active:scale-95 cursor-pointer"
-            title="Open Unit Guidebook"
-          >
-            <BookOpen className="w-4 h-4" />
-            <span className="hidden sm:inline">GUIDEBOOK</span>
-          </button>
-        </div>
-
-        {/* Unit switcher tabs */}
-        <div className="relative mt-4 pt-3 border-t border-white/20 flex items-center gap-2 overflow-x-auto scrollbar-none">
-          {learningUnits.map(unit => (
-            <button
-              key={unit.id}
-              onClick={() => setActiveUnitId(unit.id)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all shrink-0 cursor-pointer ${
-                activeUnitId === unit.id
-                  ? 'bg-white text-teal-900 shadow-sm'
-                  : 'bg-black/20 text-white hover:bg-black/30'
-              }`}
-            >
-              Unit {unit.unitNumber}: {unit.title.split(' ')[0]}
-            </button>
-          ))}
-        </div>
+      {/* Inspector Fin — Playground Mentor Greeting */}
+      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 sm:p-5">
+        <CharacterMentor
+          size="md"
+          state={completedNodeIds.length === 0 ? 'talking' : 'happy'}
+          message={
+            moduleId === 'mutual-funds'
+              ? "Welcome to the Mutual Funds path. Tap any level and I'll walk you through it."
+              : completedNodeIds.length === 0
+              ? "Hi, I'm Inspector Fin. Pick any lesson below — I'll help you spot the pattern as we go."
+              : `${completedNodeIds.length} lessons behind you already. Pick the next one and let's keep going.`
+          }
+          subMessage={
+            moduleId === 'stocks' && completedNodeIds.length === 0
+              ? 'Start with Module 01 below if you\'re brand new to the markets.'
+              : undefined
+          }
+        />
       </div>
 
       {/* Serpentine Connective Game Path */}

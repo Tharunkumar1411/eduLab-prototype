@@ -5,6 +5,7 @@ import {
   ForensicCaseClue,
   FictionalMutualFund,
 } from '../../../data/mutualFundsData.ts';
+import { CharacterMentor, CharacterState } from '../../character/CharacterMentor.tsx';
 import {
   ArrowLeft,
   ArrowRight,
@@ -81,6 +82,32 @@ export const Level5FundInvestigator: React.FC<Level5FundInvestigatorProps> = ({ 
     onComplete(350);
   };
 
+  const mentorByStage: Record<StageType, { state: CharacterState; message: string; subMessage?: string }> = {
+    brief: {
+      state: 'talking',
+      message: 'Three funds. One portfolio decision. Read the brief carefully.',
+      subMessage: "Don't rush — the headline numbers are designed to mislead.",
+    },
+    evidence_board: {
+      state: 'thinking',
+      message: 'Each clue reveals a different lens: cost, performance, concentration.',
+      subMessage: 'Click clues to unlock them. Compare, don\'t cherry-pick.',
+    },
+    thesis_formulation: {
+      state: 'surprised',
+      message: 'Form your investment thesis. Pick a fund AND the reasons behind it.',
+    },
+    debrief: {
+      state: 'happy',
+      message: 'Thesis logged. Let\'s see how your reasoning holds up.',
+    },
+    completed: {
+      state: 'celebrating',
+      message: 'Full MF investigator unlocked. You\'ve finished the entire Mutual Funds unit.',
+    },
+  };
+  const mentor = mentorByStage[stage];
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300">
       {/* Top Header & Breadcrumb */}
@@ -98,6 +125,17 @@ export const Level5FundInvestigator: React.FC<Level5FundInvestigatorProps> = ({ 
           <span className="text-slate-600">·</span>
           <span className="text-slate-300">The Fund Comparison Case</span>
         </div>
+      </div>
+
+      {/* Inspector Fin — Level Mentor */}
+      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 sm:p-5">
+        <CharacterMentor
+          size="md"
+          state={mentor.state}
+          message={mentor.message}
+          subMessage={mentor.subMessage}
+          revealProgressively
+        />
       </div>
 
       {/* Main Container */}

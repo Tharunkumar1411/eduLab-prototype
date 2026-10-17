@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   calculateExpenseRatioDrag,
 } from '../../../data/mutualFundsData.ts';
+import { CharacterMentor, CharacterState } from '../../character/CharacterMentor.tsx';
 import {
   ArrowLeft,
   ArrowRight,
@@ -46,6 +47,27 @@ export const Level4RiskAndFees: React.FC<Level4RiskAndFeesProps> = ({ onComplete
     onComplete(250);
   };
 
+  const mentorByTab: Record<TabType, { state: CharacterState; message: string; subMessage?: string }> = {
+    ter_drag_simulator: {
+      state: 'thinking',
+      message: 'Expense ratios look small. Compounded over 15 years, they bite.',
+      subMessage: 'Change the inputs and watch the fee gap widen.',
+    },
+    two_funds_dilemma: {
+      state: 'surprised',
+      message: 'Two funds, similar headline returns. Dig deeper before you choose.',
+    },
+    reflection: {
+      state: 'thinking',
+      message: 'One reflection to lock in how fees really work.',
+    },
+    completed: {
+      state: 'celebrating',
+      message: 'Fee drag unmasked. Level 4 complete.',
+    },
+  };
+  const mentor = mentorByTab[activeTab];
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300">
       {/* Top Header & Breadcrumb */}
@@ -63,6 +85,17 @@ export const Level4RiskAndFees: React.FC<Level4RiskAndFeesProps> = ({ onComplete
           <span className="text-slate-600">·</span>
           <span className="text-slate-300">Risk, Fees & Fund Comparison</span>
         </div>
+      </div>
+
+      {/* Inspector Fin — Level Mentor */}
+      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 sm:p-5">
+        <CharacterMentor
+          size="md"
+          state={mentor.state}
+          message={mentor.message}
+          subMessage={mentor.subMessage}
+          revealProgressively
+        />
       </div>
 
       {/* Main Container */}

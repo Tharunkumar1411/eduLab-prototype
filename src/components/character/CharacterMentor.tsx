@@ -4,15 +4,15 @@
  * Supports states: idle, talking, thinking, happy, surprised, confused, celebrating.
  */
 
-import React, { useId } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 
-export type CharacterState = 
-  | 'idle' 
-  | 'talking' 
-  | 'thinking' 
-  | 'happy' 
-  | 'surprised' 
-  | 'confused' 
+export type CharacterState =
+  | 'idle'
+  | 'talking'
+  | 'thinking'
+  | 'happy'
+  | 'surprised'
+  | 'confused'
   | 'celebrating';
 
 interface CharacterMentorProps {
@@ -24,6 +24,36 @@ interface CharacterMentorProps {
   className?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   showNameTag?: boolean;
+  /**
+   * When true, the dialogue bubble fades in each time `message` changes.
+   * Defaults to false to preserve existing caller behavior.
+   */
+  revealProgressively?: boolean;
+}
+
+function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return false;
+    }
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (event: MediaQueryListEvent) => setReduced(event.matches);
+    if (typeof query.addEventListener === 'function') {
+      query.addEventListener('change', handler);
+      return () => query.removeEventListener('change', handler);
+    }
+    query.addListener(handler);
+    return () => query.removeListener(handler);
+  }, []);
+
+  return reduced;
 }
 
 export const CharacterMentor: React.FC<CharacterMentorProps> = ({
@@ -35,8 +65,10 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
   className = '',
   size = 'md',
   showNameTag = false,
+  revealProgressively = false,
 }) => {
   const gradientId = useId();
+  const prefersReducedMotion = useReducedMotion();
 
   // Size mapping
   const sizeClasses = {
@@ -46,8 +78,12 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
     lg: 'w-28 h-28 sm:w-32 sm:h-32',
   }[size];
 
-  // Dynamic CSS animation classes based on character state
+  // Dynamic CSS animation classes based on character state.
+  // When the user prefers reduced motion, we drop body-level animation entirely
+  // but keep the state-specific SVG swaps (eyes, mouth, lightbulb/sparkle) so
+  // expressions still communicate the state.
   const getBodyMotionClass = () => {
+    if (prefersReducedMotion) return '';
     switch (state) {
       case 'talking':
         return 'animate-bounce-subtle';
@@ -261,7 +297,7 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
 
             {/* State indicators: lightbulb for thinking, sparkle for celebrating */}
             {state === 'thinking' && (
-              <g transform="translate(86, 12)" className="animate-pulse">
+              <g transform="translate(86, 12)" className="motion-safe:animate-pulse">
                 <circle cx="8" cy="8" r="6" fill="#FDE047" />
                 <path d="M6 14 L10 14" stroke="#CA8A04" strokeWidth="1.5" />
                 <path d="M8 2 L8 0" stroke="#EAB308" strokeWidth="1.5" strokeLinecap="round" />
@@ -297,6 +333,13 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
       );
     }
 
+    const bubbleRevealKey = revealProgressively && !prefersReducedMotion
+      ? `${message ?? ''}|${subMessage ?? ''}`
+      : undefined;
+    const bubbleRevealClass = revealProgressively && !prefersReducedMotion
+      ? 'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-1 motion-safe:duration-200'
+      : '';
+
     return (
       <div className={`flex items-start gap-4 ${className}`}>
         {avatarNode}
@@ -306,15 +349,17 @@ export const CharacterMentor: React.FC<CharacterMentorProps> = ({
           {/* Arrow pointing to Fin */}
           <div className="absolute top-5 -left-2 w-3 h-3 bg-slate-800 border-l border-b border-slate-700 transform rotate-45" />
 
-          <p className="text-sm font-medium text-slate-100 leading-relaxed">
-            {message}
-          </p>
-
-          {subMessage && (
-            <p className="text-xs text-slate-400 mt-1.5 leading-normal">
-              {subMessage}
+          <div key={bubbleRevealKey} className={bubbleRevealClass}>
+            <p className="text-sm font-medium text-slate-100 leading-relaxed">
+              {message}
             </p>
-          )}
+
+            {subMessage && (
+              <p className="text-xs text-slate-400 mt-1.5 leading-normal">
+                {subMessage}
+              </p>
+            )}
+          </div>
 
           {showHintButton && onHintClick && (
             <button

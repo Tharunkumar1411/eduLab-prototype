@@ -4,6 +4,7 @@ import {
   LEVEL_1_PORTFOLIO_HOLDINGS,
   InvestorProfile,
 } from '../../../data/mutualFundsData.ts';
+import { CharacterMentor, CharacterState } from '../../character/CharacterMentor.tsx';
 import {
   ArrowLeft,
   ArrowRight,
@@ -47,6 +48,36 @@ export const Level1BuildAFund: React.FC<Level1BuildAFundProps> = ({ onComplete, 
     }
   };
 
+  const mentorByStage: Record<Stage, { state: CharacterState; message: string; subMessage?: string }> = {
+    meet_savers: {
+      state: 'talking',
+      message: 'Meet five savers who each want more than a bank fixed deposit.',
+      subMessage: 'Alone, their options are limited. Together, something interesting happens.',
+    },
+    pooling: {
+      state: 'thinking',
+      message: 'Pool their rupees into one trust. Watch the collective buying power.',
+    },
+    portfolio: {
+      state: 'surprised',
+      message: 'With pooled capital, the fund can hold a basket of top companies.',
+      subMessage: 'Each saver now owns a slice of every holding.',
+    },
+    units_allocation: {
+      state: 'happy',
+      message: "Units slice the pool fairly — proportional to each person's contribution.",
+    },
+    reflection: {
+      state: 'thinking',
+      message: "One last check — what did pooling actually buy them?",
+    },
+    completed: {
+      state: 'celebrating',
+      message: 'Level 1 complete. You get what a mutual fund really is.',
+    },
+  };
+  const mentor = mentorByStage[stage];
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300">
       {/* Top Header & Breadcrumb */}
@@ -64,6 +95,17 @@ export const Level1BuildAFund: React.FC<Level1BuildAFundProps> = ({ onComplete, 
           <span className="text-slate-600">·</span>
           <span className="text-slate-300">Mutual Fund Basics</span>
         </div>
+      </div>
+
+      {/* Inspector Fin — Level Mentor */}
+      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 sm:p-5">
+        <CharacterMentor
+          size="md"
+          state={mentor.state}
+          message={mentor.message}
+          subMessage={mentor.subMessage}
+          revealProgressively
+        />
       </div>
 
       {/* Main Interactive Card */}

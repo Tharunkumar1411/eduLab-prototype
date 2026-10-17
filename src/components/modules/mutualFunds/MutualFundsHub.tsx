@@ -7,6 +7,7 @@ import { Level3MatchTheFund } from './Level3MatchTheFund.tsx';
 import { Level4RiskAndFees } from './Level4RiskAndFees.tsx';
 import { Level5FundInvestigator } from './Level5FundInvestigator.tsx';
 import { MutualFundsGlossaryModal } from './MutualFundsGlossaryModal.tsx';
+import { CharacterMentor } from '../../character/CharacterMentor.tsx';
 import {
   ArrowRight,
   PieChart,
@@ -132,6 +133,34 @@ export const MutualFundsHub: React.FC<MutualFundsHubProps> = ({
           <BookOpen className="w-3.5 h-3.5 text-teal-400" />
           <span>Glossary</span>
         </button>
+      </div>
+
+      {/* Inspector Fin — Mentor Greeting */}
+      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 sm:p-5">
+        <CharacterMentor
+          size="md"
+          state={
+            completedCount === totalLevels
+              ? 'celebrating'
+              : completedCount > 0
+              ? 'happy'
+              : 'talking'
+          }
+          message={
+            completedCount === 0
+              ? "Welcome to Mutual Funds. Five short lessons, and you'll know more than most retail investors."
+              : completedCount === totalLevels
+              ? 'Mutual Funds unit mastered. Review any level to lock the ideas in.'
+              : `${completedCount} of ${totalLevels} down. Next up: Level ${nextUncompletedLevel.levelNumber} — ${nextUncompletedLevel.title}.`
+          }
+          subMessage={
+            completedCount === 0
+              ? 'Tap a level below to begin. I\'ll be with you inside each one.'
+              : completedCount === totalLevels
+              ? undefined
+              : 'Pick up where you left off.'
+          }
+        />
       </div>
 
       {/* Duolingo Section / Unit Header Banner */}

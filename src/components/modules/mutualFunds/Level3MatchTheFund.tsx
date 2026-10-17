@@ -3,6 +3,7 @@ import {
   LEVEL_3_SCENARIOS,
   GoalMatchingScenario,
 } from '../../../data/mutualFundsData.ts';
+import { CharacterMentor, CharacterState } from '../../character/CharacterMentor.tsx';
 import {
   ArrowLeft,
   ArrowRight,
@@ -56,6 +57,31 @@ export const Level3MatchTheFund: React.FC<Level3MatchTheFundProps> = ({ onComple
     onComplete(200);
   };
 
+  const mentorByTab: Record<TabType, { state: CharacterState; message: string; subMessage?: string }> = {
+    categories_primer: {
+      state: 'talking',
+      message: 'Four main fund flavors: Equity, Debt, Hybrid, Index.',
+      subMessage: 'Pick the one that matches the goal, not the headline return.',
+    },
+    scenario_matcher: {
+      state: 'thinking',
+      message: "Read each saver's goal and time horizon carefully.",
+    },
+    active_vs_passive: {
+      state: 'surprised',
+      message: 'Active managers hunt for alpha. Index funds just track the market cheaply.',
+    },
+    reflection: {
+      state: 'thinking',
+      message: 'One last question to lock the matching intuition in.',
+    },
+    completed: {
+      state: 'celebrating',
+      message: 'Fund-to-goal matching clicked. Level 3 done.',
+    },
+  };
+  const mentor = mentorByTab[activeTab];
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 pb-24 animate-in fade-in duration-300">
       {/* Top Header & Breadcrumb */}
@@ -73,6 +99,17 @@ export const Level3MatchTheFund: React.FC<Level3MatchTheFundProps> = ({ onComple
           <span className="text-slate-600">·</span>
           <span className="text-slate-300">Types of Mutual Funds</span>
         </div>
+      </div>
+
+      {/* Inspector Fin — Level Mentor */}
+      <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-4 sm:p-5">
+        <CharacterMentor
+          size="md"
+          state={mentor.state}
+          message={mentor.message}
+          subMessage={mentor.subMessage}
+          revealProgressively
+        />
       </div>
 
       {/* Main Container */}
