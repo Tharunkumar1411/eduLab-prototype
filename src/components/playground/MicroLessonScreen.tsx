@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { MicroQuestion, PathNode } from '../../data/learningPath.ts';
 import { GUIDED_LESSONS, GuidedLessonStage } from '../../data/guidedCurriculum.ts';
 import { WhatIsStockLesson } from './stocksLesson1/WhatIsStockLesson.tsx';
+import { RevenueProfitLesson } from './stocksLesson2/RevenueProfitLesson.tsx';
 import {
   ArrowLeft,
   ArrowRight,
@@ -50,12 +51,14 @@ export const MicroLessonScreen: React.FC<MicroLessonScreenProps> = ({
 }) => {
   const handleExit = onBack || onClose || (() => {});
 
-  // Stocks Level 1 — "What is a Stock?" — uses a dedicated interactive
-  // mini-game instead of the generic 5-stage GUIDED_LESSONS renderer.
-  // Short-circuit before any other state is read so we don't execute the
-  // 5-stage branch's hooks for this lesson.
+  // Stocks Level 1 and Level 2 use dedicated interactive mini-games instead of
+  // the generic 5-stage GUIDED_LESSONS renderer. Short-circuit before any other
+  // state is read so we don't execute the 5-stage branch's hooks for these.
   if (node.id === 'node_lvl_1') {
     return <WhatIsStockLesson node={node} onBack={handleExit} onComplete={onComplete} />;
+  }
+  if (node.id === 'node_lvl_2') {
+    return <RevenueProfitLesson node={node} onBack={handleExit} onComplete={onComplete} />;
   }
 
   const guidedLesson: GuidedLessonStage | undefined = GUIDED_LESSONS[node.id];
