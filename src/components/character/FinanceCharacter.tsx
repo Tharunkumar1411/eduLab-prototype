@@ -32,6 +32,17 @@ import {
   type RiveLike,
 } from './riveStateMapping.ts';
 
+/**
+ * Fire-and-forget preload at module import. Browsers de-dupe this request with
+ * the one `useRive` makes later and serve from cache, so the first lesson that
+ * mounts the mentor doesn't wait on the network for the .riv asset.
+ */
+if (typeof window !== 'undefined' && typeof fetch === 'function') {
+  void fetch(defaultRiveAsset, { cache: 'force-cache' }).catch(() => {
+    /* swallow — the component itself will surface a load error if needed */
+  });
+}
+
 export interface FinanceCharacterProps {
   state: CharacterState;
   className?: string;
@@ -166,10 +177,10 @@ export const FinanceCharacter: React.FC<FinanceCharacterProps> = ({
       role="img"
       aria-label="Finance mentor character"
     >
-      {/* Loading state — show the fallback until Rive mounts, so layout is stable. */}
-      {!isReady && renderFallback && (
-        <div className="absolute inset-0">{renderFallback(state)}</div>
-      )}
+      {/* The box is sized above so no layout shift occurs while Rive loads.
+          We deliberately do NOT show the SVG fallback here — it causes a
+          "detective flash" before the Rive artboard mounts. The fallback is
+          reserved for the hard-error branch (above). */}
       <RiveComponent
         className="w-full h-full"
         aria-hidden={!isReady}
