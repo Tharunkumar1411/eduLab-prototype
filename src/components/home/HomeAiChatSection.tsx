@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, Send, ArrowRight } from 'lucide-react';
+import { Bot, Sparkles, Send } from 'lucide-react';
 
 interface HomeAiChatSectionProps {
   onAskAi: (prompt: string) => void;
@@ -18,7 +18,7 @@ const POPULAR_AI_PROMPTS = [
   },
   {
     icon: '🏦',
-    label: 'How Banks Make Money (NIM)',
+    label: 'Banks & NIM',
     prompt: 'Explain how Indian commercial banks earn profit using Net Interest Margin (NIM) and NPA credit costs.',
   },
   {
@@ -28,8 +28,14 @@ const POPULAR_AI_PROMPTS = [
   },
 ];
 
+/**
+ * Inline prompt bar — intentionally NOT wrapped in a card so it visually
+ * breaks the vertical card stack on the Lounge tab. Looks like a focused
+ * search input with an AI mentor badge + suggestion chips below.
+ */
 export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({ onAskAi }) => {
   const [query, setQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,71 +45,63 @@ export const HomeAiChatSection: React.FC<HomeAiChatSectionProps> = ({ onAskAi })
   };
 
   return (
-    <div className="rounded-3xl bg-slate-900/90 border border-slate-800/90 p-5 sm:p-6 shadow-md space-y-4">
-      {/* Header: Pure AI Mentor Identity */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-teal-900/30 shrink-0">
-            <Bot className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-extrabold text-slate-100 tracking-tight">
-                FinCraft AI Mentor
-              </h2>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-[10px] font-semibold text-teal-400">
-                <Sparkles className="w-2.5 h-2.5" />
-                Gemini 3.5
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 font-medium">
-              Ask any doubt about stocks, ratios, balance sheets, or market cases.
-            </p>
-          </div>
-        </div>
+    <section aria-label="Ask the AI mentor" className="space-y-2.5 px-0.5">
+      {/* Eyebrow identity row */}
+      <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <span className="w-5 h-5 rounded-md bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-slate-950 shrink-0">
+          <Bot className="w-3 h-3" />
+        </span>
+        <span>Ask the AI mentor</span>
+        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-[9px] font-semibold text-teal-400 normal-case tracking-normal">
+          <Sparkles className="w-2 h-2" />
+          Gemini
+        </span>
       </div>
 
-      {/* Interactive AI Question Input Form */}
-      <form onSubmit={handleSubmit} className="relative flex items-center">
+      {/* Inline search-style input */}
+      <form
+        onSubmit={handleSubmit}
+        className={`relative flex items-center bg-slate-950/60 backdrop-blur-sm rounded-2xl transition-all ${
+          isFocused
+            ? 'ring-2 ring-teal-500/50 shadow-lg shadow-teal-950/30'
+            : 'ring-1 ring-slate-800/80 hover:ring-slate-700'
+        }`}
+      >
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Ask a financial question... (e.g., Why did Dalal Street drop? What is P/E ratio?)"
-          className="w-full bg-slate-950/90 border border-slate-800 rounded-2xl py-3 pl-4 pr-24 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-teal-500/80 focus:ring-1 focus:ring-teal-500/50 transition-all shadow-inner"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder="Why did Dalal Street drop? What is P/E ratio?"
+          aria-label="Ask the AI mentor"
+          className="w-full bg-transparent py-3 pl-4 pr-20 text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
         />
         <button
           type="submit"
           disabled={!query.trim()}
-          className="absolute right-1.5 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 disabled:opacity-40 disabled:hover:bg-teal-600 text-white font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+          aria-label="Send question"
+          className="absolute right-1.5 px-3 py-1.5 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
         >
-          <span>Ask</span>
+          <span className="hidden sm:inline">Ask</span>
           <Send className="w-3 h-3" />
         </button>
       </form>
 
-      {/* Suggested Quick Question Chips */}
-      <div className="space-y-1.5">
-        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-          Suggested Questions
-        </span>
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {POPULAR_AI_PROMPTS.map((item, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => onAskAi(item.prompt)}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950/60 hover:bg-slate-850 border border-slate-800/80 hover:border-teal-500/40 text-xs text-slate-300 hover:text-slate-100 transition-all cursor-pointer shadow-xs group"
-            >
-              <span>{item.icon}</span>
-              <span className="group-hover:text-teal-300 transition-colors font-medium">
-                {item.label}
-              </span>
-              <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all" />
-            </button>
-          ))}
-        </div>
+      {/* Suggestion chips row — plain horizontal scroll, no outer card */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-0.5 px-0.5">
+        {POPULAR_AI_PROMPTS.map((item, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => onAskAi(item.prompt)}
+            className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-900/70 hover:bg-slate-800 border border-slate-800 hover:border-teal-500/40 text-[11px] sm:text-xs text-slate-300 hover:text-teal-200 transition-all cursor-pointer group"
+          >
+            <span aria-hidden="true">{item.icon}</span>
+            <span className="font-medium">{item.label}</span>
+          </button>
+        ))}
       </div>
-    </div>
+    </section>
   );
 };

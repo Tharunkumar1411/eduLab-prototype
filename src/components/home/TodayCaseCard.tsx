@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, KeyRound, Sparkles } from 'lucide-react';
+import { ArrowRight, KeyRound, Sparkles, Search } from 'lucide-react';
 import { PlaygroundCase } from '../../data/cases.ts';
 
 interface TodayCaseCardProps {
@@ -7,63 +7,103 @@ interface TodayCaseCardProps {
   onInvestigate: (caseItem: PlaygroundCase) => void;
 }
 
+/**
+ * Full-bleed hero banner for today's investigation. Deliberately styled
+ * differently from the other Lounge sections — richer gradient, decorative
+ * magnifier glow, bolder typography — so the Lounge doesn't read as a stack
+ * of identical cards.
+ */
 export const TodayCaseCard: React.FC<TodayCaseCardProps> = ({
   caseData,
   onInvestigate,
 }) => {
   return (
-    <section aria-labelledby="todays-investigation-heading" className="w-full">
-      <div className="rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-slate-700/80 p-5 sm:p-6 shadow-md transition-all space-y-3.5">
-        {/* Kicker Header */}
-        <div className="flex items-center justify-between text-xs font-bold text-teal-400 uppercase tracking-wider">
+    <section
+      aria-labelledby="todays-investigation-heading"
+      className="relative overflow-hidden rounded-3xl isolate"
+    >
+      {/* Layered gradient backdrop */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-br from-slate-900 via-teal-950/70 to-amber-950/60"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(45,212,191,0.18),transparent_55%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(245,158,11,0.14),transparent_55%)]"
+      />
+
+      {/* Decorative magnifier glow — hidden on small screens to keep hero clean */}
+      <div
+        aria-hidden="true"
+        className="hidden sm:block absolute -right-6 -bottom-6 w-40 h-40 rounded-full border-[14px] border-teal-400/15 motion-safe:animate-pulse"
+      />
+      <div
+        aria-hidden="true"
+        className="hidden sm:block absolute right-10 bottom-10 w-14 h-14 rounded-full bg-amber-400/5 border border-amber-400/20"
+      />
+
+      {/* Content */}
+      <div className="relative p-5 sm:p-7 flex flex-col gap-4 sm:gap-5 border border-amber-500/15 rounded-3xl">
+        {/* Kicker */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-base" aria-hidden="true">🔎</span>
-            <span id="todays-investigation-heading">Today's Investigation</span>
-            <span className="text-slate-600">·</span>
-            <span className="text-amber-400 font-semibold flex items-center gap-1 normal-case">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              Featured Mystery
+            <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center shrink-0" aria-hidden="true">
+              <Search className="w-3.5 h-3.5" />
+            </div>
+            <span
+              id="todays-investigation-heading"
+              className="text-[11px] font-black text-amber-300 uppercase tracking-widest"
+            >
+              Today&rsquo;s Investigation
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-bold text-amber-300 normal-case tracking-normal">
+              <Sparkles className="w-2.5 h-2.5" />
+              Featured
             </span>
           </div>
 
-          <span className="text-teal-300 font-mono-num font-semibold text-xs normal-case">
+          <span className="text-amber-300 font-mono-num font-black text-xs bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-md">
             +{caseData.xpReward} XP
           </span>
         </div>
 
-        {/* Content & Action Row */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-          <div className="space-y-2 flex-1 min-w-0">
-            <h2 className="text-lg sm:text-xl font-bold text-slate-100 tracking-tight truncate">
-              {caseData.title}
-            </h2>
+        {/* Title + hook */}
+        <div className="space-y-1.5 max-w-xl">
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
+            {caseData.title}
+          </h2>
+          <p className="text-sm text-slate-200/90 leading-snug">
+            Net profit surged +30%, but shares fell −12% the next morning. Follow the clues from one-off gains to real operating cash flow.
+          </p>
+        </div>
 
-            <p className="text-sm text-slate-300 line-clamp-2 leading-relaxed">
-              Net profit surged +30%, but shares fell -12% the next morning. Uncover the gap between one-off asset sales and real operating cash flow.
-            </p>
+        {/* Meta chips row */}
+        <div className="flex items-center gap-3 text-[11px] text-slate-200/80 font-medium flex-wrap">
+          <span className="flex items-center gap-1 bg-black/20 border border-white/10 px-2 py-1 rounded-full">
+            <KeyRound className="w-3 h-3 text-amber-300" />
+            <span>3 clues</span>
+          </span>
+          <span className="bg-black/20 border border-white/10 px-2 py-1 rounded-full">
+            {caseData.companyName} ({caseData.ticker})
+          </span>
+          <span className="bg-black/20 border border-white/10 px-2 py-1 rounded-full">
+            ~{caseData.estimatedMinutes} min
+          </span>
+        </div>
 
-            {/* Clue Tokens Strip */}
-            <div className="flex items-center gap-3 text-xs text-slate-400 font-medium flex-wrap pt-0.5">
-              <span className="flex items-center gap-1 text-slate-300">
-                <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-                <span>3 Evidence Clues</span>
-              </span>
-              <span className="text-slate-600" aria-hidden="true">·</span>
-              <span>{caseData.companyName} ({caseData.ticker})</span>
-              <span className="text-slate-600" aria-hidden="true">·</span>
-              <span>~{caseData.estimatedMinutes} min solve</span>
-            </div>
-          </div>
-
-          <div className="shrink-0 flex items-center">
-            <button
-              onClick={() => onInvestigate(caseData)}
-              className="w-full sm:w-auto min-h-[44px] px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 active:scale-98 text-slate-950 font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 cursor-pointer"
-            >
-              <span>Investigate</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+        {/* CTA */}
+        <div>
+          <button
+            onClick={() => onInvestigate(caseData)}
+            className="w-full sm:w-auto min-h-[48px] px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:brightness-110 active:scale-98 text-slate-950 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-900/40 cursor-pointer"
+          >
+            <span>Start investigation</span>
+            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+          </button>
         </div>
       </div>
     </section>

@@ -347,26 +347,7 @@ export default function App() {
               <span>Playground</span>
             </button>
 
-            {/* 3. Trading Lab */}
-            <button
-              onClick={() => {
-                setActivePillar('tools');
-                setActiveCase(null);
-                setActiveSectorId(null);
-                setActiveModuleId(null);
-                setActivePlaygroundLessonNode(null);
-              }}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                activePillar === 'tools'
-                  ? 'bg-teal-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              <span>Trading Lab</span>
-            </button>
-
-            {/* 4. Profile */}
+            {/* 3. Profile */}
             <button
               onClick={() => {
                 setActivePillar('profile');
@@ -600,11 +581,11 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Fixed Bottom Navigation Bar (4 tabs only: Lounge, Playground, Trading Lab, Profile) */}
+      {/* Mobile Fixed Bottom Navigation Bar (3 tabs: Lounge, Playground, Profile) */}
       {!isImmersiveLesson && (
       <nav
         aria-label="Mobile Navigation"
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-4 items-center shadow-2xl"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/80 px-2 py-1 grid grid-cols-3 items-center shadow-2xl"
       >
         {/* 1. Lounge */}
         <button
@@ -640,24 +621,7 @@ export default function App() {
           <span className="text-[10px] tracking-tight mt-0.5">Playground</span>
         </button>
 
-        {/* 3. Trading Lab */}
-        <button
-          onClick={() => {
-            setActivePillar('tools');
-            setActiveCase(null);
-            setActiveSectorId(null);
-            setActiveModuleId(null);
-            setActivePlaygroundLessonNode(null);
-          }}
-          className={`flex flex-col items-center justify-center min-h-[46px] py-1 transition-colors cursor-pointer ${
-            activePillar === 'tools' ? 'text-teal-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <TrendingUp className="w-5 h-5" />
-          <span className="text-[10px] tracking-tight mt-0.5">Trading Lab</span>
-        </button>
-
-        {/* 4. Profile */}
+        {/* 3. Profile */}
         <button
           onClick={() => {
             setActivePillar('profile');

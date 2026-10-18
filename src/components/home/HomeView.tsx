@@ -7,7 +7,6 @@ import { HomeAiChatSection } from './HomeAiChatSection.tsx';
 import { ContinueLearningCard } from './ContinueLearningCard.tsx';
 import { TodayCaseCard } from './TodayCaseCard.tsx';
 import { MarketTickerChips } from './MarketTickerChips.tsx';
-import { ExploreMarketsSection } from './ExploreMarketsSection.tsx';
 import { MarketStoriesSection } from './MarketStoriesSection.tsx';
 import { MarketDetailModal } from './MarketDetailModal.tsx';
 import { StoryDetailModal } from './StoryDetailModal.tsx';
@@ -107,12 +106,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         onOpenLeaderboard={onOpenLeaderboard}
       />
 
-      {/* 2. Explore Market */}
-      <ExploreMarketsSection
-        onSelectSector={onSelectSector}
-      />
-
-      {/* 3. Chat Mentor */}
+      {/* 2. Chat Mentor */}
       <HomeAiChatSection
         onAskAi={onAskAi}
       />
