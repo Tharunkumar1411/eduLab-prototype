@@ -30,7 +30,7 @@ import { ModuleCatalogScreen } from './components/modules/ModuleCatalogScreen.ts
 import { ModuleNavigationHeader } from './components/modules/ModuleNavigationHeader.tsx';
 import { ModuleLandingPage } from './components/modules/ModuleLandingPage.tsx';
 import { ProfileView } from './components/profile/ProfileView.tsx';
-import { OnboardingScreen } from './components/onboarding/OnboardingScreen.tsx';
+import { OnboardingFlow } from './components/onboarding/OnboardingFlow.tsx';
 import { ArrowLeft, Award, BookOpen, Bot, CheckCircle2, Coffee, Compass, Flame, Gamepad2, Home, LayoutGrid, MessageSquare, Shield, Sparkles, TrendingUp, Trophy, User, Zap } from 'lucide-react';
 
 type MainPillar = 'home' | 'learn' | 'playground' | 'tools' | 'profile';
@@ -250,11 +250,17 @@ export default function App() {
 
   if (showOnboarding) {
     return (
-      <OnboardingScreen
-        onComplete={(modId) => {
-          setSelectedLearningModuleId(modId);
+      <OnboardingFlow
+        completedTopicIds={[]}
+        onComplete={({ moduleId, startLessonNode }) => {
+          setSelectedLearningModuleId(moduleId);
           setShowOnboarding(false);
-          setActivePillar('playground');
+          if (startLessonNode) {
+            setActivePlaygroundLessonNode(startLessonNode);
+            setActivePillar('learn');
+          } else {
+            setActivePillar('playground');
+          }
         }}
         onSkip={() => {
           setShowOnboarding(false);
