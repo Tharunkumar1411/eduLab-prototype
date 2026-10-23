@@ -6,6 +6,9 @@
 import React, { useState } from 'react';
 import { PLAYGROUND_CASES, PlaygroundCase } from './data/cases.ts';
 import { PlaygroundHome } from './components/playground/PlaygroundHome.tsx';
+import { UnifiedPlaygroundPath, UnifiedCourse } from './components/playground/UnifiedPlaygroundPath.tsx';
+import { MarketsStocksHub } from './components/modules/marketsStocks/MarketsStocksHub.tsx';
+import { MarketsStocksCourseId } from './data/marketsStocks.ts';
 import { CaseInvestigation, CaseProgress } from './components/playground/CaseInvestigation.tsx';
 import { TradingLab, LabProgress } from './components/tools/TradingLab.tsx';
 import { InspectorFinChatbot, ChatContext } from './components/chat/InspectorFinChatbot.tsx';
@@ -52,6 +55,8 @@ export default function App() {
       return false;
     }
   });
+  const [playgroundView, setPlaygroundView] = useState<'catalog' | 'path'>('catalog');
+  const [initialMsCourseId, setInitialMsCourseId] = useState<MarketsStocksCourseId | null>(null);
   const [activePlaygroundLessonNode, setActivePlaygroundLessonNode] = useState<PathNode | null>(null);
   const [initialPlaygroundNode, setInitialPlaygroundNode] = useState<PathNode | null>(null);
   const [initialLabStockSymbol, setInitialLabStockSymbol] = useState<string | undefined>(undefined);
@@ -177,6 +182,29 @@ export default function App() {
     });
   };
 
+  const handleCompleteMarketsStocksCourse = (
+    courseId: MarketsStocksCourseId,
+    xpReward: number,
+  ) => {
+    setModulesProgress(prev => {
+      const prevProg = prev['markets-stocks'];
+      const { updatedProgress, xpAwarded } = recordModuleActivityCompletion(prevProg, courseId, xpReward);
+      const nextAll = { ...prev, 'markets-stocks': updatedProgress };
+      saveAllModulesProgress(nextAll);
+      if (xpAwarded > 0) {
+        setUserXp(curXp => {
+          const nextXp = curXp + xpAwarded;
+          const nextLevel = Math.floor(nextXp / 500) + 1;
+          if (nextLevel > userLevel) {
+            setUserLevel(nextLevel);
+          }
+          return nextXp;
+        });
+      }
+      return nextAll;
+    });
+  };
+
   const handleStartOrContinueLessonFromHome = (node: PathNode) => {
     setActivePlaygroundLessonNode(node);
     setActivePillar('learn');
@@ -273,7 +301,10 @@ export default function App() {
   // In an immersive lesson/case/module screen the lesson owns the full viewport
   // and brings its own back button — hide the global chrome.
   const isImmersiveLesson = Boolean(
-    activeModuleId === 'module_01' || activePlaygroundLessonNode || activeCase,
+    activeModuleId === 'module_01' ||
+      activeModuleId === 'markets-stocks' ||
+      activePlaygroundLessonNode ||
+      activeCase,
   );
 
   return (
@@ -400,7 +431,30 @@ export default function App() {
 
       {/* Main App Content Area */}
       <main className={`flex-1 max-w-7xl w-full mx-auto ${isImmersiveLesson ? 'p-2 sm:p-4' : 'p-4 sm:p-8'}`}>
-        {activeModuleId === 'module_01' ? (
+        {activeModuleId === 'markets-stocks' ? (
+          <MarketsStocksHub
+            completedCourseIds={
+              modulesProgress['markets-stocks'].completedActivityIds.filter((id) =>
+                id.startsWith('ms_'),
+              ) as MarketsStocksCourseId[]
+            }
+            earnedXp={modulesProgress['markets-stocks'].earnedXp}
+            onCourseComplete={handleCompleteMarketsStocksCourse}
+            initialCourseId={initialMsCourseId ?? undefined}
+            onBackToMain={() => {
+              setActiveModuleId(null);
+              setInitialMsCourseId(null);
+              setActivePillar('playground');
+              setPlaygroundView('catalog');
+            }}
+            onGoToPlayground={() => {
+              setActiveModuleId(null);
+              setInitialMsCourseId(null);
+              setActivePillar('playground');
+              setPlaygroundView('catalog');
+            }}
+          />
+        ) : activeModuleId === 'module_01' ? (
           <Module01Hub
             userXp={userXp}
             onAwardXp={handleAwardXp}
@@ -481,6 +535,52 @@ export default function App() {
           )
         ) : activePillar === 'learn' || activePillar === 'playground' ? (
           <div className="space-y-4">
+            {playgroundView === 'catalog' ? (
+              <>
+                <UnifiedPlaygroundPath
+                  modulesProgress={modulesProgress}
+                  completedStocksNodeIds={completedNodeIds}
+                  userXp={userXp}
+                  userLevel={userLevel}
+                  streakDays={streakDays}
+                  onSelectCourse={(c: UnifiedCourse) => {
+                    if (c.kind === 'markets-stocks-course' && c.marketsStocksCourseId) {
+                      setInitialMsCourseId(c.marketsStocksCourseId);
+                      setActiveModuleId('markets-stocks');
+                      return;
+                    }
+                    if (c.kind === 'stocks-node' && c.pathNode) {
+                      setActivePlaygroundLessonNode(c.pathNode);
+                      setSelectedLearningModuleId('stocks');
+                      return;
+                    }
+                    if (c.kind === 'mf-node' && c.pathNode) {
+                      setSelectedLearningModuleId('mutual-funds');
+                      setPlaygroundView('path');
+                      setInitialPlaygroundNode(c.pathNode);
+                      return;
+                    }
+                  }}
+                  onSelectPreview={(modId) => {
+                    setSelectedLearningModuleId(modId);
+                    setPlaygroundView('path');
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPlaygroundView('catalog')}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-slate-100 hover:bg-slate-800 cursor-pointer"
+                  >
+                    ← All modules
+                  </button>
+                  <span className="text-[11px] text-slate-500">
+                    Now playing: {MODULE_DEFINITIONS[selectedLearningModuleId].shortTitle}
+                  </span>
+                </div>
             {/* Centralized Duolingo System Learning Playground for both Stocks and Mutual Funds */}
             {selectedLearningModuleId === 'stocks' || selectedLearningModuleId === 'mutual-funds' ? (
               <PlaygroundHome
@@ -525,30 +625,32 @@ export default function App() {
                     {MODULE_DEFINITIONS[selectedLearningModuleId].description}
                   </p>
                 </div>
-                <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl text-xs text-slate-300">
-                  <span>Curriculum roadmap in development. Please select an active module from your Profile:</span>
-                </div>
-                <div className="flex items-center justify-center gap-3 pt-2">
-                  <button
-                    onClick={() => {
-                      setSelectedLearningModuleId('stocks');
-                      setActivePillar('playground');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <span>📈 Stocks Path</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedLearningModuleId('mutual-funds');
-                      setActivePillar('playground');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-teal-300 border border-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <span>🥧 Mutual Funds Path</span>
-                  </button>
-                </div>
+                <ul className="text-left space-y-1.5 max-w-md mx-auto">
+                  {MODULE_DEFINITIONS[selectedLearningModuleId].roadmap.map((item) => (
+                    <li
+                      key={item.id}
+                      className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-300 flex items-start gap-2"
+                    >
+                      <span className="w-5 h-5 rounded-md bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400 shrink-0">
+                        {item.levelNumber}
+                      </span>
+                      <div>
+                        <span className="block font-bold text-slate-200">{item.title}</span>
+                        <span className="block text-[11px] text-slate-500">{item.subtitle}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => setPlaygroundView('catalog')}
+                  className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs cursor-pointer"
+                >
+                  Back to all modules
+                </button>
               </div>
+            )}
+              </>
             )}
           </div>
         ) : activePillar === 'profile' ? (
@@ -564,8 +666,13 @@ export default function App() {
               setSelectedLearningModuleId(modId);
             }}
             onNavigateToModule={(modId) => {
+              if (modId === 'markets-stocks') {
+                setActiveModuleId('markets-stocks');
+                return;
+              }
               setActivePillar('playground');
               setSelectedLearningModuleId(modId);
+              setPlaygroundView('path');
               setStocksViewMode('path');
             }}
             onOpenLeaderboard={() => setShowLeaderboardModal(true)}

@@ -13,7 +13,7 @@
 import { LEARNING_UNITS, PathNode } from './learningPath.ts';
 import { PLAYGROUND_CASES } from './cases.ts';
 
-export type LearningModuleId = 'stocks' | 'mutual-funds' | 'bonds' | 'fno';
+export type LearningModuleId = 'stocks' | 'mutual-funds' | 'bonds' | 'fno' | 'markets-stocks';
 
 export type ModuleStatus = 'active' | 'coming-soon';
 
@@ -34,7 +34,7 @@ export interface LearningModule {
   shortTitle: string;
   tagline: string;
   description: string;
-  iconName: 'TrendingUp' | 'PieChart' | 'Landmark' | 'Zap';
+  iconName: 'TrendingUp' | 'PieChart' | 'Landmark' | 'Zap' | 'LineChart';
   status: ModuleStatus;
   accentColor: {
     primary: string;
@@ -58,6 +58,120 @@ export interface ModuleProgress {
 }
 
 export const MODULE_DEFINITIONS: Record<LearningModuleId, LearningModule> = {
+  'markets-stocks': {
+    id: 'markets-stocks',
+    title: 'Markets & Stocks',
+    shortTitle: 'Markets',
+    tagline: 'How markets, stocks, orders and ETFs actually work.',
+    description:
+      'Eight interactive scenarios across four sections — markets, stocks, trading mechanics and ETFs. Explore an NSE/BSE map, run a simulated order book, and compare a basket versus a single stock, all with clearly-labelled fictional data.',
+    iconName: 'LineChart',
+    status: 'active',
+    accentColor: {
+      primary: 'sky',
+      border: 'border-sky-500/40',
+      bg: 'from-sky-950/40 via-slate-900 to-slate-950',
+      badge: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+      text: 'text-sky-400',
+    },
+    keyTakeaways: [
+      'A financial market is where buyers and sellers meet to transfer ownership of securities.',
+      'A stock exchange like NSE or BSE is the venue; an index like Nifty 50 is a measurement.',
+      'Owning a share is partial ownership of a business — not a loan and not a guaranteed dividend.',
+      'A market order prioritises execution; a limit order prioritises price. Neither is universally better.',
+      'An ETF holds a basket, but holding a basket does not eliminate market risk.',
+    ],
+    roadmap: [
+      {
+        id: 'ms_c1_market',
+        levelNumber: 1,
+        title: 'What Is a Financial Market?',
+        subtitle: 'Primary vs secondary markets, Sunny Bakery raises capital',
+        description:
+          'Follow Sunny Bakery as it chooses between loans and share issuance, then meets its first secondary-market buyer.',
+        topics: ['Companies and capital', 'Primary vs secondary', 'Investor role'],
+        estimatedMinutes: 3,
+        isAvailable: true,
+      },
+      {
+        id: 'ms_c2_nse_bse',
+        levelNumber: 2,
+        title: 'NSE, BSE & Market Indices',
+        subtitle: 'Exchanges and indices on an interactive map',
+        description:
+          'Tap NSE, BSE, Nifty 50 and Sensex, see what each actually does, then classify them in a short challenge.',
+        topics: ['Exchange role', 'Index role', 'Nifty 50 and Sensex'],
+        estimatedMinutes: 4,
+        isAvailable: true,
+      },
+      {
+        id: 'ms_c3_market_flow',
+        levelNumber: 3,
+        title: 'How Does the Stock Market Work?',
+        subtitle: 'Listing → order → matching → settlement',
+        description:
+          'Walk the full lifecycle of a trade step by step, from a company becoming listed to settlement and delivery.',
+        topics: ['Public listing', 'Order matching', 'Settlement'],
+        estimatedMinutes: 4,
+        isAvailable: true,
+      },
+      {
+        id: 'ms_c4_stock',
+        levelNumber: 4,
+        title: 'What Is a Stock?',
+        subtitle: 'Partial ownership of Sunny Bakery',
+        description:
+          'Use a 100-tile ownership grid to pick a share count and see your fractional ownership update live.',
+        topics: ['Share = partial ownership', 'Shares vs loans', 'Dividends are not guaranteed'],
+        estimatedMinutes: 3,
+        isAvailable: true,
+      },
+      {
+        id: 'ms_c5_price_change',
+        levelNumber: 5,
+        title: 'Why Do Stock Prices Change?',
+        subtitle: 'Supply, demand and expectations',
+        description:
+          'React to a fictional Sunny Bakery news feed, then see why a positive headline can still move prices either way.',
+        topics: ['Supply and demand', 'Expectations', 'Multiple possible reactions'],
+        estimatedMinutes: 4,
+        isAvailable: true,
+      },
+      {
+        id: 'ms_c6_trade_flow',
+        levelNumber: 6,
+        title: 'How Does a Stock Trade Happen?',
+        subtitle: 'From your broker to settlement',
+        description:
+          'Trace a simulated order from the investor to the demat account via broker, order book and matching.',
+        topics: ['Broker vs exchange', 'Trading vs demat', 'Execution vs settlement'],
+        estimatedMinutes: 4,
+        isAvailable: true,
+      },
+      {
+        id: 'ms_c7_order_types',
+        levelNumber: 7,
+        title: 'Market Orders vs Limit Orders',
+        subtitle: 'Deterministic order-book simulator',
+        description:
+          'Place simulated market and limit orders against a live-looking order book — see executions, partials and pending orders.',
+        topics: ['Bid / ask / spread', 'Market order', 'Limit order'],
+        estimatedMinutes: 6,
+        isAvailable: true,
+      },
+      {
+        id: 'ms_c8_etf',
+        levelNumber: 8,
+        title: 'What Is an ETF?',
+        subtitle: 'Basket vs single stock',
+        description:
+          'Build a fictional 3-company basket, run market scenarios, and compare it with holding one stock or an index-tracking ETF.',
+        topics: ['ETF basics', 'Index vs ETF', 'Diversification is not risk-free'],
+        estimatedMinutes: 5,
+        isAvailable: true,
+      },
+    ],
+  },
   stocks: {
     id: 'stocks',
     title: 'Stocks & Equity Investing',
@@ -337,7 +451,12 @@ export function createInitialModuleProgress(moduleId: LearningModuleId): ModuleP
   return {
     moduleId,
     completedActivityIds: [],
-    currentActivityId: moduleId === 'stocks' ? 'node_lvl_1' : undefined,
+    currentActivityId:
+      moduleId === 'stocks'
+        ? 'node_lvl_1'
+        : moduleId === 'markets-stocks'
+          ? 'ms_c1_market'
+          : undefined,
     earnedXp: 0,
     status: 'not-started',
     lastAccessedAt: new Date().toISOString(),
@@ -353,6 +472,7 @@ export function loadAllModulesProgress(initialGlobalNodeIds: string[] = []): Rec
     'mutual-funds': createInitialModuleProgress('mutual-funds'),
     bonds: createInitialModuleProgress('bonds'),
     fno: createInitialModuleProgress('fno'),
+    'markets-stocks': createInitialModuleProgress('markets-stocks'),
   };
 
   try {
@@ -360,7 +480,7 @@ export function loadAllModulesProgress(initialGlobalNodeIds: string[] = []): Rec
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
-        (['stocks', 'mutual-funds', 'bonds', 'fno'] as LearningModuleId[]).forEach((modId) => {
+        (['stocks', 'mutual-funds', 'bonds', 'fno', 'markets-stocks'] as LearningModuleId[]).forEach((modId) => {
           if (parsed[modId] && Array.isArray(parsed[modId].completedActivityIds)) {
             result[modId] = {
               ...result[modId],
@@ -467,6 +587,22 @@ export function recordModuleActivityCompletion(
     if (allMfLevelIds.every((id) => updatedCompleted.includes(id))) {
       status = 'completed';
     }
+  } else if (currentProgress.moduleId === 'markets-stocks') {
+    const allMsIds = [
+      'ms_c1_market',
+      'ms_c2_nse_bse',
+      'ms_c3_market_flow',
+      'ms_c4_stock',
+      'ms_c5_price_change',
+      'ms_c6_trade_flow',
+      'ms_c7_order_types',
+      'ms_c8_etf',
+    ];
+    const nextMs = allMsIds.find((id) => !updatedCompleted.includes(id));
+    nextActivityId = nextMs || allMsIds[allMsIds.length - 1];
+    if (allMsIds.every((id) => updatedCompleted.includes(id))) {
+      status = 'completed';
+    }
   }
 
   const updatedProgress: ModuleProgress = {
@@ -501,6 +637,26 @@ export function getModuleStats(moduleId: LearningModuleId, progress: ModuleProgr
       percent,
       earnedXp: progress.earnedXp,
       status: progress.status,
+      isAvailable: true,
+    };
+  }
+
+  if (moduleId === 'markets-stocks') {
+    const totalCourses = 8;
+    const completedCourses = progress.completedActivityIds.filter((id) =>
+      id.startsWith('ms_'),
+    ).length;
+    const percent = Math.min(100, Math.round((completedCourses / totalCourses) * 100));
+    return {
+      totalActivities: totalCourses,
+      completedActivities: completedCourses,
+      percent,
+      earnedXp: progress.earnedXp,
+      status: (completedCourses === totalCourses
+        ? 'completed'
+        : completedCourses > 0
+          ? 'in-progress'
+          : 'not-started') as ModuleProgress['status'],
       isAvailable: true,
     };
   }
