@@ -93,18 +93,13 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic, selected, completed, onSelec
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ring.accent.hex }} aria-hidden />
         )}
       </span>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-slate-100 truncate">{topic.title}</span>
-          <span
-            className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${ring.accent.badge}`}
-          >
-            {topic.difficulty}
-          </span>
-        </div>
-        <p className="text-[11px] text-slate-400 line-clamp-2 leading-snug mt-0.5">
-          {topic.description}
-        </p>
+      <div className="flex-1 min-w-0 flex items-center gap-2">
+        <span className="text-sm font-bold text-slate-100 truncate">{topic.title}</span>
+        <span
+          className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 ${ring.accent.badge}`}
+        >
+          {topic.difficulty}
+        </span>
       </div>
       <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />
     </button>

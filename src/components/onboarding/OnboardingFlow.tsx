@@ -36,6 +36,7 @@ import {
 import { LearningModuleId } from '../../data/learningModules.ts';
 import { PathNode, LEARNING_UNITS } from '../../data/learningPath.ts';
 import { RadialLearningMap } from './RadialLearningMap.tsx';
+import { MobileRadialMap } from './MobileRadialMap.tsx';
 import { TopicDetailPanel } from './TopicDetailPanel.tsx';
 import { TopicList } from './TopicList.tsx';
 
@@ -82,14 +83,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
     }
   }, []);
 
-  // Default map view based on viewport width.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const update = () => setMapView(window.innerWidth < 640 ? 'list' : 'map');
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
+  // The mobile radial map handles small screens — no auto-switch to list.
 
   const selectedTopic: RadialTopic | null = selectedTopicId
     ? TOPIC_BY_ID[selectedTopicId] ?? null
@@ -387,12 +381,23 @@ const MapScreen: React.FC<MapScreenProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-5">
         <div className="rounded-3xl bg-slate-900/50 border border-slate-800 p-3 sm:p-5">
           {mapView === 'map' ? (
-            <RadialLearningMap
-              selectedTopicId={selectedTopicId}
-              completedTopicIds={completedTopicIds}
-              onSelectTopic={setSelectedTopicId}
-              reducedMotion={reducedMotion}
-            />
+            <>
+              <div className="sm:hidden">
+                <MobileRadialMap
+                  selectedTopicId={selectedTopicId}
+                  completedTopicIds={completedTopicIds}
+                  onSelectTopic={setSelectedTopicId}
+                />
+              </div>
+              <div className="hidden sm:block">
+                <RadialLearningMap
+                  selectedTopicId={selectedTopicId}
+                  completedTopicIds={completedTopicIds}
+                  onSelectTopic={setSelectedTopicId}
+                  reducedMotion={reducedMotion}
+                />
+              </div>
+            </>
           ) : (
             <TopicList
               selectedTopicId={selectedTopicId}
