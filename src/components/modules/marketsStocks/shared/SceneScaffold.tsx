@@ -9,6 +9,8 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { CharacterMentor, CharacterState } from '../../../character/CharacterMentor.tsx';
+import { CharacterNarrator } from '../../../character/narration/CharacterNarrator.tsx';
+import type { Narration } from '../../../character/narration/types.ts';
 
 export interface SceneScaffoldProps {
   courseNumber: string;
@@ -22,6 +24,12 @@ export interface SceneScaffoldProps {
   mentorState: CharacterState;
   mentorMessage: string;
   mentorSubMessage?: string;
+  /**
+   * When provided, the scene's mentor row is replaced by the narration
+   * surface (same character, same slot, same spacing). Lessons without a
+   * narration continue to render the inline mentor row.
+   */
+  narration?: Narration | null;
   onBack: () => void;
   footer: React.ReactNode;
   children: React.ReactNode;
@@ -39,6 +47,7 @@ export const SceneScaffold: React.FC<SceneScaffoldProps> = ({
   mentorState,
   mentorMessage,
   mentorSubMessage,
+  narration,
   onBack,
   footer,
   children,
@@ -91,15 +100,19 @@ export const SceneScaffold: React.FC<SceneScaffoldProps> = ({
         )}
       </div>
 
-      <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-3 sm:p-4 flex items-start gap-3">
-        <CharacterMentor
-          state={mentorState}
-          message={mentorMessage}
-          subMessage={mentorSubMessage}
-          size="xs"
-          revealProgressively
-        />
-      </div>
+      {narration ? (
+        <CharacterNarrator narration={narration} />
+      ) : (
+        <div className="rounded-2xl bg-slate-900/60 border border-slate-800 p-3 sm:p-4 flex items-start gap-3">
+          <CharacterMentor
+            state={mentorState}
+            message={mentorMessage}
+            subMessage={mentorSubMessage}
+            size="xs"
+            revealProgressively
+          />
+        </div>
+      )}
 
       <div className="flex-1">{children}</div>
 
